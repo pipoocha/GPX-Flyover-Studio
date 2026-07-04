@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+
+cache/
+output/
+
+*.mp4
+*.png
+
+.venv/
+env/
+
+.vscode/
+
+.idea/
+
+*.log

@@ -1,0 +1,39 @@
+project:
+  name: "GPX Flyover Studio"
+
+gpx:
+  file: "28 km Ranchal.gpx"
+
+output:
+  video: "studio_flyover.mp4"
+
+video:
+  duration: 10
+  fps: 15
+  width: 1920
+  height: 1080
+
+map:
+  provider: "EsriWorldImagery"
+  
+camera:
+  mode: "smart"          # fixed / follow / smart
+  zoom_factor: 1.10
+  smoothness: 0.94
+  look_ahead: 25
+  rider_position: 0.38
+
+route:
+  color: "#FC4C02"
+  width: 6
+
+overlay:
+  title: "RANCHAL FLYOVER"
+
+statistics:
+  activity: "mtb"
+  elevation_threshold: 1
+  max_speed_kmh: 10
+  min_moving_speed_kmh: 1
+  manual_duration_minutes: 247
+
