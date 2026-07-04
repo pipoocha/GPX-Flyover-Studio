@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import config
+from studio.animation.timeline import Timeline
 from studio.scene.track import Track
 
 
@@ -19,7 +20,11 @@ class FrameRenderer:
     def render(self, frames=None):
         total_frames = frames or config.TOTAL_FRAMES
         hold_frames = config.FINAL_HOLD_SECONDS * config.FPS
-        moving_frames = max(1, total_frames - hold_frames)
+
+        timeline = Timeline(
+            total_frames=total_frames,
+            hold_frames=hold_frames,
+        )
 
         self.clear_frames()
 
@@ -31,11 +36,10 @@ class FrameRenderer:
         track_actor = None
 
         for i in range(total_frames):
-            camera_frame = min(i, moving_frames - 1)
+            progress = timeline.progress_at(i)
 
-            position, focal_point, path_index = self.camera_path.camera_at(
-                camera_frame,
-                moving_frames,
+            position, focal_point, path_index = self.camera_path.camera_at_progress(
+                progress
             )
 
             self.scene.set_camera(
@@ -45,7 +49,7 @@ class FrameRenderer:
 
             if config.TRACE_PROGRESSIVE:
                 if i % config.TRACE_UPDATE_EVERY == 0 or i == total_frames - 1:
-                    if i >= moving_frames:
+                    if timeline.is_hold(i):
                         visible_path = self.path_coords
                     else:
                         visible_path = self.path_coords[: max(2, path_index)]

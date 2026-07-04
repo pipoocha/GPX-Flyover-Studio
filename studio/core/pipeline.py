@@ -6,6 +6,7 @@ from studio.animation.frame_renderer import FrameRenderer
 from studio.geometry.path_builder import PathBuilder
 from studio.io.gpx_loader import GPXLoader
 from studio.scene.scene import Scene
+from studio.scene.track import Track
 from studio.terrain.srtm_grid import SRTMGridBuilder
 from studio.terrain.terrain_mesh import TerrainMesh
 from studio.terrain.terrain_sampler import TerrainSampler
@@ -15,6 +16,8 @@ from studio.video.video_exporter import VideoExporter
 class FlyoverPipeline:
     def __init__(self, project):
         self.project = project
+        self.origin_x = 0
+        self.origin_y = 0
 
     def load_gpx(self):
         print("Lecture GPX...")
@@ -24,15 +27,10 @@ class FlyoverPipeline:
 
     def build_terrain(self):
         print("Création terrain SRTM...")
-        builder = SRTMGridBuilder(
-            self.project.points,
-            resolution=0.0005,
-        )
-
+        builder = SRTMGridBuilder(self.project.points, resolution=0.0005)
         self.project.grid = builder.build()
         self.project.mesh = TerrainMesh(self.project.grid).build()
         self.project.sampler = TerrainSampler(self.project.grid)
-
         self.origin_x = builder.origin_x
         self.origin_y = builder.origin_y
 
@@ -46,10 +44,10 @@ class FlyoverPipeline:
             z_offset=60,
         ).build()
 
-    def build_scene(self):
+    def build_scene(self, off_screen):
         scene = Scene(
             window_size=(config.WINDOW_WIDTH, config.WINDOW_HEIGHT),
-            off_screen=True,
+            off_screen=off_screen,
         )
 
         scene.add_mesh(
@@ -73,12 +71,31 @@ class FlyoverPipeline:
 
         return scene
 
-    def render(self):
-        scene = self.build_scene()
+    def preview(self):
+        print("PREVIEW : aucune vidéo ne sera générée.")
 
-        camera_path = CameraPath(
-            self.project.path_coords
-        )
+        scene = self.build_scene(off_screen=False)
+
+        track = Track(
+            self.project.path_coords,
+            radius=config.TRACK_RADIUS,
+            sides=config.TRACK_SIDES,
+        ).to_mesh()
+
+        scene.add_mesh(track, color="#FC4C02", smooth_shading=True)
+
+        camera_path = CameraPath(self.project.path_coords)
+        position, focal_point, _ = camera_path.camera_at_progress(0.0)
+
+        scene.set_camera(position=position, focal_point=focal_point)
+        scene.show()
+
+    def render_video(self):
+        print("RENDU VIDÉO...")
+
+        scene = self.build_scene(off_screen=True)
+
+        camera_path = CameraPath(self.project.path_coords)
 
         renderer = FrameRenderer(
             scene=scene,
@@ -87,11 +104,8 @@ class FlyoverPipeline:
             output_dir=config.FRAMES_DIR,
         )
 
-        renderer.render(
-            frames=config.TOTAL_FRAMES,
-        )
+        renderer.render(frames=config.TOTAL_FRAMES)
 
-    def export_video(self):
         VideoExporter(
             frames_dir=config.FRAMES_DIR,
             output_file=config.DEFAULT_VIDEO,
@@ -105,5 +119,9 @@ class FlyoverPipeline:
         self.load_gpx()
         self.build_terrain()
         self.build_path()
-        self.render()
-        self.export_video()
+
+        if config.MODE == "PREVIEW":
+            self.preview()
+            return
+
+        self.render_video()
