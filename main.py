@@ -6,6 +6,14 @@ from config.paths import DEFAULT_GPX, create_directories
 from studio.core.app import FlyoverApp
 
 
+def parse_size(value):
+    try:
+        width, height = value.lower().split("x")
+        return int(width), int(height)
+    except Exception:
+        raise ValueError("Format attendu : 1280x720")
+
+
 def parse_args():
     mode = config.MODE
     gpx_file = DEFAULT_GPX
@@ -39,13 +47,19 @@ def parse_args():
             output_file = Path(args.pop(0))
             config.DEFAULT_VIDEO = output_file
 
+        elif option == "--size" and args:
+            width, height = parse_size(args.pop(0))
+            config.WINDOW_WIDTH = width
+            config.WINDOW_HEIGHT = height
+
         elif option == "--help":
             print("Utilisation :")
             print("  python main.py preview")
             print("  python main.py dev")
             print("  python main.py prod")
             print('  python main.py dev "gpx\\mon_parcours.gpx" --duration 45 --fps 25')
-            print('  python main.py dev "gpx\\mon_parcours.gpx" --output "output\\video\\test.mp4"')
+            print('  python main.py dev --size 1280x720')
+            print('  python main.py dev --output "output\\video\\test.mp4"')
             sys.exit(0)
 
         else:
@@ -74,6 +88,7 @@ if __name__ == "__main__":
     print("Durée:", config.VIDEO_DURATION, "s")
     print("FPS  :", config.FPS)
     print("Frames:", config.TOTAL_FRAMES)
+    print("Taille:", f"{config.WINDOW_WIDTH}x{config.WINDOW_HEIGHT}")
     print("Sortie:", output_file)
     print("===================================")
 

@@ -31,6 +31,8 @@ class CameraPath:
     def camera_at_progress(self, progress):
         max_index = len(self.coords) - 1
 
+        progress = max(0.0, min(1.0, progress))
+
         index = int(progress * max_index)
         index = max(0, min(index, max_index))
 
@@ -40,14 +42,7 @@ class CameraPath:
         target = self.smooth_point(target_index, config.CAMERA_SMOOTHING)
 
         direction = self.direction_at(index)
-
-        side = np.array(
-            [
-                -direction[1],
-                direction[0],
-                0.0,
-            ]
-        )
+        side = np.array([-direction[1], direction[0], 0.0])
 
         camera_pos = p.copy()
         camera_pos -= direction * config.CAMERA_DISTANCE

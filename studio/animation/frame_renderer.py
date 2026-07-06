@@ -42,10 +42,11 @@ class FrameRenderer:
                 progress
             )
 
-            self.scene.set_camera(
-                position=position,
-                focal_point=focal_point,
-            )
+            self.scene.plotter.camera_position = [
+                position,
+                focal_point,
+                (0, 0, 1),
+            ]
 
             if config.TRACE_PROGRESSIVE:
                 if i % config.TRACE_UPDATE_EVERY == 0 or i == total_frames - 1:
@@ -71,6 +72,7 @@ class FrameRenderer:
 
             self.scene.plotter.reset_camera_clipping_range()
             self.scene.plotter.render()
+            self.scene.plotter.update()
 
             file = self.output_dir / f"frame_{i:05d}.png"
             self.scene.plotter.screenshot(str(file))
