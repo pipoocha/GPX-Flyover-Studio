@@ -27,6 +27,7 @@ class ProjectLoader:
         video_data = data.get("video", {})
         camera_data = data.get("camera", {})
         track_data = data.get("track", {})
+        timeline_data = data.get("timeline", [])
 
         title = project_data.get("title", config.PROJECT_TITLE)
         gpx_file = Path(gpx_data.get("file", config.DEFAULT_GPX))
@@ -58,18 +59,16 @@ class ProjectLoader:
         else:
             camera = CameraConfig()
 
-        if "height" in camera_data:
-            camera.height = int(camera_data["height"])
-        if "distance" in camera_data:
-            camera.distance = int(camera_data["distance"])
-        if "look_ahead" in camera_data:
-            camera.look_ahead = int(camera_data["look_ahead"])
-        if "smoothing" in camera_data:
-            camera.smoothing = int(camera_data["smoothing"])
-        if "focal_height" in camera_data:
-            camera.focal_height = int(camera_data["focal_height"])
-        if "side_offset" in camera_data:
-            camera.side_offset = int(camera_data["side_offset"])
+        for key in [
+            "height",
+            "distance",
+            "look_ahead",
+            "smoothing",
+            "focal_height",
+            "side_offset",
+        ]:
+            if key in camera_data:
+                setattr(camera, key, int(camera_data[key]))
 
         track = TrackConfig(
             radius=int(track_data.get("radius", config.TRACK_RADIUS)),
@@ -82,6 +81,9 @@ class ProjectLoader:
             ),
         )
 
+        if "render_mode" in track_data:
+            config.TRACK_RENDER_MODE = str(track_data["render_mode"]).lower()
+
         project_config = ProjectConfig(
             title=title,
             gpx_file=gpx_file,
@@ -91,5 +93,10 @@ class ProjectLoader:
         )
 
         project_config.apply()
+
+        if "render_mode" in track_data:
+            config.TRACK_RENDER_MODE = str(track_data["render_mode"]).lower()
+
+        config.TIMELINE = timeline_data or []
 
         return project_config

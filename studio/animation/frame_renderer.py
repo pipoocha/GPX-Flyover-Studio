@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import numpy as np
+import pyvista as pv
 
 import config
 from studio.animation.progress_path import ProgressPath
@@ -43,11 +44,31 @@ class FrameRenderer:
         return smoothed_position, smoothed_focal
 
     def build_track(self, visible_path):
+        if config.TRACK_RENDER_MODE == "line":
+            return pv.lines_from_points(visible_path)
+
         return Track(
             visible_path,
             radius=config.TRACK_RADIUS,
             sides=config.TRACK_SIDES,
         ).to_mesh()
+
+    def add_track(self, visible_path):
+        mesh = self.build_track(visible_path)
+
+        if config.TRACK_RENDER_MODE == "line":
+            return self.scene.add_mesh(
+                mesh,
+                color="#FC4C02",
+                line_width=8,
+                render_lines_as_tubes=True,
+            )
+
+        return self.scene.add_mesh(
+            mesh,
+            color="#FC4C02",
+            smooth_shading=True,
+        )
 
     def render(self, frames=None):
         total_frames = frames or config.TOTAL_FRAMES
@@ -107,18 +128,10 @@ class FrameRenderer:
                     if track_actor is not None:
                         self.scene.plotter.remove_actor(track_actor)
 
-                    track_actor = self.scene.add_mesh(
-                        self.build_track(visible_path),
-                        color="#FC4C02",
-                        smooth_shading=True,
-                    )
+                    track_actor = self.add_track(visible_path)
 
             elif track_actor is None:
-                track_actor = self.scene.add_mesh(
-                    self.build_track(self.path_coords),
-                    color="#FC4C02",
-                    smooth_shading=True,
-                )
+                track_actor = self.add_track(self.path_coords)
 
             self.scene.plotter.reset_camera_clipping_range()
             self.scene.plotter.render()

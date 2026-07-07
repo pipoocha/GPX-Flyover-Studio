@@ -16,9 +16,11 @@ from config.settings import (
     SIDE_OFFSET,
     TRACK_RADIUS,
     TRACK_SIDES,
+    TRACK_RENDER_MODE,
     TRACE_PROGRESSIVE,
     TRACE_UPDATE_EVERY,
     USE_SATELLITE,
+    TIMELINE,
     PROJECT_TITLE,
 )
 

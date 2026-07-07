@@ -35,5 +35,6 @@ timeline:
 track:
   radius: 7
   sides: 8
+  render_mode: line
   progressive: true
   update_every: 10
