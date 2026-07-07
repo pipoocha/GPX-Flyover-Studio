@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import numpy as np
+
 import config
 from studio.animation.timeline import Timeline
 from studio.scene.track import Track
@@ -13,9 +15,36 @@ class FrameRenderer:
         self.output_dir = Path(output_dir or config.FRAMES_DIR)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
+        self.previous_position = None
+        self.previous_focal = None
+
     def clear_frames(self):
         for file in self.output_dir.glob("frame_*.png"):
             file.unlink()
+
+    def smooth_camera(self, position, focal_point, alpha=0.04):
+        position = np.asarray(position, dtype=float)
+        focal_point = np.asarray(focal_point, dtype=float)
+
+        if self.previous_position is None:
+            self.previous_position = position
+            self.previous_focal = focal_point
+            return position, focal_point
+
+        smoothed_position = self.previous_position * (1.0 - alpha) + position * alpha
+        smoothed_focal = self.previous_focal * (1.0 - alpha) + focal_point * alpha
+
+        self.previous_position = smoothed_position
+        self.previous_focal = smoothed_focal
+
+        return smoothed_position, smoothed_focal
+
+    def build_track(self, visible_path):
+        return Track(
+            visible_path,
+            radius=config.TRACK_RADIUS,
+            sides=config.TRACK_SIDES,
+        ).to_mesh()
 
     def render(self, frames=None):
         total_frames = frames or config.TOTAL_FRAMES
@@ -24,6 +53,7 @@ class FrameRenderer:
         timeline = Timeline(
             total_frames=total_frames,
             hold_frames=hold_frames,
+            segments=getattr(config, "TIMELINE", []),
         )
 
         self.clear_frames()
@@ -34,17 +64,33 @@ class FrameRenderer:
         )
 
         track_actor = None
+        current_camera_label = None
 
         for i in range(total_frames):
+            camera_label = timeline.apply_camera_at(
+                frame_index=i,
+                fps=config.FPS,
+            )
+
+            if camera_label and camera_label != current_camera_label:
+                print(f"Caméra : {camera_label}")
+                current_camera_label = camera_label
+
             progress = timeline.progress_at(i)
 
             position, focal_point, path_index = self.camera_path.camera_at_progress(
                 progress
             )
 
-            self.scene.plotter.camera_position = [
+            position, focal_point = self.smooth_camera(
                 position,
                 focal_point,
+                alpha=0.04,
+            )
+
+            self.scene.plotter.camera_position = [
+                tuple(position),
+                tuple(focal_point),
                 (0, 0, 1),
             ]
 
@@ -58,17 +104,18 @@ class FrameRenderer:
                     if track_actor is not None:
                         self.scene.plotter.remove_actor(track_actor)
 
-                    track_mesh = Track(
-                        visible_path,
-                        radius=config.TRACK_RADIUS,
-                        sides=config.TRACK_SIDES,
-                    ).to_mesh()
-
                     track_actor = self.scene.add_mesh(
-                        track_mesh,
+                        self.build_track(visible_path),
                         color="#FC4C02",
                         smooth_shading=True,
                     )
+
+            elif track_actor is None:
+                track_actor = self.scene.add_mesh(
+                    self.build_track(self.path_coords),
+                    color="#FC4C02",
+                    smooth_shading=True,
+                )
 
             self.scene.plotter.reset_camera_clipping_range()
             self.scene.plotter.render()

@@ -52,4 +52,4 @@ class CameraPath:
         focal_point = target.copy()
         focal_point[2] = target[2] + config.FOCAL_HEIGHT
 
-        return tuple(camera_pos), tuple(focal_point), index
+        return camera_pos, focal_point, index

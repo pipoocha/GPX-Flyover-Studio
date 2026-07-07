@@ -4,6 +4,7 @@ import config
 from studio.animation.camera_path import CameraPath
 from studio.animation.frame_renderer import FrameRenderer
 from studio.animation.preview_player import PreviewPlayer
+from studio.animation.stage_camera import StageCamera
 from studio.geometry.path_builder import PathBuilder
 from studio.io.gpx_loader import GPXLoader
 from studio.scene.scene import Scene
@@ -90,13 +91,21 @@ class FlyoverPipeline:
             smooth_shading=True,
         )
 
+    def build_camera(self):
+        camera_mode = getattr(config, "CAMERA_MODE", "flyover")
+
+        if camera_mode == "stage":
+            print("Caméra : mode présentation d'étape")
+            return StageCamera(self.project.path_coords)
+
+        print("Caméra : mode flyover")
+        return CameraPath(self.project.path_coords)
+
     def preview(self):
         scene = self.build_scene(off_screen=False)
         self.add_full_track(scene)
 
-        camera_path = CameraPath(
-            self.project.path_coords,
-        )
+        camera_path = self.build_camera()
 
         player = PreviewPlayer(
             scene=scene,
@@ -109,9 +118,7 @@ class FlyoverPipeline:
     def render_video(self):
         scene = self.build_scene(off_screen=True)
 
-        camera_path = CameraPath(
-            self.project.path_coords,
-        )
+        camera_path = self.build_camera()
 
         renderer = FrameRenderer(
             scene=scene,
