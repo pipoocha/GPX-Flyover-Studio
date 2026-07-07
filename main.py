@@ -46,10 +46,9 @@ def parse_args():
             print("Exemple : python main.py project projects\\ranchal.yaml")
             sys.exit(1)
 
-        project_file = args[1]
+        project_config = ProjectLoader(args[1]).load()
+        gpx_file = project_config.gpx_file
         remaining = args[2:]
-
-        gpx_file = ProjectLoader(project_file).load()
 
     else:
         gpx_file = DEFAULT_GPX
@@ -75,6 +74,8 @@ def parse_args():
             print("  python main.py dev")
             print("  python main.py prod")
             print("  python main.py project projects\\ranchal.yaml")
+            print("  python main.py dev --duration 20 --fps 20")
+            print("  python main.py dev --size 1280x720")
             sys.exit(0)
 
         if not remaining:

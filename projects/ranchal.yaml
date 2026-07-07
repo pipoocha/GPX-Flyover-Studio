@@ -12,12 +12,7 @@ video:
   output: output/video/ranchal.mp4
 
 camera:
-  height: 1700
-  distance: 3600
-  look_ahead: 420
-  smoothing: 45
-  focal_height: 260
-  side_offset: 450
+  preset: chase
 
 track:
   radius: 7

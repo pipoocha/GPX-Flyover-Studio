@@ -3,6 +3,12 @@ from pathlib import Path
 import yaml
 
 import config
+from studio.config_models import (
+    ProjectConfig,
+    VideoConfig,
+    CameraConfig,
+    TrackConfig,
+)
 
 
 class ProjectLoader:
@@ -16,64 +22,74 @@ class ProjectLoader:
         with open(self.project_file, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
-        project = data.get("project", {})
-        gpx = data.get("gpx", {})
-        video = data.get("video", {})
-        camera = data.get("camera", {})
-        track = data.get("track", {})
+        project_data = data.get("project", {})
+        gpx_data = data.get("gpx", {})
+        video_data = data.get("video", {})
+        camera_data = data.get("camera", {})
+        track_data = data.get("track", {})
 
-        if "title" in project:
-            config.PROJECT_TITLE = project["title"]
+        title = project_data.get("title", config.PROJECT_TITLE)
+        gpx_file = Path(gpx_data.get("file", config.DEFAULT_GPX))
 
-        if "mode" in video:
-            config.MODE = str(video["mode"]).upper()
+        width = config.WINDOW_WIDTH
+        height = config.WINDOW_HEIGHT
 
-        if "duration" in video:
-            config.VIDEO_DURATION = int(video["duration"])
+        if "size" in video_data:
+            width_text, height_text = str(video_data["size"]).lower().split("x")
+            width = int(width_text)
+            height = int(height_text)
 
-        if "fps" in video:
-            config.FPS = int(video["fps"])
+        video = VideoConfig(
+            mode=str(video_data.get("mode", config.MODE)).upper(),
+            duration=int(video_data.get("duration", config.VIDEO_DURATION)),
+            final_hold_seconds=int(
+                video_data.get("final_hold_seconds", config.FINAL_HOLD_SECONDS)
+            ),
+            fps=int(video_data.get("fps", config.FPS)),
+            width=width,
+            height=height,
+            output=Path(video_data.get("output", config.DEFAULT_VIDEO)),
+        )
 
-        config.TOTAL_FRAMES = config.VIDEO_DURATION * config.FPS
+        if "preset" in camera_data:
+            camera = CameraConfig.from_preset(
+                str(camera_data["preset"]).lower()
+            )
+        else:
+            camera = CameraConfig()
 
-        if "size" in video:
-            width, height = str(video["size"]).lower().split("x")
-            config.WINDOW_WIDTH = int(width)
-            config.WINDOW_HEIGHT = int(height)
+        if "height" in camera_data:
+            camera.height = int(camera_data["height"])
+        if "distance" in camera_data:
+            camera.distance = int(camera_data["distance"])
+        if "look_ahead" in camera_data:
+            camera.look_ahead = int(camera_data["look_ahead"])
+        if "smoothing" in camera_data:
+            camera.smoothing = int(camera_data["smoothing"])
+        if "focal_height" in camera_data:
+            camera.focal_height = int(camera_data["focal_height"])
+        if "side_offset" in camera_data:
+            camera.side_offset = int(camera_data["side_offset"])
 
-        if "output" in video:
-            config.DEFAULT_VIDEO = Path(video["output"])
+        track = TrackConfig(
+            radius=int(track_data.get("radius", config.TRACK_RADIUS)),
+            sides=int(track_data.get("sides", config.TRACK_SIDES)),
+            progressive=bool(
+                track_data.get("progressive", config.TRACE_PROGRESSIVE)
+            ),
+            update_every=int(
+                track_data.get("update_every", config.TRACE_UPDATE_EVERY)
+            ),
+        )
 
-        if "height" in camera:
-            config.CAMERA_HEIGHT = int(camera["height"])
+        project_config = ProjectConfig(
+            title=title,
+            gpx_file=gpx_file,
+            video=video,
+            camera=camera,
+            track=track,
+        )
 
-        if "distance" in camera:
-            config.CAMERA_DISTANCE = int(camera["distance"])
+        project_config.apply()
 
-        if "look_ahead" in camera:
-            config.LOOK_AHEAD = int(camera["look_ahead"])
-
-        if "smoothing" in camera:
-            config.CAMERA_SMOOTHING = int(camera["smoothing"])
-
-        if "focal_height" in camera:
-            config.FOCAL_HEIGHT = int(camera["focal_height"])
-
-        if "side_offset" in camera:
-            config.SIDE_OFFSET = int(camera["side_offset"])
-
-        if "radius" in track:
-            config.TRACK_RADIUS = int(track["radius"])
-
-        if "sides" in track:
-            config.TRACK_SIDES = int(track["sides"])
-
-        if "progressive" in track:
-            config.TRACE_PROGRESSIVE = bool(track["progressive"])
-
-        if "update_every" in track:
-            config.TRACE_UPDATE_EVERY = int(track["update_every"])
-
-        gpx_file = gpx.get("file", config.DEFAULT_GPX)
-
-        return Path(gpx_file)
+        return project_config
