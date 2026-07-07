@@ -36,4 +36,4 @@ track:
   radius: 7
   sides: 8
   progressive: true
-  update_every: 5
+  update_every: 1

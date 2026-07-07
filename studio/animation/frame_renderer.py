@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 
 import config
+from studio.animation.progress_path import ProgressPath
 from studio.animation.timeline import Timeline
 from studio.scene.track import Track
 
@@ -12,6 +13,8 @@ class FrameRenderer:
         self.scene = scene
         self.camera_path = camera_path
         self.path_coords = path_coords
+        self.progress_path = ProgressPath(path_coords)
+
         self.output_dir = Path(output_dir or config.FRAMES_DIR)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -78,7 +81,7 @@ class FrameRenderer:
 
             progress = timeline.progress_at(i)
 
-            position, focal_point, path_index = self.camera_path.camera_at_progress(
+            position, focal_point, _ = self.camera_path.camera_at_progress(
                 progress
             )
 
@@ -99,7 +102,7 @@ class FrameRenderer:
                     if timeline.is_hold(i):
                         visible_path = self.path_coords
                     else:
-                        visible_path = self.path_coords[: max(2, path_index)]
+                        visible_path = self.progress_path.visible_path(progress)
 
                     if track_actor is not None:
                         self.scene.plotter.remove_actor(track_actor)
