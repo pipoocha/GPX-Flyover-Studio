@@ -19,4 +19,4 @@ camera:
 timeline: []
 
 track:
-  preset: quality
+  preset: fast
