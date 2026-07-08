@@ -7,6 +7,7 @@ gpx:
 video:
   mode: DEV
   duration: 30
+  final_hold_seconds: 4
   fps: 20
   size: 854x480
   output: output/video/ranchal.mp4
@@ -15,26 +16,7 @@ camera:
   mode: stage
   preset: cinematic
 
-timeline:
-  - preset: drone
-    duration: 5
-    transition: 0
-
-  - preset: cinematic
-    duration: 12
-    transition: 2
-
-  - preset: helicopter
-    duration: 8
-    transition: 2
-
-  - preset: arrival
-    duration: 5
-    transition: 2
+timeline: []
 
 track:
-  radius: 7
-  sides: 8
-  render_mode: line
-  progressive: true
-  update_every: 10
+  preset: quality

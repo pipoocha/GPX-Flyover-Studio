@@ -8,8 +8,14 @@ from studio.camera.presets import (
 class Timeline:
     def __init__(self, total_frames, hold_frames=0, segments=None):
         self.total_frames = total_frames
-        self.hold_frames = hold_frames
-        self.moving_frames = max(1, total_frames - hold_frames)
+
+        # Sécurité : le temps d'arrêt final ne doit jamais prendre toute la vidéo
+        self.hold_frames = min(
+            hold_frames,
+            max(0, total_frames // 3),
+        )
+
+        self.moving_frames = max(1, total_frames - self.hold_frames)
         self.segments = segments or []
 
         self.segment_frames = []

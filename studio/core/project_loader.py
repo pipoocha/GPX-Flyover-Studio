@@ -9,6 +9,7 @@ from studio.config_models import (
     CameraConfig,
     TrackConfig,
 )
+from studio.track.presets import get_track_preset
 
 
 class ProjectLoader:
@@ -70,19 +71,41 @@ class ProjectLoader:
             if key in camera_data:
                 setattr(camera, key, int(camera_data[key]))
 
-        track = TrackConfig(
-            radius=int(track_data.get("radius", config.TRACK_RADIUS)),
-            sides=int(track_data.get("sides", config.TRACK_SIDES)),
-            progressive=bool(
-                track_data.get("progressive", config.TRACE_PROGRESSIVE)
-            ),
-            update_every=int(
-                track_data.get("update_every", config.TRACE_UPDATE_EVERY)
-            ),
+        if "preset" in track_data:
+            preset = get_track_preset(
+                str(track_data["preset"]).lower()
+            )
+        else:
+            preset = {}
+
+        radius = int(track_data.get("radius", preset.get("radius", config.TRACK_RADIUS)))
+        sides = int(track_data.get("sides", preset.get("sides", config.TRACK_SIDES)))
+        progressive = bool(
+            track_data.get(
+                "progressive",
+                preset.get("progressive", config.TRACE_PROGRESSIVE),
+            )
+        )
+        update_every = int(
+            track_data.get(
+                "update_every",
+                preset.get("update_every", config.TRACE_UPDATE_EVERY),
+            )
         )
 
-        if "render_mode" in track_data:
-            config.TRACK_RENDER_MODE = str(track_data["render_mode"]).lower()
+        render_mode = str(
+            track_data.get(
+                "render_mode",
+                preset.get("render_mode", config.TRACK_RENDER_MODE),
+            )
+        ).lower()
+
+        track = TrackConfig(
+            radius=radius,
+            sides=sides,
+            progressive=progressive,
+            update_every=update_every,
+        )
 
         project_config = ProjectConfig(
             title=title,
@@ -94,9 +117,7 @@ class ProjectLoader:
 
         project_config.apply()
 
-        if "render_mode" in track_data:
-            config.TRACK_RENDER_MODE = str(track_data["render_mode"]).lower()
-
+        config.TRACK_RENDER_MODE = render_mode
         config.TIMELINE = timeline_data or []
 
         return project_config
