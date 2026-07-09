@@ -26,16 +26,6 @@ class DirectorCamera:
             angle=orientation_angle,
         )
 
-        self.global_direction = self.orientation.direction()
-
-        self.side = np.array(
-            [
-                -self.global_direction[1],
-                self.global_direction[0],
-                0.0,
-            ]
-        )
-
     def point_at(self, progress):
         progress = max(0.0, min(1.0, progress))
 
@@ -54,6 +44,16 @@ class DirectorCamera:
 
         look = self.coords[look_index]
 
+        direction = self.orientation.direction_at_progress(progress)
+
+        side = np.array(
+            [
+                -direction[1],
+                direction[0],
+                0.0,
+            ]
+        )
+
         moving_center = self.center * 0.65 + active * 0.35
 
         height = max(
@@ -67,8 +67,8 @@ class DirectorCamera:
         )
 
         camera_pos = moving_center.copy()
-        camera_pos -= self.global_direction * distance
-        camera_pos += self.side * config.SIDE_OFFSET
+        camera_pos -= direction * distance
+        camera_pos += side * config.SIDE_OFFSET
         camera_pos[2] = self.max_z + height
 
         focal_point = active * 0.65 + look * 0.35

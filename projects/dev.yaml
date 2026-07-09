@@ -2,7 +2,7 @@ project:
   title: Dev GPX court
 
 gpx:
-  file: gpx/20_km_belmont.gpx
+  file: gpx/test_5km.gpx
 
 video:
   mode: DEV
@@ -16,8 +16,7 @@ camera:
   mode: director
   preset: cinematic
   orientation:
-    mode: fixed
-    angle: 45
+    mode: auto
 
 timeline: []
 
