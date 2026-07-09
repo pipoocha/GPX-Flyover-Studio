@@ -71,6 +71,26 @@ class ProjectLoader:
             if key in camera_data:
                 setattr(camera, key, int(camera_data[key]))
 
+        config.CAMERA_MODE = str(
+            camera_data.get("mode", "flyover")
+        ).lower()
+
+        orientation_data = camera_data.get("orientation", {})
+
+        if isinstance(orientation_data, str):
+            config.CAMERA_ORIENTATION_MODE = orientation_data.lower()
+            config.CAMERA_ORIENTATION_ANGLE = 0
+        elif isinstance(orientation_data, dict):
+            config.CAMERA_ORIENTATION_MODE = str(
+                orientation_data.get("mode", "route")
+            ).lower()
+            config.CAMERA_ORIENTATION_ANGLE = float(
+                orientation_data.get("angle", 0)
+            )
+        else:
+            config.CAMERA_ORIENTATION_MODE = "route"
+            config.CAMERA_ORIENTATION_ANGLE = 0
+
         if "preset" in track_data:
             preset = get_track_preset(
                 str(track_data["preset"]).lower()

@@ -1,0 +1,25 @@
+project:
+  title: Dev GPX court
+
+gpx:
+  file: gpx/20_km_belmont.gpx
+
+video:
+  mode: DEV
+  duration: 15
+  final_hold_seconds: 2
+  fps: 20
+  size: 854x480
+  output: output/video/dev_test.mp4
+
+camera:
+  mode: director
+  preset: cinematic
+  orientation:
+    mode: fixed
+    angle: 45
+
+timeline: []
+
+track:
+  preset: fast

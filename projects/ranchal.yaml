@@ -2,7 +2,7 @@ project:
   title: Ranchal 28 km
 
 gpx:
-  file: gpx/28 km Ranchal.gpx
+  file: gpx/20_km_belmont.gpx
 
 video:
   mode: DEV
@@ -15,6 +15,8 @@ video:
 camera:
   mode: stage
   preset: cinematic
+  mode: director
+  orientation: nord
 
 timeline: []
 

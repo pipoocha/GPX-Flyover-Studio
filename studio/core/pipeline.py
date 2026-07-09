@@ -5,6 +5,7 @@ from studio.animation.camera_path import CameraPath
 from studio.animation.frame_renderer import FrameRenderer
 from studio.animation.preview_player import PreviewPlayer
 from studio.animation.stage_camera import StageCamera
+from studio.director.director_camera import DirectorCamera
 from studio.geometry.path_builder import PathBuilder
 from studio.io.gpx_loader import GPXLoader
 from studio.scene.scene import Scene
@@ -94,11 +95,15 @@ class FlyoverPipeline:
     def build_camera(self):
         camera_mode = getattr(config, "CAMERA_MODE", "flyover")
 
+        if camera_mode == "director":
+            print("Caméra : Director Engine")
+            return DirectorCamera(self.project.path_coords)
+
         if camera_mode == "stage":
-            print("Caméra : mode présentation d'étape")
+            print("Caméra : présentation d'étape")
             return StageCamera(self.project.path_coords)
 
-        print("Caméra : mode flyover")
+        print("Caméra : flyover")
         return CameraPath(self.project.path_coords)
 
     def preview(self):
