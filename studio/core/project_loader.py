@@ -45,20 +45,29 @@ class ProjectLoader:
             mode=str(video_data.get("mode", config.MODE)).upper(),
             duration=int(video_data.get("duration", config.VIDEO_DURATION)),
             final_hold_seconds=int(
-                video_data.get("final_hold_seconds", config.FINAL_HOLD_SECONDS)
+                video_data.get(
+                    "final_hold_seconds",
+                    config.FINAL_HOLD_SECONDS,
+                )
             ),
             fps=int(video_data.get("fps", config.FPS)),
             width=width,
             height=height,
-            output=Path(video_data.get("output", config.DEFAULT_VIDEO)),
+            output=Path(
+                video_data.get(
+                    "output",
+                    config.DEFAULT_VIDEO,
+                )
+            ),
         )
 
-        if "preset" in camera_data:
-            camera = CameraConfig.from_preset(
-                str(camera_data["preset"]).lower()
-            )
-        else:
-            camera = CameraConfig()
+        camera_preset = str(
+            camera_data.get("preset", "cinematic")
+        ).lower()
+
+        config.CAMERA_PRESET = camera_preset
+
+        camera = CameraConfig.from_preset(camera_preset)
 
         for key in [
             "height",
@@ -79,17 +88,20 @@ class ProjectLoader:
 
         if isinstance(orientation_data, str):
             config.CAMERA_ORIENTATION_MODE = orientation_data.lower()
-            config.CAMERA_ORIENTATION_ANGLE = 0
+            config.CAMERA_ORIENTATION_ANGLE = 0.0
+
         elif isinstance(orientation_data, dict):
             config.CAMERA_ORIENTATION_MODE = str(
                 orientation_data.get("mode", "route")
             ).lower()
+
             config.CAMERA_ORIENTATION_ANGLE = float(
                 orientation_data.get("angle", 0)
             )
+
         else:
             config.CAMERA_ORIENTATION_MODE = "route"
-            config.CAMERA_ORIENTATION_ANGLE = 0
+            config.CAMERA_ORIENTATION_ANGLE = 0.0
 
         if "preset" in track_data:
             preset = get_track_preset(
@@ -98,25 +110,47 @@ class ProjectLoader:
         else:
             preset = {}
 
-        radius = int(track_data.get("radius", preset.get("radius", config.TRACK_RADIUS)))
-        sides = int(track_data.get("sides", preset.get("sides", config.TRACK_SIDES)))
+        radius = int(
+            track_data.get(
+                "radius",
+                preset.get("radius", config.TRACK_RADIUS),
+            )
+        )
+
+        sides = int(
+            track_data.get(
+                "sides",
+                preset.get("sides", config.TRACK_SIDES),
+            )
+        )
+
         progressive = bool(
             track_data.get(
                 "progressive",
-                preset.get("progressive", config.TRACE_PROGRESSIVE),
+                preset.get(
+                    "progressive",
+                    config.TRACE_PROGRESSIVE,
+                ),
             )
         )
+
         update_every = int(
             track_data.get(
                 "update_every",
-                preset.get("update_every", config.TRACE_UPDATE_EVERY),
+                preset.get(
+                    "update_every",
+                    config.TRACE_UPDATE_EVERY,
+                ),
             )
         )
 
         render_mode = str(
             track_data.get(
                 "render_mode",
-                preset.get("render_mode", config.TRACK_RENDER_MODE),
+                preset.get(
+                    "render_mode",
+                    config.TRACK_RENDER_MODE,
+                ),
             )
         ).lower()
 
