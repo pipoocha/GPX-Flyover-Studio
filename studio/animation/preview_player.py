@@ -44,7 +44,9 @@ class PreviewPlayer:
         self.frame_index = 0
         self.paused = False
         self.last_track_frame = -1
+
         self.update_scene(force_track=True)
+
         print("\nPreview recommencée.")
 
     def seek_forward(self):
@@ -103,10 +105,16 @@ class PreviewPlayer:
 
     def stop(self):
         self.stopped = True
-        print("\nArrêt demandé.")
+        print("\nFermeture du preview...")
 
     def build_track_mesh(self, visible_path):
-        if getattr(config, "TRACK_RENDER_MODE", "line") == "line":
+        render_mode = getattr(
+            config,
+            "TRACK_RENDER_MODE",
+            "line",
+        )
+
+        if render_mode == "line":
             return pv.lines_from_points(visible_path)
 
         return Track(
@@ -118,7 +126,13 @@ class PreviewPlayer:
     def add_track_actor(self, visible_path):
         mesh = self.build_track_mesh(visible_path)
 
-        if getattr(config, "TRACK_RENDER_MODE", "line") == "line":
+        render_mode = getattr(
+            config,
+            "TRACK_RENDER_MODE",
+            "line",
+        )
+
+        if render_mode == "line":
             return self.scene.add_mesh(
                 mesh,
                 color="#FC4C02",
@@ -156,7 +170,9 @@ class PreviewPlayer:
         progress = self.current_progress()
 
         if getattr(config, "TRACE_PROGRESSIVE", True):
-            visible_path = self.progress_path.visible_path(progress)
+            visible_path = self.progress_path.visible_path(
+                progress
+            )
         else:
             visible_path = self.path_coords
 
@@ -200,38 +216,86 @@ class PreviewPlayer:
     def register_controls(self):
         plotter = self.scene.plotter
 
-        plotter.add_key_event("space", self.toggle_pause)
-        plotter.add_key_event("r", self.restart)
-        plotter.add_key_event("q", self.stop)
-        plotter.add_key_event("Right", self.seek_forward)
-        plotter.add_key_event("Left", self.seek_backward)
-        plotter.add_key_event("plus", self.increase_speed)
-        plotter.add_key_event("equal", self.increase_speed)
-        plotter.add_key_event("minus", self.decrease_speed)
+        plotter.add_key_event(
+            "space",
+            self.toggle_pause,
+        )
 
-    def play(self):
+        # Minuscules et majuscules
+        plotter.add_key_event("r", self.restart)
+        plotter.add_key_event("R", self.restart)
+
+        plotter.add_key_event("q", self.stop)
+        plotter.add_key_event("Q", self.stop)
+
+        plotter.add_key_event(
+            "Right",
+            self.seek_forward,
+        )
+
+        plotter.add_key_event(
+            "Left",
+            self.seek_backward,
+        )
+
+        plotter.add_key_event(
+            "plus",
+            self.increase_speed,
+        )
+
+        plotter.add_key_event(
+            "equal",
+            self.increase_speed,
+        )
+
+        plotter.add_key_event(
+            "minus",
+            self.decrease_speed,
+        )
+
+    def print_header(self):
         print()
         print("===================================")
-        print("PREVIEW DIRECTOR")
+        print("PREVIEW DIRECTOR CINÉMATOGRAPHIQUE")
         print("Aucune vidéo ne sera générée")
         print("-----------------------------------")
-        print("Caméra      :", getattr(config, "CAMERA_MODE", "flyover"))
+        print(
+            "Caméra      :",
+            getattr(config, "CAMERA_MODE", "flyover"),
+        )
         print(
             "Orientation :",
-            getattr(config, "CAMERA_ORIENTATION_MODE", "route"),
+            getattr(
+                config,
+                "CAMERA_ORIENTATION_MODE",
+                "route",
+            ),
         )
         print(
             "Preset      :",
-            getattr(config, "CAMERA_PRESET", "cinematic"),
+            getattr(
+                config,
+                "CAMERA_PRESET",
+                "cinematic",
+            ),
         )
-        print("Images      :", self.frames)
-        print("FPS preview :", self.base_fps)
-        print(
-            "Durée       :",
-            f"{self.frames / self.base_fps:.1f} s",
-        )
+        print("-----------------------------------")
+        print("Espace        : pause / reprise")
+        print("R             : recommencer")
+        print("Q             : quitter")
+        print("Flèche droite : avancer")
+        print("Flèche gauche : reculer")
+        print("+ / -         : vitesse")
         print("===================================")
         print()
+        print(
+            "Clique une fois dans la fenêtre 3D "
+            "avant d'utiliser les touches."
+        )
+        print()
+
+    def play(self):
+        self.print_header()
 
         plotter = self.scene.plotter
         self.register_controls()
@@ -260,12 +324,15 @@ class PreviewPlayer:
                 self.update_scene()
 
                 if (
-                    self.frame_index % max(1, self.base_fps // 2) == 0
+                    self.frame_index
+                    % max(1, self.base_fps // 2)
+                    == 0
                     and self.frame_index != last_display
                 ):
                     print(
                         f"\rPreview : "
-                        f"{self.frame_index + 1:4d}/{self.frames} | "
+                        f"{self.frame_index + 1:4d}/"
+                        f"{self.frames} | "
                         f"{self.current_progress() * 100:6.1f} % | "
                         f"x{self.speed_multiplier:.2f}",
                         end="",
@@ -288,13 +355,12 @@ class PreviewPlayer:
                     print()
                     print(
                         "Fin du preview — "
-                        "R pour recommencer."
+                        "R pour recommencer, "
+                        "Q pour quitter."
                     )
 
             elapsed = time.perf_counter() - frame_start
-            target_duration = (
-                1.0 / self.base_fps
-            )
+            target_duration = 1.0 / self.base_fps
             remaining = target_duration - elapsed
 
             if remaining > 0:
@@ -303,4 +369,6 @@ class PreviewPlayer:
         print()
         print("Preview terminé.")
 
+        # Pas de plotter.close() :
+        # le retour du programme ferme proprement la fenêtre.
         return

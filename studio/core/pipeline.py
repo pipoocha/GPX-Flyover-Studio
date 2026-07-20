@@ -5,7 +5,7 @@ from studio.animation.camera_path import CameraPath
 from studio.animation.frame_renderer import FrameRenderer
 from studio.animation.preview_player import PreviewPlayer
 from studio.animation.stage_camera import StageCamera
-from studio.director.director_camera import DirectorCamera
+from studio.director.director_engine import DirectorEngine
 from studio.geometry.path_builder import PathBuilder
 from studio.io.gpx_loader import GPXLoader
 from studio.scene.scene import Scene
@@ -24,10 +24,16 @@ class FlyoverPipeline:
     def load_gpx(self):
         print("Lecture GPX...")
 
-        loader = GPXLoader(self.project.gpx_file)
+        loader = GPXLoader(
+            self.project.gpx_file
+        )
+
         self.project.points = loader.load()
 
-        print(f"{len(self.project.points)} points chargés")
+        print(
+            f"{len(self.project.points)} "
+            f"points chargés"
+        )
 
     def build_terrain(self):
         print("Création terrain SRTM...")
@@ -38,6 +44,7 @@ class FlyoverPipeline:
         )
 
         self.project.grid = builder.build()
+
         self.project.mesh = TerrainMesh(
             self.project.grid
         ).build()
@@ -100,14 +107,19 @@ class FlyoverPipeline:
         )
 
         if camera_mode == "director":
-            print("Caméra : Director Engine")
+            print(
+                "Caméra : Director "
+                "cinématographique"
+            )
 
-            return DirectorCamera(
+            return DirectorEngine(
                 self.project.path_coords
             )
 
         if camera_mode == "stage":
-            print("Caméra : présentation d'étape")
+            print(
+                "Caméra : présentation d'étape"
+            )
 
             return StageCamera(
                 self.project.path_coords
