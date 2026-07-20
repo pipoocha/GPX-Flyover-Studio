@@ -5,7 +5,7 @@ gpx:
   file: gpx/test_5km.gpx
 
 video:
-  mode: DEV
+  mode: PREVIEW
   duration: 15
   final_hold_seconds: 2
   fps: 20
