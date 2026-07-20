@@ -5,12 +5,12 @@ gpx:
   file: gpx/test_5km.gpx
 
 video:
-  mode: PREVIEW
+  mode: DEV
   duration: 15
   final_hold_seconds: 2
   fps: 20
   size: 854x480
-  output: output/video/dev_test.mp4
+  output: output/video/dev_leader.mp4
 
 camera:
   mode: director
@@ -22,3 +22,12 @@ timeline: []
 
 track:
   preset: fast
+
+leader:
+  enabled: true
+  style: glow
+  radius: 20
+  z_offset: 18
+  color: "#FC4C02"
+  halo_scale: 1.8
+  halo_opacity: 0.20

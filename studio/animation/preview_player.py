@@ -4,8 +4,9 @@ import pyvista as pv
 
 import config
 from studio.animation.progress_path import ProgressPath
-from studio.scene.track import Track
 from studio.leader.leader import LeaderMarker
+from studio.scene.track import Track
+
 
 class PreviewPlayer:
     def __init__(
@@ -18,11 +19,27 @@ class PreviewPlayer:
     ):
         self.scene = scene
         self.camera_path = camera_path
-        self.path_coords = path_coords
-        self.progress_path = ProgressPath(path_coords)
 
-        self.frames = max(2, int(frames))
-        self.base_fps = max(1, int(fps or config.FPS))
+        self.path_coords = path_coords
+
+        self.progress_path = ProgressPath(
+            path_coords
+        )
+
+        self.leader = LeaderMarker(
+            scene=self.scene,
+            path_coords=self.path_coords,
+        )
+
+        self.frames = max(
+            2,
+            int(frames),
+        )
+
+        self.base_fps = max(
+            1,
+            int(fps or config.FPS),
+        )
 
         self.frame_index = 0
         self.speed_multiplier = 1.0
@@ -34,23 +51,37 @@ class PreviewPlayer:
         self.last_track_frame = -1
 
     def current_progress(self):
-        return self.frame_index / max(1, self.frames - 1)
+        return self.frame_index / max(
+            1,
+            self.frames - 1,
+        )
 
     def toggle_pause(self):
         self.paused = not self.paused
-        print("\nPause." if self.paused else "\nReprise.")
+
+        if self.paused:
+            print("\nPause.")
+        else:
+            print("\nReprise.")
 
     def restart(self):
         self.frame_index = 0
         self.paused = False
         self.last_track_frame = -1
 
-        self.update_scene(force_track=True)
+        self.update_scene(
+            force_track=True
+        )
 
-        print("\nPreview recommencée.")
+        print(
+            "\nPreview recommencée."
+        )
 
     def seek_forward(self):
-        step = max(1, int(self.frames * 0.05))
+        step = max(
+            1,
+            int(self.frames * 0.05),
+        )
 
         self.frame_index = min(
             self.frames - 1,
@@ -58,7 +89,10 @@ class PreviewPlayer:
         )
 
         self.last_track_frame = -1
-        self.update_scene(force_track=True)
+
+        self.update_scene(
+            force_track=True
+        )
 
         print(
             f"\nPosition : "
@@ -66,7 +100,10 @@ class PreviewPlayer:
         )
 
     def seek_backward(self):
-        step = max(1, int(self.frames * 0.05))
+        step = max(
+            1,
+            int(self.frames * 0.05),
+        )
 
         self.frame_index = max(
             0,
@@ -74,7 +111,10 @@ class PreviewPlayer:
         )
 
         self.last_track_frame = -1
-        self.update_scene(force_track=True)
+
+        self.update_scene(
+            force_track=True
+        )
 
         print(
             f"\nPosition : "
@@ -105,17 +145,27 @@ class PreviewPlayer:
 
     def stop(self):
         self.stopped = True
-        print("\nFermeture du preview...")
 
-    def build_track_mesh(self, visible_path):
-        render_mode = getattr(
-            config,
-            "TRACK_RENDER_MODE",
-            "line",
+        print(
+            "\nFermeture du preview..."
         )
 
+    def build_track_mesh(
+        self,
+        visible_path,
+    ):
+        render_mode = str(
+            getattr(
+                config,
+                "TRACK_RENDER_MODE",
+                "line",
+            )
+        ).lower()
+
         if render_mode == "line":
-            return pv.lines_from_points(visible_path)
+            return pv.lines_from_points(
+                visible_path
+            )
 
         return Track(
             visible_path,
@@ -123,14 +173,21 @@ class PreviewPlayer:
             sides=config.TRACK_SIDES,
         ).to_mesh()
 
-    def add_track_actor(self, visible_path):
-        mesh = self.build_track_mesh(visible_path)
-
-        render_mode = getattr(
-            config,
-            "TRACK_RENDER_MODE",
-            "line",
+    def add_track_actor(
+        self,
+        visible_path,
+    ):
+        mesh = self.build_track_mesh(
+            visible_path
         )
+
+        render_mode = str(
+            getattr(
+                config,
+                "TRACK_RENDER_MODE",
+                "line",
+            )
+        ).lower()
 
         if render_mode == "line":
             return self.scene.add_mesh(
@@ -146,7 +203,10 @@ class PreviewPlayer:
             smooth_shading=True,
         )
 
-    def update_track(self, force=False):
+    def update_track(
+        self,
+        force=False,
+    ):
         update_every = max(
             1,
             int(
@@ -162,19 +222,30 @@ class PreviewPlayer:
             not force
             and self.last_track_frame >= 0
             and abs(
-                self.frame_index - self.last_track_frame
+                self.frame_index
+                - self.last_track_frame
             ) < update_every
         ):
             return
 
-        progress = self.current_progress()
+        progress = (
+            self.current_progress()
+        )
 
-        if getattr(config, "TRACE_PROGRESSIVE", True):
-            visible_path = self.progress_path.visible_path(
-                progress
+        if getattr(
+            config,
+            "TRACE_PROGRESSIVE",
+            True,
+        ):
+            visible_path = (
+                self.progress_path.visible_path(
+                    progress
+                )
             )
         else:
-            visible_path = self.path_coords
+            visible_path = (
+                self.path_coords
+            )
 
         if len(visible_path) < 2:
             return
@@ -182,22 +253,39 @@ class PreviewPlayer:
         plotter = self.scene.plotter
 
         if self.track_actor is not None:
-            plotter.remove_actor(
-                self.track_actor,
-                render=False,
-            )
+            try:
+                plotter.remove_actor(
+                    self.track_actor,
+                    render=False,
+                )
+            except Exception:
+                pass
 
-        self.track_actor = self.add_track_actor(
-            visible_path
+        self.track_actor = (
+            self.add_track_actor(
+                visible_path
+            )
         )
 
-        self.last_track_frame = self.frame_index
+        self.last_track_frame = (
+            self.frame_index
+        )
 
-    def update_scene(self, force_track=False):
-        progress = self.current_progress()
+    def update_scene(
+        self,
+        force_track=False,
+    ):
+        progress = (
+            self.current_progress()
+        )
 
-        position, focal_point, _ = (
-            self.camera_path.camera_at_progress(
+        (
+            position,
+            focal_point,
+            _,
+        ) = (
+            self.camera_path
+            .camera_at_progress(
                 progress
             )
         )
@@ -207,9 +295,16 @@ class PreviewPlayer:
             focal_point=tuple(focal_point),
         )
 
-        self.update_track(force=force_track)
+        self.update_track(
+            force=force_track
+        )
+
+        self.leader.update(
+            progress
+        )
 
         plotter = self.scene.plotter
+
         plotter.reset_camera_clipping_range()
         plotter.render()
 
@@ -221,12 +316,25 @@ class PreviewPlayer:
             self.toggle_pause,
         )
 
-        # Minuscules et majuscules
-        plotter.add_key_event("r", self.restart)
-        plotter.add_key_event("R", self.restart)
+        plotter.add_key_event(
+            "r",
+            self.restart,
+        )
 
-        plotter.add_key_event("q", self.stop)
-        plotter.add_key_event("Q", self.stop)
+        plotter.add_key_event(
+            "R",
+            self.restart,
+        )
+
+        plotter.add_key_event(
+            "q",
+            self.stop,
+        )
+
+        plotter.add_key_event(
+            "Q",
+            self.stop,
+        )
 
         plotter.add_key_event(
             "Right",
@@ -256,12 +364,18 @@ class PreviewPlayer:
     def print_header(self):
         print()
         print("===================================")
-        print("PREVIEW DIRECTOR CINÉMATOGRAPHIQUE")
-        print("Aucune vidéo ne sera générée")
+        print(
+            "PREVIEW DIRECTOR "
+            "AVEC LEADER"
+        )
         print("-----------------------------------")
         print(
             "Caméra      :",
-            getattr(config, "CAMERA_MODE", "flyover"),
+            getattr(
+                config,
+                "CAMERA_MODE",
+                "flyover",
+            ),
         )
         print(
             "Orientation :",
@@ -279,18 +393,38 @@ class PreviewPlayer:
                 "cinematic",
             ),
         )
+        print(
+            "Leader      :",
+            getattr(
+                config,
+                "LEADER_STYLE",
+                "glow",
+            ),
+        )
         print("-----------------------------------")
-        print("Espace        : pause / reprise")
-        print("R             : recommencer")
-        print("Q             : quitter")
-        print("Flèche droite : avancer")
-        print("Flèche gauche : reculer")
-        print("+ / -         : vitesse")
+        print(
+            "Espace        : pause / reprise"
+        )
+        print(
+            "R             : recommencer"
+        )
+        print(
+            "Q             : quitter"
+        )
+        print(
+            "Flèche droite : avancer"
+        )
+        print(
+            "Flèche gauche : reculer"
+        )
+        print(
+            "+ / -         : vitesse"
+        )
         print("===================================")
         print()
         print(
-            "Clique une fois dans la fenêtre 3D "
-            "avant d'utiliser les touches."
+            "Clique une fois dans la "
+            "fenêtre 3D avant les touches."
         )
         print()
 
@@ -298,9 +432,14 @@ class PreviewPlayer:
         self.print_header()
 
         plotter = self.scene.plotter
+
         self.register_controls()
 
-        self.update_scene(force_track=True)
+        self.leader.create()
+
+        self.update_scene(
+            force_track=True
+        )
 
         plotter.show(
             auto_close=False,
@@ -310,24 +449,35 @@ class PreviewPlayer:
         last_display = -1
 
         while not self.stopped:
-            frame_start = time.perf_counter()
+            frame_start = (
+                time.perf_counter()
+            )
 
             try:
                 plotter.update()
             except Exception:
                 break
 
-            if getattr(plotter, "_closed", False):
+            if getattr(
+                plotter,
+                "_closed",
+                False,
+            ):
                 break
 
             if not self.paused:
                 self.update_scene()
 
+                display_interval = max(
+                    1,
+                    self.base_fps // 2,
+                )
+
                 if (
                     self.frame_index
-                    % max(1, self.base_fps // 2)
-                    == 0
-                    and self.frame_index != last_display
+                    % display_interval == 0
+                    and self.frame_index
+                    != last_display
                 ):
                     print(
                         f"\rPreview : "
@@ -339,18 +489,34 @@ class PreviewPlayer:
                         flush=True,
                     )
 
-                    last_display = self.frame_index
+                    last_display = (
+                        self.frame_index
+                    )
 
                 advance = max(
                     1,
-                    int(round(self.speed_multiplier)),
+                    int(
+                        round(
+                            self.speed_multiplier
+                        )
+                    ),
                 )
 
                 self.frame_index += advance
 
-                if self.frame_index >= self.frames:
-                    self.frame_index = self.frames - 1
+                if (
+                    self.frame_index
+                    >= self.frames
+                ):
+                    self.frame_index = (
+                        self.frames - 1
+                    )
+
                     self.paused = True
+
+                    self.update_scene(
+                        force_track=True
+                    )
 
                     print()
                     print(
@@ -359,16 +525,26 @@ class PreviewPlayer:
                         "Q pour quitter."
                     )
 
-            elapsed = time.perf_counter() - frame_start
-            target_duration = 1.0 / self.base_fps
-            remaining = target_duration - elapsed
+            elapsed = (
+                time.perf_counter()
+                - frame_start
+            )
+
+            target_duration = (
+                1.0 / self.base_fps
+            )
+
+            remaining = (
+                target_duration
+                - elapsed
+            )
 
             if remaining > 0:
-                time.sleep(remaining)
+                time.sleep(
+                    remaining
+                )
 
         print()
         print("Preview terminé.")
 
-        # Pas de plotter.close() :
-        # le retour du programme ferme proprement la fenêtre.
         return

@@ -20,6 +20,7 @@ class FrameRenderer:
     ):
         self.scene = scene
         self.camera_path = camera_path
+
         self.path_coords = np.asarray(
             path_coords,
             dtype=float,
@@ -42,6 +43,7 @@ class FrameRenderer:
         self.previous_focal = None
 
         self.track_actor = None
+
         self.leader = LeaderMarker(
             scene=self.scene,
             path_coords=self.path_coords,
@@ -70,32 +72,52 @@ class FrameRenderer:
         )
 
         if self.previous_position is None:
-            self.previous_position = position
-            self.previous_focal = focal_point
+            self.previous_position = (
+                position
+            )
+
+            self.previous_focal = (
+                focal_point
+            )
 
             return position, focal_point
 
         smoothed_position = (
-            self.previous_position * (1.0 - alpha)
+            self.previous_position
+            * (1.0 - alpha)
             + position * alpha
         )
 
         smoothed_focal = (
-            self.previous_focal * (1.0 - alpha)
+            self.previous_focal
+            * (1.0 - alpha)
             + focal_point * alpha
         )
 
-        self.previous_position = smoothed_position
-        self.previous_focal = smoothed_focal
-
-        return smoothed_position, smoothed_focal
-
-    def build_track_mesh(self, visible_path):
-        render_mode = getattr(
-            config,
-            "TRACK_RENDER_MODE",
-            "line",
+        self.previous_position = (
+            smoothed_position
         )
+
+        self.previous_focal = (
+            smoothed_focal
+        )
+
+        return (
+            smoothed_position,
+            smoothed_focal,
+        )
+
+    def build_track_mesh(
+        self,
+        visible_path,
+    ):
+        render_mode = str(
+            getattr(
+                config,
+                "TRACK_RENDER_MODE",
+                "line",
+            )
+        ).lower()
 
         if render_mode == "line":
             return pv.lines_from_points(
@@ -108,16 +130,21 @@ class FrameRenderer:
             sides=config.TRACK_SIDES,
         ).to_mesh()
 
-    def add_track_actor(self, visible_path):
+    def add_track_actor(
+        self,
+        visible_path,
+    ):
         mesh = self.build_track_mesh(
             visible_path
         )
 
-        render_mode = getattr(
-            config,
-            "TRACK_RENDER_MODE",
-            "line",
-        )
+        render_mode = str(
+            getattr(
+                config,
+                "TRACK_RENDER_MODE",
+                "line",
+            )
+        ).lower()
 
         if render_mode == "line":
             return self.scene.add_mesh(
@@ -136,8 +163,8 @@ class FrameRenderer:
     def update_track(
         self,
         progress,
+        frame_index,
         force=False,
-        frame_index=0,
     ):
         update_every = max(
             1,
@@ -152,7 +179,8 @@ class FrameRenderer:
 
         if (
             not force
-            and frame_index % update_every != 0
+            and frame_index
+            % update_every != 0
         ):
             return
 
@@ -167,7 +195,9 @@ class FrameRenderer:
                 )
             )
         else:
-            visible_path = self.path_coords
+            visible_path = (
+                self.path_coords
+            )
 
         if len(visible_path) < 2:
             return
@@ -175,13 +205,18 @@ class FrameRenderer:
         plotter = self.scene.plotter
 
         if self.track_actor is not None:
-            plotter.remove_actor(
-                self.track_actor,
-                render=False,
-            )
+            try:
+                plotter.remove_actor(
+                    self.track_actor,
+                    render=False,
+                )
+            except Exception:
+                pass
 
-        self.track_actor = self.add_track_actor(
-            visible_path
+        self.track_actor = (
+            self.add_track_actor(
+                visible_path
+            )
         )
 
     def render(self, frames=None):
@@ -189,7 +224,7 @@ class FrameRenderer:
             frames or config.TOTAL_FRAMES
         )
 
-        hold_frames = (
+        hold_frames = int(
             config.FINAL_HOLD_SECONDS
             * config.FPS
         )
@@ -206,7 +241,9 @@ class FrameRenderer:
 
         self.clear_frames()
 
-        self.scene.plotter.show(
+        plotter = self.scene.plotter
+
+        plotter.show(
             auto_close=False,
             interactive=False,
         )
@@ -215,7 +252,9 @@ class FrameRenderer:
 
         current_camera_label = None
 
-        for frame_index in range(total_frames):
+        for frame_index in range(
+            total_frames
+        ):
             camera_label = (
                 timeline.apply_camera_at(
                     frame_index=frame_index,
@@ -229,31 +268,41 @@ class FrameRenderer:
                 != current_camera_label
             ):
                 print(
-                    f"Caméra : {camera_label}"
+                    f"Caméra : "
+                    f"{camera_label}"
                 )
+
                 current_camera_label = (
                     camera_label
                 )
 
-            progress = timeline.progress_at(
-                frame_index
+            progress = (
+                timeline.progress_at(
+                    frame_index
+                )
             )
 
-            position, focal_point, _ = (
-                self.camera_path.camera_at_progress(
+            (
+                position,
+                focal_point,
+                _,
+            ) = (
+                self.camera_path
+                .camera_at_progress(
                     progress
                 )
             )
 
-            position, focal_point = (
-                self.smooth_camera(
-                    position,
-                    focal_point,
-                    alpha=0.04,
-                )
+            (
+                position,
+                focal_point,
+            ) = self.smooth_camera(
+                position,
+                focal_point,
+                alpha=0.04,
             )
 
-            self.scene.plotter.camera_position = [
+            plotter.camera_position = [
                 tuple(position),
                 tuple(focal_point),
                 (0, 0, 1),
@@ -261,13 +310,13 @@ class FrameRenderer:
 
             self.update_track(
                 progress=progress,
-                force=frame_index == 0,
                 frame_index=frame_index,
+                force=(frame_index == 0),
             )
 
-            self.leader.update(progress)
-
-            plotter = self.scene.plotter
+            self.leader.update(
+                progress
+            )
 
             plotter.reset_camera_clipping_range()
             plotter.render()
@@ -275,7 +324,10 @@ class FrameRenderer:
 
             output_file = (
                 self.output_dir
-                / f"frame_{frame_index:05d}.png"
+                / (
+                    f"frame_"
+                    f"{frame_index:05d}.png"
+                )
             )
 
             plotter.screenshot(
