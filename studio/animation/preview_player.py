@@ -5,7 +5,7 @@ import pyvista as pv
 import config
 from studio.animation.progress_path import ProgressPath
 from studio.scene.track import Track
-
+from studio.leader.leader import LeaderMarker
 
 class PreviewPlayer:
     def __init__(
