@@ -24,12 +24,10 @@ class HelpRow(ttk.Frame):
         from_: float | None = None,
         to: float | None = None,
         resolution: float = 1.0,
-        advisor=None,
     ):
         super().__init__(parent)
 
         self.variable = variable
-        self.advisor = advisor
         self.columnconfigure(1, weight=1)
 
         ttk.Label(
@@ -100,37 +98,26 @@ class HelpRow(ttk.Frame):
                 text=f"{display} {unit}".strip()
             )
 
-            if self.advisor is not None:
-                try:
-                    self.help_label.configure(
-                        text=self.advisor(value)
-                    )
-                except Exception:
-                    self.help_label.configure(
-                        text=help_text
-                    )
-
-        self.help_label = ttk.Label(
-            self,
-            text=help_text,
-            foreground="#666666",
-            wraplength=620,
-            justify="left",
-        )
-        self.help_label.grid(
-            row=1,
-            column=0,
-            columnspan=3,
-            sticky="w",
-            pady=(2, 8),
-        )
-
         variable.trace_add(
             "write",
             refresh_value,
         )
 
         refresh_value()
+
+        ttk.Label(
+            self,
+            text=help_text,
+            foreground="#666666",
+            wraplength=620,
+            justify="left",
+        ).grid(
+            row=1,
+            column=0,
+            columnspan=3,
+            sticky="w",
+            pady=(2, 8),
+        )
 
 
 class MainWindow(tk.Tk):
@@ -345,16 +332,6 @@ class MainWindow(tk.Tk):
         ).grid(
             row=0,
             column=2,
-            padx=(8, 0),
-        )
-
-        ttk.Button(
-            project_box,
-            text="Nouveau depuis GPX",
-            command=self.create_project_from_gpx,
-        ).grid(
-            row=0,
-            column=3,
             padx=(8, 0),
         )
 
@@ -594,7 +571,6 @@ class MainWindow(tk.Tk):
         from_=None,
         to=None,
         resolution=1.0,
-        advisor=None,
     ):
         row = HelpRow(
             parent,
@@ -606,252 +582,12 @@ class MainWindow(tk.Tk):
             from_=from_,
             to=to,
             resolution=resolution,
-            advisor=advisor,
         )
 
         row.pack(
             fill="x",
             pady=2,
         )
-
-    @staticmethod
-    def _stars(value):
-        value = max(1, min(5, int(round(value))))
-        return "★" * value + "☆" * (5 - value)
-
-    def advise_distance_min(self, value):
-        value = float(value)
-        if value < 700:
-            return (
-                "Caméra très proche : immersion maximale, mais le paysage "
-                "peut être coupé dans les vallées étroites.\n"
-                f"Immersion {self._stars(5)}  Vue générale {self._stars(2)}"
-            )
-        if value < 1500:
-            return (
-                "Réglage conseillé pour le trek : suivi proche et relief lisible.\n"
-                f"Immersion {self._stars(4)}  Vue générale {self._stars(4)}"
-            )
-        if value < 2600:
-            return (
-                "Vue aérienne équilibrée : davantage de paysage, trace plus petite.\n"
-                f"Immersion {self._stars(3)}  Vue générale {self._stars(5)}"
-            )
-        return (
-            "Caméra très éloignée : utile dans les grandes vallées, "
-            "mais la trace devient discrète.\n"
-            f"Immersion {self._stars(2)}  Vue générale {self._stars(5)}"
-        )
-
-    def advise_distance_max(self, value):
-        value = float(value)
-        if value < 2200:
-            return "Recul limité : effet drone et terrain stable."
-        if value < 4200:
-            return "Plage équilibrée : conseillée pour la haute montagne."
-        return "Grand recul : plus de paysage, mais risque d'effet de plaque."
-
-    def advise_distance_scale(self, value):
-        value = float(value)
-        if value < 0.22:
-            return "Faible : la caméra reste proche, même sur les longs GPX."
-        if value < 0.46:
-            return "Bon compromis : adaptation naturelle à la taille du parcours."
-        return "Élevée : recul important sur les grands itinéraires."
-
-    def advise_height_min(self, value):
-        value = float(value)
-        if value < 350:
-            return "Très bas : effet drone spectaculaire, sensible au relief."
-        if value < 850:
-            return "Hauteur immersive conseillée pour un trek."
-        if value < 1500:
-            return "Vue aérienne large, sensation de vitesse réduite."
-        return "Vue panoramique haute, proche d'une carte 3D."
-
-    def advise_height_max(self, value):
-        value = float(value)
-        if value < 1200:
-            return "Hauteur contenue : rendu proche et dynamique."
-        if value < 2400:
-            return "Plage recommandée pour les reliefs himalayens."
-        return "Très haute : utile pour les sommets, mais rendu plus lointain."
-
-    def advise_height_scale(self, value):
-        value = float(value)
-        if value < 0.12:
-            return "Faible : la caméra reste basse malgré la longueur du parcours."
-        if value < 0.26:
-            return "Conseillée : adaptation progressive et naturelle."
-        return "Forte : la caméra montera vite sur les grands itinéraires."
-
-    def advise_lateral(self, value):
-        value = float(value)
-        if value < 100:
-            return "Presque dans l'axe : terrain très stable."
-        if value < 450:
-            return "Décalage modéré recommandé : relief visible sans trop tourner."
-        return "Décalage important : vue latérale forte et rotation plus visible."
-
-    def advise_lateral_scale(self, value):
-        value = float(value)
-        if value < 0.08:
-            return "Très stable : caméra presque dans l'axe du parcours."
-        if value < 0.18:
-            return "Conseillée : légère vue latérale sans rotation excessive."
-        return "Très latérale : spectaculaire, mais le terrain tournera davantage."
-
-    def advise_look_ahead(self, value):
-        value = int(value)
-        if value < 100:
-            return "Regard proche : caméra réactive, parfois nerveuse."
-        if value < 300:
-            return "Conseillé : bonne anticipation et rotations contenues."
-        return "Regard lointain : mouvements plus amples et davantage de rotation."
-
-    def advise_smoothing(self, value):
-        value = float(value)
-        if value < 0.06:
-            return "Très doux : mouvements stables, réactions plus lentes."
-        if value < 0.14:
-            return "Conseillé : fluide tout en restant précis."
-        if value < 0.22:
-            return "Réactif : suit mieux les virages, mais peut devenir nerveux."
-        return "Très réactif : changements rapides, risque de saccades."
-
-    def advise_margin(self, value):
-        value = float(value)
-        if value < 0.008:
-            return "Terrain compact : calcul rapide, bords parfois visibles."
-        if value < 0.020:
-            return "Conseillée : terrain plus naturel et bords rarement visibles."
-        return "Grande emprise : aspect naturel, calcul et texture plus lourds."
-
-    def advise_cells(self, value):
-        value = int(value)
-        if value < 70000:
-            return "Mode rapide : idéal pour le preview."
-        if value < 150000:
-            return "Qualité standard : bon équilibre détails / performances."
-        return "Haute qualité : relief plus fin, rendu nettement plus long."
-
-    def advise_track_width(self, value):
-        value = float(value)
-        if value <= 1.2:
-            return "Trace très fine et discrète."
-        if value <= 2.2:
-            return "Largeur recommandée : visible sans effet de ver."
-        return "Trace épaisse : très visible, mais moins naturelle."
-
-    def advise_fps(self, value):
-        value = int(value)
-        if value <= 20:
-            return "Rapide à calculer, fluidité correcte pour les tests."
-        if value <= 30:
-            return "Réglage conseillé pour la vidéo finale."
-        return "Très fluide, mais rendu et fichier plus lourds."
-
-    def advise_camera_mode(self, value):
-        value = str(value).lower()
-
-        if value == "director":
-            return (
-                "🟢 Recommandé — Suit automatiquement la trace avec un cadrage "
-                "stable et cinématographique. Idéal pour les treks."
-            )
-
-        if value == "flyover":
-            return (
-                "🟠 Correct — Caméra plus libre et plus dynamique. "
-                "Montre davantage le paysage, mais peut tourner davantage."
-            )
-
-        if value == "stage":
-            return (
-                "🟠 Présentation — Vue plus statique, adaptée aux étapes "
-                "et aux plans de démonstration."
-            )
-
-        return "Mode caméra personnalisé."
-
-    def advise_orientation(self, value):
-        value = str(value).lower()
-
-        if value == "auto":
-            return (
-                "🟢 Recommandé — L'orientation suit naturellement le parcours "
-                "sans imposer une direction fixe."
-            )
-
-        if value == "route":
-            return (
-                "🟢 Suivi de trace — La caméra reste alignée avec la direction "
-                "du parcours. Bon compromis pour un trek."
-            )
-
-        if value == "north":
-            return (
-                "🟠 Cartographique — Le nord reste prioritaire. "
-                "Le terrain paraît plus stable mais moins cinématographique."
-            )
-
-        if value == "fixed":
-            return (
-                "🟠 Fixe — Orientation constante. Très stable, mais moins adaptée "
-                "aux parcours sinueux."
-            )
-
-        return "Orientation personnalisée."
-
-    def advise_terrain_source(self, value):
-        value = str(value).lower()
-
-        if value == "copernicus":
-            return (
-                "🟢 Recommandé — Relief plus propre et plus fiable en haute montagne. "
-                "Idéal pour Himalaya, Alpes et Pyrénées."
-            )
-
-        if value == "srtm":
-            return (
-                "🟠 Plus léger — Calcul souvent plus rapide, mais relief moins propre "
-                "dans les zones très escarpées."
-            )
-
-        return "Source de relief personnalisée."
-
-    def advise_resolution(self, value):
-        value = str(value).lower()
-
-        if value == "854x480":
-            return (
-                "🟢 Test rapide — Très adapté aux previews. "
-                "Temps de calcul minimal."
-            )
-
-        if value == "1280x720":
-            return (
-                "🟢 Recommandé pour les essais — Bonne lisibilité et rendu encore rapide."
-            )
-
-        if value == "1920x1080":
-            return (
-                "🟢 Full HD — Réglage conseillé pour la vidéo finale. "
-                "Temps de rendu environ 2 à 3 fois supérieur au 720p."
-            )
-
-        if value == "2560x1440":
-            return (
-                "🟠 Haute définition — Image plus fine, rendu nettement plus long."
-            )
-
-        if value == "3840x2160":
-            return (
-                "🔴 4K — Très grande qualité, mais calcul et fichier beaucoup plus lourds. "
-                "À réserver à l'export final."
-            )
-
-        return "Résolution personnalisée."
 
     def _build_camera_tab(
         self,
@@ -865,7 +601,6 @@ class MainWindow(tk.Tk):
                 "C'est le mode conseillé pour les vidéos."
             ),
             key="camera_mode",
-            advisor=self.advise_camera_mode,
             values=(
                 "director",
                 "flyover",
@@ -881,7 +616,6 @@ class MainWindow(tk.Tk):
                 "North conserve le nord en haut."
             ),
             key="orientation",
-            advisor=self.advise_orientation,
             values=(
                 "auto",
                 "route",
@@ -899,7 +633,6 @@ class MainWindow(tk.Tk):
             ),
             key="distance_min",
             unit="m",
-            advisor=self.advise_distance_min,
             from_=300,
             to=4000,
         )
@@ -913,7 +646,6 @@ class MainWindow(tk.Tk):
             ),
             key="distance_max",
             unit="m",
-            advisor=self.advise_distance_max,
             from_=800,
             to=8000,
         )
@@ -926,7 +658,6 @@ class MainWindow(tk.Tk):
                 "Valeur conseillée : 0,25 à 0,45."
             ),
             key="distance_scale",
-            advisor=self.advise_distance_scale,
             from_=0.10,
             to=0.80,
             resolution=0.01,
@@ -940,7 +671,6 @@ class MainWindow(tk.Tk):
             ),
             key="height_min",
             unit="m",
-            advisor=self.advise_height_min,
             from_=100,
             to=2500,
         )
@@ -953,7 +683,6 @@ class MainWindow(tk.Tk):
             ),
             key="height_max",
             unit="m",
-            advisor=self.advise_height_max,
             from_=400,
             to=5000,
         )
@@ -966,7 +695,6 @@ class MainWindow(tk.Tk):
                 "Valeur conseillée : 0,10 à 0,25."
             ),
             key="height_scale",
-            advisor=self.advise_height_scale,
             from_=0.05,
             to=0.60,
             resolution=0.01,
@@ -981,7 +709,6 @@ class MainWindow(tk.Tk):
             ),
             key="lateral_min",
             unit="m",
-            advisor=self.advise_lateral,
             from_=0,
             to=1000,
         )
@@ -995,7 +722,6 @@ class MainWindow(tk.Tk):
             ),
             key="lateral_max",
             unit="m",
-            advisor=self.advise_lateral,
             from_=50,
             to=2500,
         )
@@ -1008,7 +734,6 @@ class MainWindow(tk.Tk):
                 "sur le côté de la trace."
             ),
             key="lateral_scale",
-            advisor=self.advise_lateral_scale,
             from_=0.00,
             to=0.40,
             resolution=0.01,
@@ -1022,7 +747,6 @@ class MainWindow(tk.Tk):
                 "Une valeur trop élevée augmente les rotations."
             ),
             key="look_ahead",
-            advisor=self.advise_look_ahead,
             from_=20,
             to=600,
         )
@@ -1035,7 +759,6 @@ class MainWindow(tk.Tk):
                 "Une valeur faible ralentit les changements."
             ),
             key="smoothing",
-            advisor=self.advise_smoothing,
             from_=0.02,
             to=0.30,
             resolution=0.01,
@@ -1052,7 +775,6 @@ class MainWindow(tk.Tk):
                 "Copernicus est recommandé pour la haute montagne."
             ),
             key="terrain_source",
-            advisor=self.advise_terrain_source,
             values=(
                 "copernicus",
                 "srtm",
@@ -1103,7 +825,6 @@ class MainWindow(tk.Tk):
                 "60 000 est rapide ; 150 000 donne plus de détails."
             ),
             key="terrain_max_cells",
-            advisor=self.advise_cells,
             from_=30000,
             to=250000,
         )
@@ -1116,7 +837,6 @@ class MainWindow(tk.Tk):
                 "Augmenter cette valeur rend les bords moins visibles."
             ),
             key="terrain_margin",
-            advisor=self.advise_margin,
             from_=0.002,
             to=0.050,
             resolution=0.001,
@@ -1185,7 +905,6 @@ class MainWindow(tk.Tk):
             ),
             key="track_width",
             unit="px",
-            advisor=self.advise_track_width,
             from_=0.5,
             to=10.0,
             resolution=0.1,
@@ -1313,7 +1032,6 @@ class MainWindow(tk.Tk):
             ),
             key="fps",
             unit="FPS",
-            advisor=self.advise_fps,
             from_=10,
             to=60,
         )
@@ -1326,7 +1044,6 @@ class MainWindow(tk.Tk):
                 "1920x1080 pour la vidéo finale."
             ),
             key="resolution",
-            advisor=self.advise_resolution,
             values=(
                 "854x480",
                 "1280x720",
@@ -1344,79 +1061,6 @@ class MainWindow(tk.Tk):
             ),
             key="output",
         )
-
-    def create_project_from_gpx(self):
-        filename = filedialog.askopenfilename(
-            title="Choisir le GPX du nouveau projet",
-            filetypes=[
-                (
-                    "Fichier GPX",
-                    "*.gpx",
-                )
-            ],
-        )
-
-        if not filename:
-            return
-
-        gpx_path = Path(filename)
-
-        project_file = filedialog.asksaveasfilename(
-            title="Enregistrer le nouveau projet",
-            initialdir="projects",
-            initialfile=f"{gpx_path.stem}.yaml",
-            defaultextension=".yaml",
-            filetypes=[
-                (
-                    "Projet YAML",
-                    "*.yaml",
-                )
-            ],
-        )
-
-        if not project_file:
-            return
-
-        project_path = Path(
-            project_file
-        )
-
-        try:
-            template = ProjectLoaderV5(
-                "projects/project_v5.yaml"
-            ).load()
-
-            template.title = (
-                gpx_path.stem
-                .replace("_", " ")
-            )
-
-            template.gpx.file = gpx_path
-            template.source_file = project_path
-
-            self.project = template
-
-            self.project_file.set(
-                str(project_path)
-            )
-
-            ProjectLoaderV5.save(
-                self.project,
-                project_path,
-            )
-
-            self._fill_form()
-
-            self.status_text.set(
-                "Nouveau projet créé : "
-                f"{project_path}"
-            )
-
-        except Exception as error:
-            messagebox.showerror(
-                "Erreur",
-                str(error),
-            )
 
     def choose_project(self):
         filename = filedialog.askopenfilename(
@@ -1449,70 +1093,10 @@ class MainWindow(tk.Tk):
             ],
         )
 
-        if not filename:
-            return
-
-        gpx_path = Path(filename)
-
-        self.vars["gpx"].set(
-            str(gpx_path)
-        )
-
-        self.vars["title"].set(
-            gpx_path.stem.replace("_", " ")
-        )
-
-        current_project = Path(
-            self.project_file.get()
-        )
-
-        project_is_missing = (
-            self.project is None
-            or not current_project.exists()
-        )
-
-        if project_is_missing:
-            default_project = (
-                Path("projects")
-                / f"{gpx_path.stem}.yaml"
+        if filename:
+            self.vars["gpx"].set(
+                filename
             )
-
-            self.project_file.set(
-                str(default_project)
-            )
-
-            try:
-                template = ProjectLoaderV5(
-                    "projects/project_v5.yaml"
-                ).load()
-
-                template.title = self.vars[
-                    "title"
-                ].get()
-
-                template.gpx.file = gpx_path
-                template.source_file = default_project
-
-                self.project = template
-
-                ProjectLoaderV5.save(
-                    self.project,
-                    default_project,
-                )
-
-                self._fill_form()
-
-                self.status_text.set(
-                    "Projet créé automatiquement : "
-                    f"{default_project}"
-                )
-
-            except Exception as error:
-                messagebox.showerror(
-                    "Erreur",
-                    "Impossible de créer automatiquement "
-                    f"le projet :\n{error}",
-                )
 
     def choose_color(self):
         selected = colorchooser.askcolor(
@@ -1619,32 +1203,9 @@ class MainWindow(tk.Tk):
             self.vars["title"].get()
         )
 
-        gpx_text = str(
+        project.gpx.file = Path(
             self.vars["gpx"].get()
-        ).strip()
-
-        if not gpx_text:
-            raise ValueError(
-                "Sélectionne d'abord un fichier GPX."
-            )
-
-        gpx_path = Path(
-            gpx_text
         )
-
-        if gpx_path.is_dir():
-            raise ValueError(
-                "Le chemin GPX désigne un dossier, "
-                "pas un fichier."
-            )
-
-        if gpx_path.suffix.lower() != ".gpx":
-            raise ValueError(
-                "Le fichier sélectionné doit être "
-                "au format .gpx."
-            )
-
-        project.gpx.file = gpx_path
 
         project.camera.mode = str(
             self.vars[

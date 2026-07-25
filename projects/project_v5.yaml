@@ -1,56 +1,50 @@
 project:
-  title: Kagbeni - Sangda V5
-
+  title: 20 km belmont
 gpx:
-  file: gpx/31_kagbeni_sangda-24667827-1784704753-767.gpx
-
+  file: C:/Users/pc/Documents/PERSO/Sport/GPX-Flyover-Studio V5/gpx/20_km_belmont.gpx
 camera:
   mode: director
-  orientation: auto
+  orientation: route
   distance:
-    min: 1200
-    max: 3600
-    scale: 0.40
+    min: 933.6391437308869
+    max: 1878.8990825688074
+    scale: 0.3012232415902141
   height:
-    min: 600
-    max: 1900
-    scale: 0.20
+    min: 600.0
+    max: 1900.0
+    scale: 0.19464831804281346
   lateral:
-    min: 160
-    max: 700
-    scale: 0.12
+    min: 67.2782874617737
+    max: 199.84709480122325
+    scale: 0.09908256880733946
   look_ahead: 260
-  smoothing: 0.10
-
+  smoothing: 0.1
 track:
-  color: "#FC4C02"
+  color: '#FC4C02'
   width: 1.5
   z_offset: 8.0
   progressive: true
   leader: false
-
 terrain:
   source: copernicus
   satellite: true
   satellite_zoom: 14
   max_cells: 60000
   margin: 0.006
-
 timeline:
-  intro: 2
-  zoom_to_start: 2
-  start_hold: 3
-  travel: 30
-  slowdown_start: 2
-  slowdown_end: 3
-  arrival_hold: 5
-  flatten: 3
-  profile_animation: 6
-  profile_hold: 4
-  fade_out: 2
-
+  intro: 4.790697674418604
+  zoom_to_start: 3.0
+  start_hold: 3.0
+  travel: 43.25581395348837
+  slowdown_start: 4.0
+  slowdown_end: 4.0
+  arrival_hold: 5.0
+  flatten: 3.0
+  profile_animation: 7.0
+  profile_hold: 10.0
+  fade_out: 4.0
 video:
   fps: 20
   resolution: 1280x720
   output: output/video/flyover_v5.mp4
-  mode: PREVIEW
+  mode: VIDEO

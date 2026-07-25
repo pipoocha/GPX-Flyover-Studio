@@ -348,16 +348,6 @@ class MainWindow(tk.Tk):
             padx=(8, 0),
         )
 
-        ttk.Button(
-            project_box,
-            text="Nouveau depuis GPX",
-            command=self.create_project_from_gpx,
-        ).grid(
-            row=0,
-            column=3,
-            padx=(8, 0),
-        )
-
         ttk.Label(
             project_box,
             text="Titre du projet",
@@ -1345,79 +1335,6 @@ class MainWindow(tk.Tk):
             key="output",
         )
 
-    def create_project_from_gpx(self):
-        filename = filedialog.askopenfilename(
-            title="Choisir le GPX du nouveau projet",
-            filetypes=[
-                (
-                    "Fichier GPX",
-                    "*.gpx",
-                )
-            ],
-        )
-
-        if not filename:
-            return
-
-        gpx_path = Path(filename)
-
-        project_file = filedialog.asksaveasfilename(
-            title="Enregistrer le nouveau projet",
-            initialdir="projects",
-            initialfile=f"{gpx_path.stem}.yaml",
-            defaultextension=".yaml",
-            filetypes=[
-                (
-                    "Projet YAML",
-                    "*.yaml",
-                )
-            ],
-        )
-
-        if not project_file:
-            return
-
-        project_path = Path(
-            project_file
-        )
-
-        try:
-            template = ProjectLoaderV5(
-                "projects/project_v5.yaml"
-            ).load()
-
-            template.title = (
-                gpx_path.stem
-                .replace("_", " ")
-            )
-
-            template.gpx.file = gpx_path
-            template.source_file = project_path
-
-            self.project = template
-
-            self.project_file.set(
-                str(project_path)
-            )
-
-            ProjectLoaderV5.save(
-                self.project,
-                project_path,
-            )
-
-            self._fill_form()
-
-            self.status_text.set(
-                "Nouveau projet créé : "
-                f"{project_path}"
-            )
-
-        except Exception as error:
-            messagebox.showerror(
-                "Erreur",
-                str(error),
-            )
-
     def choose_project(self):
         filename = filedialog.askopenfilename(
             title="Choisir un projet YAML",
@@ -1449,70 +1366,10 @@ class MainWindow(tk.Tk):
             ],
         )
 
-        if not filename:
-            return
-
-        gpx_path = Path(filename)
-
-        self.vars["gpx"].set(
-            str(gpx_path)
-        )
-
-        self.vars["title"].set(
-            gpx_path.stem.replace("_", " ")
-        )
-
-        current_project = Path(
-            self.project_file.get()
-        )
-
-        project_is_missing = (
-            self.project is None
-            or not current_project.exists()
-        )
-
-        if project_is_missing:
-            default_project = (
-                Path("projects")
-                / f"{gpx_path.stem}.yaml"
+        if filename:
+            self.vars["gpx"].set(
+                filename
             )
-
-            self.project_file.set(
-                str(default_project)
-            )
-
-            try:
-                template = ProjectLoaderV5(
-                    "projects/project_v5.yaml"
-                ).load()
-
-                template.title = self.vars[
-                    "title"
-                ].get()
-
-                template.gpx.file = gpx_path
-                template.source_file = default_project
-
-                self.project = template
-
-                ProjectLoaderV5.save(
-                    self.project,
-                    default_project,
-                )
-
-                self._fill_form()
-
-                self.status_text.set(
-                    "Projet créé automatiquement : "
-                    f"{default_project}"
-                )
-
-            except Exception as error:
-                messagebox.showerror(
-                    "Erreur",
-                    "Impossible de créer automatiquement "
-                    f"le projet :\n{error}",
-                )
 
     def choose_color(self):
         selected = colorchooser.askcolor(
@@ -1619,32 +1476,9 @@ class MainWindow(tk.Tk):
             self.vars["title"].get()
         )
 
-        gpx_text = str(
+        project.gpx.file = Path(
             self.vars["gpx"].get()
-        ).strip()
-
-        if not gpx_text:
-            raise ValueError(
-                "Sélectionne d'abord un fichier GPX."
-            )
-
-        gpx_path = Path(
-            gpx_text
         )
-
-        if gpx_path.is_dir():
-            raise ValueError(
-                "Le chemin GPX désigne un dossier, "
-                "pas un fichier."
-            )
-
-        if gpx_path.suffix.lower() != ".gpx":
-            raise ValueError(
-                "Le fichier sélectionné doit être "
-                "au format .gpx."
-            )
-
-        project.gpx.file = gpx_path
 
         project.camera.mode = str(
             self.vars[

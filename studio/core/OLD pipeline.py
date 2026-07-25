@@ -9,7 +9,7 @@ from studio.animation.camera_path import CameraPath
 from studio.animation.frame_renderer import FrameRenderer
 from studio.animation.preview_player import PreviewPlayer
 from studio.animation.stage_camera import StageCamera
-from studio.director.director_engine import DirectorEngine
+from studio.camera.camera import V5Camera
 from studio.geometry.path_builder import PathBuilder
 from studio.imagery.satellite_texture import SatelliteTexture
 from studio.io.gpx_loader import GPXLoader
@@ -19,11 +19,6 @@ from studio.terrain.srtm_grid import SRTMGridBuilder
 from studio.terrain.terrain_mesh import TerrainMesh
 from studio.terrain.terrain_sampler import TerrainSampler
 from studio.video.video_exporter import VideoExporter
-
-try:
-    from satellite_downloader import create_mosaic
-except ImportError:
-    create_mosaic = None
 
 
 class FlyoverPipeline:
@@ -93,10 +88,15 @@ class FlyoverPipeline:
         config.COPERNICUS_MARGIN = float(terrain.margin)
 
         config.START_HOLD_SECONDS = float(timeline.start_hold)
+        config.SLOWDOWN_START_SECONDS = float(timeline.slowdown_start)
+        config.SLOWDOWN_END_SECONDS = float(timeline.slowdown_end)
         config.ARRIVAL_HOLD_SECONDS = float(timeline.arrival_hold)
         config.FLATTEN_TRANSITION_SECONDS = float(timeline.flatten)
         config.PROFILE_ANIMATION_SECONDS = float(timeline.profile_animation)
         config.PROFILE_HOLD_SECONDS = float(timeline.profile_hold)
+        config.FADE_OUT_SECONDS = float(timeline.fade_out)
+        config.START_VISIBLE_SEGMENTS = 12
+        config.PROFILE_MAP_MARKER_RADIUS = 28.0
 
     def load_gpx(self):
         print("Lecture GPX...")
@@ -154,119 +154,38 @@ class FlyoverPipeline:
     def load_satellite_texture(self):
         if not self.project.terrain.satellite:
             self.satellite_texture = None
-            print("Texture satellite désactivée.")
             return
-
-        satellite_cache_dir = Path(
-            getattr(
-                config,
-                "SATELLITE_CACHE_DIR",
-                "cache/satellite",
-            )
-        )
-
-        zoom = int(
-            self.project.terrain.satellite_zoom
-        )
 
         satellite = SatelliteTexture(
             gpx_file=self.project.gpx_file,
-            cache_dir=satellite_cache_dir,
-            zoom=zoom,
+            cache_dir=getattr(
+                config,
+                "SATELLITE_CACHE_DIR",
+                "cache/satellite",
+            ),
+            zoom=self.project.terrain.satellite_zoom,
             flip_vertical=bool(
-                getattr(
-                    config,
-                    "SATELLITE_FLIP_VERTICAL",
-                    True,
-                )
+                getattr(config, "SATELLITE_FLIP_VERTICAL", True)
             ),
         )
 
         if not satellite.exists():
-            print()
+            print("ATTENTION : texture satellite absente.")
             print(
-                "Texture satellite absente : "
-                "téléchargement automatique..."
+                "Commande : python satellite_downloader.py "
+                f'"{self.project.gpx_file}" '
+                f"--zoom {self.project.terrain.satellite_zoom}"
             )
-
-            if create_mosaic is None:
-                print(
-                    "ATTENTION : satellite_downloader.py "
-                    "est introuvable."
-                )
-                print(
-                    "Le preview continue sans texture satellite."
-                )
-                self.satellite_texture = None
-                return
-
-            try:
-                create_mosaic(
-                    gpx_file=Path(
-                        self.project.gpx_file
-                    ),
-                    zoom=zoom,
-                    margin_ratio=float(
-                        getattr(
-                            config,
-                            "SATELLITE_MARGIN_RATIO",
-                            0.08,
-                        )
-                    ),
-                    cache_dir=(
-                        satellite_cache_dir
-                        / "tiles"
-                    ),
-                    output_dir=satellite_cache_dir,
-                )
-
-            except Exception as error:
-                print()
-                print(
-                    "ATTENTION : téléchargement satellite "
-                    "impossible."
-                )
-                print("Détail :", error)
-                print(
-                    "Le preview continue avec le relief "
-                    "sans texture satellite."
-                )
-                self.satellite_texture = None
-                return
-
-            satellite = SatelliteTexture(
-                gpx_file=self.project.gpx_file,
-                cache_dir=satellite_cache_dir,
-                zoom=zoom,
-                flip_vertical=bool(
-                    getattr(
-                        config,
-                        "SATELLITE_FLIP_VERTICAL",
-                        True,
-                    )
-                ),
-            )
-
-        if not satellite.exists():
-            print(
-                "ATTENTION : la mosaïque satellite "
-                "n'a pas été créée."
-            )
-            print(
-                "Le preview continue sans texture satellite."
-            )
+            print("Le rendu continue avec les couleurs du relief.")
             self.satellite_texture = None
             return
 
         description = satellite.describe()
-
-        print("Texture satellite prête :")
+        print("Texture satellite trouvée :")
         print("  Image :", description["image"])
         print("  Zoom  :", description["zoom"])
 
-        self.satellite_texture = (
-            satellite.load_texture()
-        )
+        self.satellite_texture = satellite.load_texture()
 
     def build_scene(self, off_screen=True):
         scene = Scene(
@@ -278,7 +197,7 @@ class FlyoverPipeline:
         )
 
         if self.satellite_texture is not None:
-            scene.add_mesh(
+            terrain_actor = scene.add_mesh(
                 self.project.mesh,
                 texture=self.satellite_texture,
                 smooth_shading=True,
@@ -287,11 +206,14 @@ class FlyoverPipeline:
                 specular=0.03,
             )
         else:
-            scene.add_mesh(
+            terrain_actor = scene.add_mesh(
                 self.project.mesh,
                 cmap="terrain",
                 smooth_shading=True,
             )
+
+        scene.terrain_actor = terrain_actor
+        scene.terrain_mean_z = float(self.project.mesh.points[:, 2].mean())
 
         scene.add_light(
             pv.Light(
@@ -311,9 +233,12 @@ class FlyoverPipeline:
     def build_camera(self):
         mode = self.project.camera.mode.lower()
 
-        if mode == "director":
-            print("Caméra : Director cinématographique")
-            return DirectorEngine(self.project.path_coords)
+        if mode in {"director", "drone", "cinematic", "relive"}:
+            print(f"Caméra V5 : {mode}")
+            return V5Camera(
+                self.project.path_coords,
+                self.project.camera,
+            )
 
         if mode == "stage":
             print("Caméra : présentation d'étape")
