@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from pathlib import Path
+
 import pyvista as pv
 
 import config
@@ -5,10 +9,12 @@ from studio.animation.camera_path import CameraPath
 from studio.animation.frame_renderer import FrameRenderer
 from studio.animation.preview_player import PreviewPlayer
 from studio.animation.stage_camera import StageCamera
-from studio.director.director_engine import DirectorEngine
+from studio.camera.camera import V5Camera
 from studio.geometry.path_builder import PathBuilder
+from studio.imagery.satellite_texture import SatelliteTexture
 from studio.io.gpx_loader import GPXLoader
 from studio.scene.scene import Scene
+from studio.terrain.copernicus_grid import CopernicusGridBuilder
 from studio.terrain.srtm_grid import SRTMGridBuilder
 from studio.terrain.terrain_mesh import TerrainMesh
 from studio.terrain.terrain_sampler import TerrainSampler
@@ -16,45 +22,123 @@ from studio.video.video_exporter import VideoExporter
 
 
 class FlyoverPipeline:
+    """Pipeline V5 utilisant ProjectConfig comme source principale.
+
+    Les anciens modules utilisent encore ``config``. La méthode
+    ``apply_legacy_config`` assure temporairement la compatibilité, sans
+    remettre les réglages dans ``config/settings.py``.
+    """
+
     def __init__(self, project):
         self.project = project
-        self.origin_x = 0
-        self.origin_y = 0
+        self.origin_x = 0.0
+        self.origin_y = 0.0
+        self.satellite_texture = None
+
+        self.apply_legacy_config()
+
+    def apply_legacy_config(self):
+        project = self.project
+        video = project.video
+        camera = project.camera
+        track = project.track
+        terrain = project.terrain
+        timeline = project.timeline
+
+        config.PROJECT_TITLE = project.title
+        config.MODE = video.mode
+        config.FPS = int(video.fps)
+        config.WINDOW_WIDTH = int(video.width)
+        config.WINDOW_HEIGHT = int(video.height)
+        config.DEFAULT_VIDEO = Path(video.output)
+        config.VIDEO_DURATION = int(round(timeline.travel))
+        config.TOTAL_FRAMES = max(
+            2,
+            int(round(timeline.travel * video.fps)),
+        )
+
+        config.CAMERA_MODE = camera.mode
+        config.CAMERA_ORIENTATION_MODE = camera.orientation
+        config.LOOK_AHEAD = int(camera.look_ahead)
+        config.PREDICTIVE_POSITION_SMOOTHING = float(camera.smoothing)
+        config.PREDICTIVE_FOCAL_SMOOTHING = float(camera.smoothing)
+
+        config.CAMERA_LOCAL_FIT_ENABLED = True
+        config.CAMERA_LOCAL_FIT_DISTANCE_SCALE = float(camera.distance.scale)
+        config.CAMERA_LOCAL_FIT_MIN_DISTANCE = float(camera.distance.minimum)
+        config.CAMERA_LOCAL_FIT_MAX_DISTANCE = float(camera.distance.maximum)
+        config.CAMERA_LOCAL_FIT_HEIGHT_SCALE = float(camera.height.scale)
+        config.CAMERA_LOCAL_FIT_MIN_HEIGHT = float(camera.height.minimum)
+        config.CAMERA_LOCAL_FIT_MAX_HEIGHT = float(camera.height.maximum)
+        config.CAMERA_LATERAL_DISTANCE_SCALE = float(camera.lateral.scale)
+        config.CAMERA_LATERAL_MINIMUM = float(camera.lateral.minimum)
+        config.CAMERA_LATERAL_MAXIMUM = float(camera.lateral.maximum)
+
+        config.TRACK_RENDER_MODE = "line"
+        config.TRACK_COLOR = track.color
+        config.TRACK_LINE_WIDTH = float(track.width)
+        config.TRACK_Z_OFFSET = float(track.z_offset)
+        config.TRACE_PROGRESSIVE = bool(track.progressive)
+        config.LEADER_ENABLED = bool(track.leader)
+
+        config.TERRAIN_SOURCE = terrain.source
+        config.USE_SATELLITE = bool(terrain.satellite)
+        config.SATELLITE_ZOOM = int(terrain.satellite_zoom)
+        config.COPERNICUS_MAX_CELLS = int(terrain.max_cells)
+        config.COPERNICUS_MARGIN = float(terrain.margin)
+
+        config.START_HOLD_SECONDS = float(timeline.start_hold)
+        config.SLOWDOWN_START_SECONDS = float(timeline.slowdown_start)
+        config.SLOWDOWN_END_SECONDS = float(timeline.slowdown_end)
+        config.ARRIVAL_HOLD_SECONDS = float(timeline.arrival_hold)
+        config.FLATTEN_TRANSITION_SECONDS = float(timeline.flatten)
+        config.PROFILE_ANIMATION_SECONDS = float(timeline.profile_animation)
+        config.PROFILE_HOLD_SECONDS = float(timeline.profile_hold)
+        config.FADE_OUT_SECONDS = float(timeline.fade_out)
+        config.START_VISIBLE_SEGMENTS = 12
+        config.PROFILE_MAP_MARKER_RADIUS = 28.0
 
     def load_gpx(self):
         print("Lecture GPX...")
 
-        loader = GPXLoader(
-            self.project.gpx_file
-        )
-
+        loader = GPXLoader(self.project.gpx_file)
         self.project.points = loader.load()
 
-        print(
-            f"{len(self.project.points)} "
-            f"points chargés"
-        )
+        if len(self.project.points) < 2:
+            raise ValueError("Le GPX doit contenir au moins deux points.")
+
+        print(f"{len(self.project.points)} points chargés")
 
     def build_terrain(self):
-        print("Création terrain SRTM...")
+        source = self.project.terrain.source.lower()
 
-        builder = SRTMGridBuilder(
-            self.project.points,
-            resolution=0.0005,
-        )
+        if source == "srtm":
+            print("Création terrain SRTM...")
+            builder = SRTMGridBuilder(
+                self.project.points,
+                resolution=0.0005,
+            )
+        elif source == "copernicus":
+            print("Création terrain Copernicus GLO-30...")
+            builder = CopernicusGridBuilder(
+                self.project.points,
+                margin=self.project.terrain.margin,
+                cache_dir=getattr(
+                    config,
+                    "COPERNICUS_CACHE_DIR",
+                    "cache/dem/copernicus_glo30",
+                ),
+                max_cells=self.project.terrain.max_cells,
+            )
+        else:
+            raise ValueError(f"Source terrain inconnue : {source}")
 
         self.project.grid = builder.build()
+        self.project.mesh = TerrainMesh(self.project.grid).build()
+        self.project.sampler = TerrainSampler(self.project.grid)
 
-        self.project.mesh = TerrainMesh(
-            self.project.grid
-        ).build()
-
-        self.project.sampler = TerrainSampler(
-            self.project.grid
-        )
-
-        self.origin_x = builder.origin_x
-        self.origin_y = builder.origin_y
+        self.origin_x = float(builder.origin_x)
+        self.origin_y = float(builder.origin_y)
 
     def build_path(self):
         print("Construction trajectoire...")
@@ -64,95 +148,129 @@ class FlyoverPipeline:
             origin_x=self.origin_x,
             origin_y=self.origin_y,
             sampler=self.project.sampler,
-            z_offset=60,
+            z_offset=self.project.track.z_offset,
         ).build()
+
+    def load_satellite_texture(self):
+        if not self.project.terrain.satellite:
+            self.satellite_texture = None
+            return
+
+        satellite = SatelliteTexture(
+            gpx_file=self.project.gpx_file,
+            cache_dir=getattr(
+                config,
+                "SATELLITE_CACHE_DIR",
+                "cache/satellite",
+            ),
+            zoom=self.project.terrain.satellite_zoom,
+            flip_vertical=bool(
+                getattr(config, "SATELLITE_FLIP_VERTICAL", True)
+            ),
+        )
+
+        if not satellite.exists():
+            print("ATTENTION : texture satellite absente.")
+            print(
+                "Commande : python satellite_downloader.py "
+                f'"{self.project.gpx_file}" '
+                f"--zoom {self.project.terrain.satellite_zoom}"
+            )
+            print("Le rendu continue avec les couleurs du relief.")
+            self.satellite_texture = None
+            return
+
+        description = satellite.describe()
+        print("Texture satellite trouvée :")
+        print("  Image :", description["image"])
+        print("  Zoom  :", description["zoom"])
+
+        self.satellite_texture = satellite.load_texture()
 
     def build_scene(self, off_screen=True):
         scene = Scene(
             window_size=(
-                config.WINDOW_WIDTH,
-                config.WINDOW_HEIGHT,
+                self.project.video.width,
+                self.project.video.height,
             ),
             off_screen=off_screen,
         )
 
-        scene.add_mesh(
-            self.project.mesh,
-            cmap="terrain",
-            smooth_shading=True,
-        )
+        if self.satellite_texture is not None:
+            terrain_actor = scene.add_mesh(
+                self.project.mesh,
+                texture=self.satellite_texture,
+                smooth_shading=True,
+                ambient=0.62,
+                diffuse=0.72,
+                specular=0.03,
+            )
+        else:
+            terrain_actor = scene.add_mesh(
+                self.project.mesh,
+                cmap="terrain",
+                smooth_shading=True,
+            )
+
+        scene.terrain_actor = terrain_actor
+        scene.terrain_mean_z = float(self.project.mesh.points[:, 2].mean())
 
         scene.add_light(
             pv.Light(
-                position=(3000, -5000, 4500),
+                position=(3000, -5000, 7000),
                 focal_point=(3000, 3000, 0),
-                intensity=1.0,
+                intensity=0.80,
             )
         )
 
         scene.add_text(
-            f"{config.PROJECT_TITLE} "
-            f"{config.VERSION} - "
-            f"{config.MODE}",
+            f"{self.project.title} {config.VERSION} - {self.project.video.mode}",
             font_size=18,
         )
 
         return scene
 
     def build_camera(self):
-        camera_mode = getattr(
-            config,
-            "CAMERA_MODE",
-            "flyover",
-        )
+        mode = self.project.camera.mode.lower()
 
-        if camera_mode == "director":
-            print(
-                "Caméra : Director "
-                "cinématographique"
+        if mode in {"director", "drone", "cinematic", "relive"}:
+            print(f"Caméra V5 : {mode}")
+            return V5Camera(
+                self.project.path_coords,
+                self.project.camera,
             )
 
-            return DirectorEngine(
-                self.project.path_coords
-            )
+        if mode == "stage":
+            print("Caméra : présentation d'étape")
+            return StageCamera(self.project.path_coords)
 
-        if camera_mode == "stage":
-            print(
-                "Caméra : présentation d'étape"
-            )
+        if mode == "flyover":
+            print("Caméra : flyover")
+            return CameraPath(self.project.path_coords)
 
-            return StageCamera(
-                self.project.path_coords
-            )
-
-        print("Caméra : flyover")
-
-        return CameraPath(
-            self.project.path_coords
-        )
+        raise ValueError(f"Mode caméra inconnu : {mode}")
 
     def preview(self):
-        scene = self.build_scene(
-            off_screen=False
-        )
-
+        scene = self.build_scene(off_screen=False)
         camera_path = self.build_camera()
+
+        frames = max(
+            120,
+            int(round(self.project.timeline.travel * self.project.video.fps)),
+        )
 
         player = PreviewPlayer(
             scene=scene,
             camera_path=camera_path,
             path_coords=self.project.path_coords,
-            frames=300,
-            fps=config.FPS,
+            frames=frames,
+            fps=self.project.video.fps,
         )
 
         player.play()
 
     def render_video(self):
-        scene = self.build_scene(
-            off_screen=True
-        )
-
+        scene = self.build_scene(off_screen=True)
         camera_path = self.build_camera()
 
         renderer = FrameRenderer(
@@ -163,28 +281,41 @@ class FlyoverPipeline:
         )
 
         renderer.render(
-            frames=config.TOTAL_FRAMES
+            frames=max(
+                2,
+                int(round(
+                    self.project.timeline.travel
+                    * self.project.video.fps
+                )),
+            )
         )
 
         VideoExporter(
             frames_dir=config.FRAMES_DIR,
-            output_file=config.DEFAULT_VIDEO,
-            fps=config.FPS,
+            output_file=self.project.video.output,
+            fps=self.project.video.fps,
         ).export()
 
-    def run(self):
-        print(
-            f"{config.PROJECT_TITLE} "
-            f"{config.VERSION}"
-        )
-        print("Mode :", config.MODE)
-
+    def prepare(self):
         self.load_gpx()
         self.build_terrain()
         self.build_path()
+        self.load_satellite_texture()
 
-        if config.MODE == "PREVIEW":
+    def run(self):
+        print(f"{self.project.title} {config.VERSION}")
+        print("Mode :", self.project.video.mode)
+
+        self.prepare()
+
+        if self.project.video.mode == "PREVIEW":
             self.preview()
             return
 
-        self.render_video()
+        if self.project.video.mode == "VIDEO":
+            self.render_video()
+            return
+
+        raise ValueError(
+            f"Mode vidéo inconnu : {self.project.video.mode}"
+        )

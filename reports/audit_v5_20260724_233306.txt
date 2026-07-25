@@ -1,0 +1,158 @@
+========================================================================
+GPX FLYOVER STUDIO V5 - AUDIT
+========================================================================
+
+Racine : C:\Users\pc\Documents\PERSO\Sport\GPX-Flyover-Studio V5
+Fichiers Python : 132
+Noms suspects : 22
+Modules orphelins potentiels : 84
+Groupes de doublons exacts : 3
+
+DOSSIERS GÉNÉRÉS
+------------------------------------------------------------------------
+cache                                               1.2 Go     1211 fichiers
+cache/frames                                        1.0 Go     1020 fichiers
+output                                            334.3 Mo       11 fichiers
+output/logs                                          0.0 o        0 fichiers
+
+FICHIERS AUX NOMS SUSPECTS
+------------------------------------------------------------------------
+studio/director/director_camera_v11_lateral.py
+test_dem_download.py
+test_dem_loader.py
+test_extent.py
+test_grid.py
+test_imagery_bounds.py
+test_imagery_tiles.py
+test_mosaic.py
+test_mountain.py
+test_projection.py
+test_pyvista.py
+test_renderer3d.py
+test_resampler.py
+test_route_events.py
+test_satellite.py
+test_scene.py
+test_smoothing.py
+test_srtm.py
+test_tile_download.py
+test_track_segment_cache.py
+tests/test_track_segment_cache.py
+tools/cleanup_v5.py
+
+MODULES ORPHELINS POTENTIELS
+------------------------------------------------------------------------
+add_elevation_profile_outro.py
+OLD studio_gui.py
+output/video/__init__.py
+preview_satellite.py
+satellite_downloader.py
+studio/__init__.py
+studio/animation/__init__.py
+studio/animation/OLD frame_renderer (2).py
+studio/animation/OLD frame_renderer (3).py
+studio/animation/OLD frame_renderer (4).py
+studio/animation/OLD frame_renderer.py
+studio/animation/OLD preview_player (2).py
+studio/animation/OLD preview_player (3).py
+studio/animation/OLD preview_player.py
+studio/animation/timeline.py
+studio/animation/track_segment_cache.py
+studio/app.py
+studio/camera/__init__.py
+studio/camera.py
+studio/config.py
+studio/core/__init__.py
+studio/core/old pipeline.py
+studio/core/OLD project_loader.py
+studio/core/Ori pipeline.py
+studio/director/__init__.py
+studio/director/director_camera_v11_lateral.py
+studio/director/old director_camera (2).py
+studio/director/OLD director_camera (3).py
+studio/director/OLD director_camera (4).py
+studio/director/OLD director_camera (5).py
+studio/director/Old director_camera.py
+studio/exporter.py
+studio/geometry/__init__.py
+studio/geometry/resampler copy.py
+studio/geometry/smoothing.py
+studio/geometry/tube_builder.py
+studio/imagery/__init__.py
+studio/imagery/mosaic_builder.py
+studio/imagery/satellite_provider.py
+studio/imagery/tile_downloader.py
+studio/io/__init__.py
+studio/leader/__init__.py
+studio/map_engine.py
+studio/overlay.py
+studio/paths.py
+studio/profile.py
+studio/render/__init__.py
+studio/render/renderer3d.py
+studio/renderer.py
+studio/scene/__init__.py
+studio/scene/track.py
+studio/statistics.py
+studio/terrain/__init__.py
+studio/terrain/dem_cache.py
+studio/terrain/dem_downloader.py
+studio/terrain/dem_loader.py
+studio/terrain/dem_provider.py
+studio/terrain/dem_reader.py
+studio/terrain/old terrain_mesh.py
+studio/terrain/satellite_provider.py
+studio/terrain.py
+studio/track/__init__.py
+studio/ui/__init__.py
+studio/utils/__init__.py
+studio/video/__init__.py
+test_dem_download.py
+test_dem_loader.py
+test_extent.py
+test_grid.py
+test_imagery_bounds.py
+test_imagery_tiles.py
+test_mosaic.py
+test_mountain.py
+test_projection.py
+test_pyvista.py
+test_renderer3d.py
+test_resampler.py
+test_route_events.py
+test_satellite.py
+test_scene.py
+test_smoothing.py
+test_srtm.py
+test_tile_download.py
+test_track_segment_cache.py
+
+DOUBLONS EXACTS
+------------------------------------------------------------------------
+Groupe 1
+  - __init__.py
+  - output/video/__init__.py
+  - studio/__init__.py
+  - studio/animation/__init__.py
+  - studio/camera/__init__.py
+  - studio/core/__init__.py
+  - studio/director/__init__.py
+  - studio/geometry/__init__.py
+  - studio/imagery/__init__.py
+  - studio/io/__init__.py
+  - studio/leader/__init__.py
+  - studio/render/__init__.py
+  - studio/scene/__init__.py
+  - studio/terrain/__init__.py
+  - studio/track/__init__.py
+  - studio/ui/__init__.py
+  - studio/utils/__init__.py
+  - studio/video/__init__.py
+Groupe 2
+  - studio/director/director_camera_v11_lateral.py
+  - studio/director/OLD director_camera (3).py
+Groupe 3
+  - studio/geometry/resampler copy.py
+  - studio/geometry/resampler.py
+
+Aucune suppression effectuée.

@@ -1,6 +1,7 @@
 import numpy as np
 
 from studio.director.director_camera import DirectorCamera
+from studio.director.event_director import EventDirector
 from studio.director.route_event_analyzer import (
     RouteEventAnalyzer,
 )
@@ -46,7 +47,6 @@ class DirectorEngine:
         }
 
         self.current_shot_name = None
-        self.last_event_index = -1
 
         self.event_analyzer = RouteEventAnalyzer(
             self.coords,
@@ -60,6 +60,13 @@ class DirectorEngine:
             self.event_analyzer.analyze()
         )
 
+        self.event_director = EventDirector(
+            self.events
+        )
+
+        self.previous_position = None
+        self.previous_focal = None
+
         self.print_events()
 
     def print_events(self):
@@ -69,13 +76,15 @@ class DirectorEngine:
             len(self.events),
         )
 
+        labels = {
+            "high_point": "point haut",
+            "low_point": "point bas",
+            "steep_climb": "forte montée",
+            "steep_descent": "forte descente",
+        }
+
         for event in self.events:
-            label = {
-                "high_point": "point haut",
-                "low_point": "point bas",
-                "steep_climb": "forte montée",
-                "steep_descent": "forte descente",
-            }.get(
+            label = labels.get(
                 event.event_type,
                 event.event_type,
             )
@@ -90,55 +99,39 @@ class DirectorEngine:
         print()
 
     @staticmethod
-    def blend(a, b, value):
+    def blend(
+        first,
+        second,
+        value,
+    ):
         value = smoothstep(value)
 
         return (
-            np.asarray(a, dtype=float)
+            np.asarray(first, dtype=float)
             * (1.0 - value)
-            + np.asarray(b, dtype=float)
+            + np.asarray(second, dtype=float)
             * value
         )
 
-    def event_at_progress(
-        self,
-        progress,
-        tolerance=0.008,
+    @staticmethod
+    def smooth_vector(
+        previous,
+        current,
+        alpha,
     ):
-        for index, event in enumerate(
-            self.events
-        ):
-            if index <= self.last_event_index:
-                continue
-
-            difference = abs(
-                progress - event.progress
-            )
-
-            if difference <= tolerance:
-                self.last_event_index = index
-                return event
-
-        return None
-
-    def print_event_reached(
-        self,
-        event,
-    ):
-        label = {
-            "high_point": "POINT HAUT",
-            "low_point": "POINT BAS",
-            "steep_climb": "FORTE MONTÉE",
-            "steep_descent": "FORTE DESCENTE",
-        }.get(
-            event.event_type,
-            event.event_type.upper(),
+        current = np.asarray(
+            current,
+            dtype=float,
         )
 
-        print(
-            f"\nÉvénement Director : {label} | "
-            f"{event.distance_km:.2f} km | "
-            f"{event.altitude:.0f} m"
+        if previous is None:
+            return current.copy()
+
+        return (
+            np.asarray(previous, dtype=float)
+            * (1.0 - alpha)
+            + current
+            * alpha
         )
 
     def shot_camera(
@@ -169,30 +162,22 @@ class DirectorEngine:
             progress
         )
 
-        event = self.event_at_progress(
-            progress
-        )
-
-        if event is not None:
-            self.print_event_reached(
-                event
-            )
-
         plan = self.planner.plan_at(
             progress
         )
 
         current_name = plan["name"]
 
-        current_position, current_focal = (
-            self.shot_camera(
-                shot_name=current_name,
-                base_position=base_position,
-                base_focal=base_focal,
-                local_progress=plan[
-                    "local_progress"
-                ],
-            )
+        (
+            current_position,
+            current_focal,
+        ) = self.shot_camera(
+            shot_name=current_name,
+            base_position=base_position,
+            base_focal=base_focal,
+            local_progress=plan[
+                "local_progress"
+            ],
         )
 
         previous_name = plan[
@@ -221,6 +206,36 @@ class DirectorEngine:
                 current_focal,
                 plan["transition"],
             )
+
+        (
+            current_position,
+            current_focal,
+            modifiers,
+        ) = self.event_director.apply(
+            position=current_position,
+            focal_point=current_focal,
+            progress=progress,
+        )
+
+        current_position = self.smooth_vector(
+            previous=self.previous_position,
+            current=current_position,
+            alpha=0.12,
+        )
+
+        current_focal = self.smooth_vector(
+            previous=self.previous_focal,
+            current=current_focal,
+            alpha=0.14,
+        )
+
+        self.previous_position = (
+            current_position.copy()
+        )
+
+        self.previous_focal = (
+            current_focal.copy()
+        )
 
         if (
             current_name

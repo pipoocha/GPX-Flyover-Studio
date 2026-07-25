@@ -1,0 +1,31 @@
+project:
+  title: Kagbeni - Sangda satellite rapide
+
+gpx:
+  file: gpx/31_kagbeni_sangda-24667827-1784704753-767.gpx
+
+video:
+  mode: PREVIEW
+  duration: 20
+  final_hold_seconds: 2
+  fps: 20
+  size: 1280x720
+  output: output/video/kagbeni_sangda_satellite.mp4
+
+camera:
+  mode: director
+  preset: cinematic
+  orientation:
+    mode: auto
+
+timeline: []
+
+track:
+  radius: 1
+  sides: 6
+  render_mode: line
+  progressive: true
+  update_every: 6
+
+leader:
+  enabled: false

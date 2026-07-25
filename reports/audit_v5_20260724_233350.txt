@@ -1,0 +1,75 @@
+========================================================================
+GPX FLYOVER STUDIO V5 - AUDIT
+========================================================================
+
+Racine : C:\Users\pc\Documents\PERSO\Sport\GPX-Flyover-Studio V5
+Fichiers Python : 93
+Noms suspects : 1
+Modules orphelins potentiels : 46
+Groupes de doublons exacts : 0
+
+DOSSIERS GÉNÉRÉS
+------------------------------------------------------------------------
+cache                                               1.2 Go     1211 fichiers
+cache/frames                                        1.0 Go     1020 fichiers
+output                                            334.3 Mo       10 fichiers
+output/logs                                          0.0 o        0 fichiers
+
+FICHIERS AUX NOMS SUSPECTS
+------------------------------------------------------------------------
+tools/cleanup_v5.py
+
+MODULES ORPHELINS POTENTIELS
+------------------------------------------------------------------------
+add_elevation_profile_outro.py
+OLD studio_gui.py
+preview_satellite.py
+satellite_downloader.py
+studio/animation/OLD frame_renderer (2).py
+studio/animation/OLD frame_renderer (3).py
+studio/animation/OLD frame_renderer (4).py
+studio/animation/OLD frame_renderer.py
+studio/animation/OLD preview_player (2).py
+studio/animation/OLD preview_player (3).py
+studio/animation/OLD preview_player.py
+studio/animation/timeline.py
+studio/animation/track_segment_cache.py
+studio/app.py
+studio/camera.py
+studio/config.py
+studio/core/old pipeline.py
+studio/core/OLD project_loader.py
+studio/core/Ori pipeline.py
+studio/director/old director_camera (2).py
+studio/director/OLD director_camera (3).py
+studio/director/OLD director_camera (4).py
+studio/director/OLD director_camera (5).py
+studio/director/Old director_camera.py
+studio/exporter.py
+studio/geometry/smoothing.py
+studio/geometry/tube_builder.py
+studio/imagery/mosaic_builder.py
+studio/imagery/satellite_provider.py
+studio/imagery/tile_downloader.py
+studio/map_engine.py
+studio/overlay.py
+studio/paths.py
+studio/profile.py
+studio/render/renderer3d.py
+studio/renderer.py
+studio/scene/track.py
+studio/statistics.py
+studio/terrain/dem_cache.py
+studio/terrain/dem_downloader.py
+studio/terrain/dem_loader.py
+studio/terrain/dem_provider.py
+studio/terrain/dem_reader.py
+studio/terrain/old terrain_mesh.py
+studio/terrain/satellite_provider.py
+studio/terrain.py
+
+DOUBLONS EXACTS
+------------------------------------------------------------------------
+Aucun.
+
+Aucune suppression effectuée.

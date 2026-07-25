@@ -178,6 +178,133 @@ class DirectorCamera:
             self.base_look_ahead
         )
 
+        # Cadrage latéral adaptatif :
+        # la caméra se place à l'extérieur des virages et s'écarte
+        # davantage lorsque le relief est marqué.
+        self.lateral_enabled = bool(
+            getattr(
+                config,
+                "CAMERA_LATERAL_ENABLED",
+                True,
+            )
+        )
+
+        self.lateral_direction_blend = float(
+            getattr(
+                config,
+                "CAMERA_LATERAL_DIRECTION_BLEND",
+                0.35,
+            )
+        )
+
+        self.lateral_distance_scale = float(
+            getattr(
+                config,
+                "CAMERA_LATERAL_DISTANCE_SCALE",
+                0.12,
+            )
+        )
+
+        self.lateral_minimum = float(
+            getattr(
+                config,
+                "CAMERA_LATERAL_MINIMUM",
+                160.0,
+            )
+        )
+
+        self.lateral_maximum = float(
+            getattr(
+                config,
+                "CAMERA_LATERAL_MAXIMUM",
+                700.0,
+            )
+        )
+
+        self.lateral_smoothing = float(
+            getattr(
+                config,
+                "CAMERA_LATERAL_SMOOTHING",
+                0.06,
+            )
+        )
+
+        self.previous_side_sign = 1.0
+        self.previous_lateral_offset = float(
+            getattr(
+                config,
+                "SIDE_OFFSET",
+                450.0,
+            )
+        )
+
+        self.local_fit_enabled = bool(
+            getattr(config, "CAMERA_LOCAL_FIT_ENABLED", True)
+        )
+        self.local_fit_distance_scale = float(
+            getattr(config, "CAMERA_LOCAL_FIT_DISTANCE_SCALE", 0.40)
+        )
+        self.local_fit_height_scale = float(
+            getattr(config, "CAMERA_LOCAL_FIT_HEIGHT_SCALE", 0.20)
+        )
+        self.local_fit_min_distance = float(
+            getattr(config, "CAMERA_LOCAL_FIT_MIN_DISTANCE", 1200.0)
+        )
+        self.local_fit_max_distance = float(
+            getattr(config, "CAMERA_LOCAL_FIT_MAX_DISTANCE", 3600.0)
+        )
+        self.local_fit_min_height = float(
+            getattr(config, "CAMERA_LOCAL_FIT_MIN_HEIGHT", 600.0)
+        )
+        self.local_fit_max_height = float(
+            getattr(config, "CAMERA_LOCAL_FIT_MAX_HEIGHT", 1900.0)
+        )
+
+    def endpoint_wide_camera(
+        self,
+        progress,
+        active,
+        direction,
+        side,
+        base_position,
+        base_focal,
+    ):
+        opening_window = float(
+            getattr(config, "CAMERA_ENDPOINT_WINDOW", 0.08)
+        )
+
+        if progress <= opening_window:
+            strength = 1.0 - progress / max(1e-9, opening_window)
+            anchor = self.coords[0]
+        elif progress >= 1.0 - opening_window:
+            strength = (
+                progress - (1.0 - opening_window)
+            ) / max(1e-9, opening_window)
+            anchor = self.coords[-1]
+        else:
+            return base_position, base_focal
+
+        strength = self.clamp(strength, 0.0, 1.0)
+        strength = strength * strength * (3.0 - 2.0 * strength)
+
+        wide_distance = self.clamp(self.size * 0.62, 2200.0, 5600.0)
+        wide_height = self.clamp(self.size * 0.30, 1100.0, 3000.0)
+
+        wide_position = anchor.copy()
+        wide_position -= direction * wide_distance
+        wide_position += side * min(900.0, wide_distance * 0.12)
+        wide_position[2] = max(anchor[2] + wide_height, self.max_z + 300.0)
+
+        look_index = min(
+            len(self.coords) - 1,
+            max(0, int(round(progress * (len(self.coords) - 1)))),
+        )
+        wide_focal = anchor * 0.70 + self.coords[look_index] * 0.30
+
+        position = base_position * (1.0 - strength) + wide_position * strength
+        focal = base_focal * (1.0 - strength) + wide_focal * strength
+        return position, focal
+
     @staticmethod
     def clamp(value, minimum, maximum):
         return max(
@@ -450,10 +577,17 @@ class DirectorCamera:
         self,
         index,
     ):
-        base_height = max(
-            float(config.CAMERA_HEIGHT),
-            self.size * 0.45,
-        )
+        if self.local_fit_enabled:
+            base_height = self.clamp(
+                self.size * self.local_fit_height_scale,
+                self.local_fit_min_height,
+                self.local_fit_max_height,
+            )
+        else:
+            base_height = max(
+                float(config.CAMERA_HEIGHT),
+                self.size * 0.45,
+            )
 
         if not self.predictive_enabled:
             return base_height
@@ -492,10 +626,17 @@ class DirectorCamera:
         self,
         index,
     ):
-        base_distance = max(
-            float(config.CAMERA_DISTANCE),
-            self.size * 0.95,
-        )
+        if self.local_fit_enabled:
+            base_distance = self.clamp(
+                self.size * self.local_fit_distance_scale,
+                self.local_fit_min_distance,
+                self.local_fit_max_distance,
+            )
+        else:
+            base_distance = max(
+                float(config.CAMERA_DISTANCE),
+                self.size * 0.95,
+            )
 
         if not self.predictive_enabled:
             return base_distance
@@ -529,6 +670,157 @@ class DirectorCamera:
             * curve_factor
             * relief_factor
         )
+
+    def local_route_direction(
+        self,
+        index,
+    ):
+        window = self.analysis_window
+
+        index_0 = max(
+            0,
+            index - window,
+        )
+
+        index_1 = min(
+            len(self.coords) - 1,
+            index + window,
+        )
+
+        return self.direction_between(
+            index_0,
+            index_1,
+        )
+
+    def outside_turn_side(
+        self,
+        index,
+    ):
+        """
+        Renvoie le côté extérieur du virage.
+
+        +1 et -1 représentent les deux côtés possibles de la trace.
+        Sur une portion presque droite, on conserve le côté précédent
+        afin d'éviter les changements incessants.
+        """
+
+        window = self.analysis_window
+
+        index_0 = max(
+            0,
+            index - window,
+        )
+
+        index_1 = min(
+            len(self.coords) - 1,
+            index + window,
+        )
+
+        direction_before = self.direction_between(
+            index_0,
+            index,
+        )
+
+        direction_after = self.direction_between(
+            index,
+            index_1,
+        )
+
+        cross_z = (
+            direction_before[0]
+            * direction_after[1]
+            - direction_before[1]
+            * direction_after[0]
+        )
+
+        if abs(cross_z) < 0.035:
+            target_sign = self.previous_side_sign
+        else:
+            # Extérieur du virage : côté opposé au sens du virage.
+            target_sign = -1.0 if cross_z > 0.0 else 1.0
+
+        alpha = self.clamp(
+            self.lateral_smoothing,
+            0.001,
+            1.0,
+        )
+
+        smoothed_sign = (
+            self.previous_side_sign
+            * (1.0 - alpha)
+            + target_sign
+            * alpha
+        )
+
+        if abs(smoothed_sign) < 0.08:
+            smoothed_sign = (
+                0.08
+                if target_sign >= 0.0
+                else -0.08
+            )
+
+        self.previous_side_sign = smoothed_sign
+
+        return smoothed_sign
+
+    def adaptive_lateral_offset(
+        self,
+        index,
+        camera_distance,
+    ):
+        if not self.lateral_enabled:
+            return float(
+                getattr(
+                    config,
+                    "SIDE_OFFSET",
+                    450.0,
+                )
+            )
+
+        relief = self.relief_ahead(
+            index
+        )
+
+        curvature = self.curvature_at(
+            index
+        )
+
+        base_offset = (
+            camera_distance
+            * self.lateral_distance_scale
+        )
+
+        # Plus de décalage dans les zones encaissées et les virages.
+        target_offset = base_offset * (
+            1.0
+            + relief * 0.55
+            + curvature * 0.25
+        )
+
+        target_offset = self.clamp(
+            target_offset,
+            self.lateral_minimum,
+            self.lateral_maximum,
+        )
+
+        alpha = self.clamp(
+            self.lateral_smoothing,
+            0.001,
+            1.0,
+        )
+
+        smoothed_offset = (
+            self.previous_lateral_offset
+            * (1.0 - alpha)
+            + target_offset
+            * alpha
+        )
+
+        self.previous_lateral_offset = (
+            smoothed_offset
+        )
+
+        return smoothed_offset
 
     def smooth_vector(
         self,
@@ -586,15 +878,32 @@ class DirectorCamera:
             look_index
         ]
 
-        direction = (
+        orientation_direction = (
             self.orientation
             .direction_at_progress(
                 progress
             )
         )
 
+        orientation_direction = self.normalize(
+            orientation_direction
+        )
+
+        local_direction = self.local_route_direction(
+            index
+        )
+
+        blend = self.clamp(
+            self.lateral_direction_blend,
+            0.0,
+            1.0,
+        )
+
         direction = self.normalize(
-            direction
+            orientation_direction
+            * (1.0 - blend)
+            + local_direction
+            * blend
         )
 
         side = np.array(
@@ -606,10 +915,17 @@ class DirectorCamera:
             dtype=float,
         )
 
-        moving_center = (
-            self.center * 0.55
-            + active * 0.45
-        )
+        if self.local_fit_enabled:
+            moving_center = (
+                active * 0.62
+                + middle_point * 0.25
+                + look_point * 0.13
+            )
+        else:
+            moving_center = (
+                self.center * 0.55
+                + active * 0.45
+            )
 
         camera_height = (
             self.adaptive_height(
@@ -632,9 +948,19 @@ class DirectorCamera:
             * camera_distance
         )
 
+        side_sign = self.outside_turn_side(
+            index
+        )
+
+        lateral_offset = self.adaptive_lateral_offset(
+            index=index,
+            camera_distance=camera_distance,
+        )
+
         camera_position += (
             side
-            * float(config.SIDE_OFFSET)
+            * lateral_offset
+            * side_sign
         )
 
         camera_position[2] = max(
@@ -668,6 +994,18 @@ class DirectorCamera:
             + relief
             * camera_height
             * 0.08
+        )
+
+        (
+            camera_position,
+            focal_point,
+        ) = self.endpoint_wide_camera(
+            progress=progress,
+            active=active,
+            direction=direction,
+            side=side,
+            base_position=camera_position,
+            base_focal=focal_point,
         )
 
         camera_position = (

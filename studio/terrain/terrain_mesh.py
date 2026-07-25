@@ -23,19 +23,20 @@ class TerrainMesh:
             1,
         )
 
-        xmin = self.grid.x.min()
-        xmax = self.grid.x.max()
-        ymin = self.grid.y.min()
-        ymax = self.grid.y.max()
+        xmin = float(self.grid.x.min())
+        xmax = float(self.grid.x.max())
+        ymin = float(self.grid.y.min())
+        ymax = float(self.grid.y.max())
 
-        u = (self.grid.x - xmin) / max(1e-9, xmax - xmin)
-        v = (self.grid.y - ymin) / max(1e-9, ymax - ymin)
+        width = max(1e-9, xmax - xmin)
+        height = max(1e-9, ymax - ymin)
 
-        texture_coords = np.c_[
+        u = (self.grid.x - xmin) / width
+        v = (self.grid.y - ymin) / height
+
+        mesh.active_texture_coordinates = np.c_[
             u.ravel(),
             v.ravel(),
         ]
-
-        mesh.active_texture_coordinates = texture_coords
 
         return mesh

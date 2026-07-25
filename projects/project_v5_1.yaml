@@ -1,0 +1,56 @@
+project:
+  title: Kagbeni - Sangda V5.1
+
+gpx:
+  file: gpx/31_kagbeni_sangda-24667827-1784704753-767.gpx
+
+camera:
+  mode: cinematic
+  orientation: auto
+  distance:
+    min: 1450
+    max: 4200
+    scale: 0.38
+  height:
+    min: 520
+    max: 1650
+    scale: 0.16
+  lateral:
+    min: 100
+    max: 480
+    scale: 0.08
+  look_ahead: 220
+  smoothing: 0.12
+
+track:
+  color: "#FC4C02"
+  width: 1.5
+  z_offset: 8.0
+  progressive: true
+  leader: false
+
+terrain:
+  source: copernicus
+  satellite: true
+  satellite_zoom: 14
+  max_cells: 60000
+  margin: 0.006
+
+timeline:
+  intro: 0
+  zoom_to_start: 0
+  start_hold: 3
+  travel: 30
+  slowdown_start: 3
+  slowdown_end: 4
+  arrival_hold: 5
+  flatten: 3
+  profile_animation: 6
+  profile_hold: 4
+  fade_out: 2
+
+video:
+  fps: 20
+  resolution: 1280x720
+  output: output/video/flyover_v5_1.mp4
+  mode: PREVIEW

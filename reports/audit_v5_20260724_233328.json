@@ -1,0 +1,2152 @@
+{
+  "project_root": "C:\\Users\\pc\\Documents\\PERSO\\Sport\\GPX-Flyover-Studio V5",
+  "created_at": "2026-07-24T23:33:28",
+  "files": [
+    {
+      "path": "__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": null,
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": 1
+    },
+    {
+      "path": "add_elevation_profile_outro.py",
+      "size_bytes": 10331,
+      "sha256": "5319d741e95170f3c68bca2f4c5ce9ca77d04ea4eb133acaf04ed9c8ddd4b403",
+      "module": "add_elevation_profile_outro",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "config/__init__.py",
+      "size_bytes": 1758,
+      "sha256": "5b1ab9fa3022e181c83e7c996499954e0eb8b0cc14cf906339a1783d29f7c765",
+      "module": "config",
+      "imported_modules": [
+        "config.paths",
+        "config.settings",
+        "config.version"
+      ],
+      "imported_by": [
+        "main",
+        "studio.animation.OLD frame_renderer",
+        "studio.animation.OLD frame_renderer (3)",
+        "studio.animation.OLD frame_renderer (4)",
+        "studio.animation.OLD preview_player",
+        "studio.animation.OLD preview_player (2)",
+        "studio.animation.OLD preview_player (3)",
+        "studio.animation.camera_path",
+        "studio.animation.frame_renderer",
+        "studio.animation.preview_player",
+        "studio.animation.stage_camera",
+        "studio.animation.timeline",
+        "studio.config_models.camera_config",
+        "studio.config_models.project_config",
+        "studio.config_models.track_config",
+        "studio.config_models.video_config",
+        "studio.core.OLD project_loader",
+        "studio.core.Ori pipeline",
+        "studio.core.old pipeline",
+        "studio.core.pipeline",
+        "studio.core.project_loader",
+        "studio.director.OLD director_camera (3)",
+        "studio.director.OLD director_camera (4)",
+        "studio.director.OLD director_camera (5)",
+        "studio.director.Old director_camera",
+        "studio.director.director_camera",
+        "studio.director.director_camera_v11_lateral",
+        "studio.director.old director_camera (2)",
+        "studio.director.shots",
+        "studio.leader.leader",
+        "studio.video.video_exporter"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "config/paths.py",
+      "size_bytes": 644,
+      "sha256": "f1489b5291907066598600fb5223d83fce3fbdb8dba630ccb5ba831cb8ed1eea",
+      "module": "config.paths",
+      "imported_modules": [],
+      "imported_by": [
+        "config",
+        "main"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "config/settings.py",
+      "size_bytes": 2354,
+      "sha256": "d1e7153e7da7ce6a3b7bfe5b1b3bcd6fe3d2ba56d202da613b47a8bd7f4c7309",
+      "module": "config.settings",
+      "imported_modules": [],
+      "imported_by": [
+        "config"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "config/version.py",
+      "size_bytes": 21,
+      "sha256": "a1e63c98b07fac48e55c23469aeb16357b7917bbe01f833f790e71a6b6a153b7",
+      "module": "config.version",
+      "imported_modules": [],
+      "imported_by": [
+        "config"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "main.py",
+      "size_bytes": 3136,
+      "sha256": "f4cba35442b8c62d4939d27e3ade75141ac363ebaa5eb3534bdd164dddf91a74",
+      "module": "main",
+      "imported_modules": [
+        "config",
+        "config.paths",
+        "studio.core.app",
+        "studio.core.project_loader"
+      ],
+      "imported_by": [],
+      "is_entry_point": true,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "OLD studio_gui.py",
+      "size_bytes": 16568,
+      "sha256": "8a7e7151aff79e4ca901a7691ca31563212ceb706ce31a9003167385e3766a5c",
+      "module": "OLD studio_gui",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "output/video/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "output.video",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "preview_satellite.py",
+      "size_bytes": 6986,
+      "sha256": "c2369fed29e6d41fc4b8abb81fd9fe3f08b5e29607b75fd8b7758f152a3411f5",
+      "module": "preview_satellite",
+      "imported_modules": [
+        "studio.geometry.path_builder",
+        "studio.io.gpx_loader",
+        "studio.scene.track",
+        "studio.terrain.srtm_grid",
+        "studio.terrain.terrain_mesh",
+        "studio.terrain.terrain_sampler"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "satellite_downloader.py",
+      "size_bytes": 9603,
+      "sha256": "bc47f6fc4c10c42dea6fc44cd17c151641dddc4f954196c9600b7913dbdab339",
+      "module": "satellite_downloader",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio",
+      "imported_modules": [],
+      "imported_by": [
+        "test_dem_loader"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/animation/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio.animation",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/animation/camera_path.py",
+      "size_bytes": 1669,
+      "sha256": "84da75026f61f7b98c6a4e8b21b1d10cf607e24038eb9741718d872342e820e8",
+      "module": "studio.animation.camera_path",
+      "imported_modules": [
+        "config"
+      ],
+      "imported_by": [
+        "studio.core.Ori pipeline",
+        "studio.core.old pipeline",
+        "studio.core.pipeline"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/animation/frame_renderer.py",
+      "size_bytes": 18127,
+      "sha256": "67d372fc4b9db3fc663a51692eb8993b716e64f0873e200138268f866beb0bb9",
+      "module": "studio.animation.frame_renderer",
+      "imported_modules": [
+        "config",
+        "studio.animation.progress_path",
+        "studio.leader.leader"
+      ],
+      "imported_by": [
+        "studio.core.Ori pipeline",
+        "studio.core.old pipeline",
+        "studio.core.pipeline"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/animation/OLD frame_renderer (2).py",
+      "size_bytes": 8631,
+      "sha256": "cffdf5925664a864221d8e8a293dd3c295a9b54dfbfb011d5f1f4a661abb1b95",
+      "module": "studio.animation.OLD frame_renderer (2)",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/animation/OLD frame_renderer (3).py",
+      "size_bytes": 8633,
+      "sha256": "4cf9e3e945658c26a7ae67c92c2b4ab95bc20a986847562feb56a3bc152e7e08",
+      "module": "studio.animation.OLD frame_renderer (3)",
+      "imported_modules": [
+        "config",
+        "studio.animation.progress_path",
+        "studio.leader.leader"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/animation/OLD frame_renderer (4).py",
+      "size_bytes": 9137,
+      "sha256": "8351d717e56e5e207d563ef3830cabd86f625efbb475c4d3c6d66e9450e95ab1",
+      "module": "studio.animation.OLD frame_renderer (4)",
+      "imported_modules": [
+        "config",
+        "studio.animation.progress_path",
+        "studio.leader.leader"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/animation/OLD frame_renderer.py",
+      "size_bytes": 7856,
+      "sha256": "6d75f41bcafc91f9b8a0cee7de40214e0dacd4295e8963dc78ab0d6318fbf98f",
+      "module": "studio.animation.OLD frame_renderer",
+      "imported_modules": [
+        "config",
+        "studio.animation.progress_path",
+        "studio.animation.timeline",
+        "studio.leader.leader",
+        "studio.scene.track"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/animation/OLD preview_player (2).py",
+      "size_bytes": 8077,
+      "sha256": "1ae985dc4f2e6e3ffeb5a544f7c26c37e27b86a3628ea940459908dad8677a99",
+      "module": "studio.animation.OLD preview_player (2)",
+      "imported_modules": [
+        "config",
+        "studio.animation.progress_path",
+        "studio.leader.leader",
+        "studio.scene.track"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/animation/OLD preview_player (3).py",
+      "size_bytes": 9374,
+      "sha256": "dc649cb6eec886a7564550927a0f78ee87e48266c027a5710a67458bef41f508",
+      "module": "studio.animation.OLD preview_player (3)",
+      "imported_modules": [
+        "config",
+        "studio.animation.progress_path",
+        "studio.leader.leader"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/animation/OLD preview_player.py",
+      "size_bytes": 12247,
+      "sha256": "17fe93fb3a93e27ab97203be5542126357ddf56c74d5fdf4c1dad4ccb42c89ad",
+      "module": "studio.animation.OLD preview_player",
+      "imported_modules": [
+        "config",
+        "studio.animation.progress_path",
+        "studio.leader.leader",
+        "studio.scene.track"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/animation/preview_player.py",
+      "size_bytes": 9395,
+      "sha256": "183989f9c77edbf8ddc95f8dc8451f9686f05ea327ca93cd280b4627512d4c96",
+      "module": "studio.animation.preview_player",
+      "imported_modules": [
+        "config",
+        "studio.animation.progress_path",
+        "studio.leader.leader"
+      ],
+      "imported_by": [
+        "studio.core.Ori pipeline",
+        "studio.core.old pipeline",
+        "studio.core.pipeline"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/animation/progress_path.py",
+      "size_bytes": 2813,
+      "sha256": "ba8e9481e357674f994f7ef452e09fbb7828f8d191e94eb6ff2fa454fd61e059",
+      "module": "studio.animation.progress_path",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.animation.OLD frame_renderer",
+        "studio.animation.OLD frame_renderer (3)",
+        "studio.animation.OLD frame_renderer (4)",
+        "studio.animation.OLD preview_player",
+        "studio.animation.OLD preview_player (2)",
+        "studio.animation.OLD preview_player (3)",
+        "studio.animation.frame_renderer",
+        "studio.animation.preview_player",
+        "studio.director.route_event_analyzer",
+        "studio.leader.leader",
+        "test_route_events"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/animation/stage_camera.py",
+      "size_bytes": 2448,
+      "sha256": "6c26cbb5edbf1d59650c50b684beabd09a881e5602dec12d678d5abedae4e98e",
+      "module": "studio.animation.stage_camera",
+      "imported_modules": [
+        "config"
+      ],
+      "imported_by": [
+        "studio.core.Ori pipeline",
+        "studio.core.old pipeline",
+        "studio.core.pipeline"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/animation/timeline.py",
+      "size_bytes": 3565,
+      "sha256": "a1306d0e875157805f70f1082123f7d7a6546e2243b8a090b99c02f353340173",
+      "module": "studio.animation.timeline",
+      "imported_modules": [
+        "config",
+        "studio.camera.presets"
+      ],
+      "imported_by": [
+        "studio.animation.OLD frame_renderer"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/animation/track_segment_cache.py",
+      "size_bytes": 1515,
+      "sha256": "3d188b7488a3996231ec54a896bd812f6a92a3ca9b82133e9d1ec05b6fe4fc28",
+      "module": "studio.animation.track_segment_cache",
+      "imported_modules": [
+        "studio.scene.track"
+      ],
+      "imported_by": [
+        "test_track_segment_cache",
+        "tests.test_track_segment_cache"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/app.py",
+      "size_bytes": 337,
+      "sha256": "40daa90699a12e6c61c0e104dc95dbe248e3662ff18b92b3a57c51b8fccca06b",
+      "module": "studio.app",
+      "imported_modules": [
+        "studio.core.pipeline",
+        "studio.core.project"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/camera/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio.camera",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/camera/presets.py",
+      "size_bytes": 1943,
+      "sha256": "11aa8b29e7fbe35a9c42c6d79e26e1e73770f4e9ab8956d2f3a159d9ead99b9d",
+      "module": "studio.camera.presets",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.animation.timeline",
+        "studio.config_models.camera_config"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/camera.py",
+      "size_bytes": 3012,
+      "sha256": "b38d1d0d534ce6638ae859bdeaf737468c3b95a0793ab52fcbd3aff265cdc3c8",
+      "module": "studio.camera",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/config.py",
+      "size_bytes": 413,
+      "sha256": "77bc29c034cda7357f33a12b7b5fa578adb81351b18dbc1385f89d4f0050ba7b",
+      "module": "studio.config",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/config_models/__init__.py",
+      "size_bytes": 240,
+      "sha256": "1c4ee8b2d84c5ccf0c79a6af04a326b30f0f93e38f31f79f145316b465b4c775",
+      "module": "studio.config_models",
+      "imported_modules": [
+        "studio.config_models.camera_config",
+        "studio.config_models.project_config",
+        "studio.config_models.track_config",
+        "studio.config_models.video_config"
+      ],
+      "imported_by": [
+        "studio.core.OLD project_loader",
+        "studio.core.project_loader"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/config_models/camera_config.py",
+      "size_bytes": 1285,
+      "sha256": "57f26c9e6c8f5490119697645777f8961a151f0cc070a110d71047251ee4b584",
+      "module": "studio.config_models.camera_config",
+      "imported_modules": [
+        "config",
+        "studio.camera.presets"
+      ],
+      "imported_by": [
+        "studio.config_models",
+        "studio.config_models.project_config"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/config_models/project_config.py",
+      "size_bytes": 555,
+      "sha256": "c7778ce362169a1115446add7efd22e0248eb00fa0ec0f05a86fdbc466cb23c6",
+      "module": "studio.config_models.project_config",
+      "imported_modules": [
+        "config",
+        "studio.config_models.camera_config",
+        "studio.config_models.track_config",
+        "studio.config_models.video_config"
+      ],
+      "imported_by": [
+        "studio.config_models"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/config_models/track_config.py",
+      "size_bytes": 401,
+      "sha256": "bd90f3d76ffb3b09e1756c4b6d4ad67f558c687543513ae4155cb36fac74fc28",
+      "module": "studio.config_models.track_config",
+      "imported_modules": [
+        "config"
+      ],
+      "imported_by": [
+        "studio.config_models",
+        "studio.config_models.project_config"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/config_models/video_config.py",
+      "size_bytes": 759,
+      "sha256": "ed7109dfb8816358010d3422e84d8142f6f398d6f8dbc617b8cb98ed5f5f1c8b",
+      "module": "studio.config_models.video_config",
+      "imported_modules": [
+        "config"
+      ],
+      "imported_by": [
+        "studio.config_models",
+        "studio.config_models.project_config"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/core/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio.core",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/core/app.py",
+      "size_bytes": 364,
+      "sha256": "fd9b6eea215b85aba1b544580e4035884730d9820cbaf16775e71be175ac2bb8",
+      "module": "studio.core.app",
+      "imported_modules": [
+        "studio.core.pipeline",
+        "studio.core.project"
+      ],
+      "imported_by": [
+        "main"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/core/old pipeline.py",
+      "size_bytes": 4798,
+      "sha256": "d7cd8a5030af59364ee193afd9eec7810eb053c8a69194b38a22e36fd26f3d32",
+      "module": "studio.core.old pipeline",
+      "imported_modules": [
+        "config",
+        "studio.animation.camera_path",
+        "studio.animation.frame_renderer",
+        "studio.animation.preview_player",
+        "studio.animation.stage_camera",
+        "studio.director.director_engine",
+        "studio.geometry.path_builder",
+        "studio.io.gpx_loader",
+        "studio.scene.scene",
+        "studio.terrain.srtm_grid",
+        "studio.terrain.terrain_mesh",
+        "studio.terrain.terrain_sampler",
+        "studio.video.video_exporter"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/core/OLD project_loader.py",
+      "size_bytes": 8147,
+      "sha256": "999b75ef279060efc66e21d1e7030c3320fc4e67f47c0f037cebc003b78b31c4",
+      "module": "studio.core.OLD project_loader",
+      "imported_modules": [
+        "config",
+        "studio.config_models",
+        "studio.track.presets"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/core/Ori pipeline.py",
+      "size_bytes": 5808,
+      "sha256": "942f3bde15a219287cf6b826908567aca4bcd5196651d840f9b48e09144956cf",
+      "module": "studio.core.Ori pipeline",
+      "imported_modules": [
+        "config",
+        "studio.animation.camera_path",
+        "studio.animation.frame_renderer",
+        "studio.animation.preview_player",
+        "studio.animation.stage_camera",
+        "studio.director.director_engine",
+        "studio.geometry.path_builder",
+        "studio.imagery.satellite_texture",
+        "studio.io.gpx_loader",
+        "studio.scene.scene",
+        "studio.terrain.srtm_grid",
+        "studio.terrain.terrain_mesh",
+        "studio.terrain.terrain_sampler",
+        "studio.video.video_exporter"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/core/pipeline.py",
+      "size_bytes": 7835,
+      "sha256": "9441093dca288719ac8d7b87e2b2b51750dd7d6375b0135d0e2f195fc3a6ad28",
+      "module": "studio.core.pipeline",
+      "imported_modules": [
+        "config",
+        "studio.animation.camera_path",
+        "studio.animation.frame_renderer",
+        "studio.animation.preview_player",
+        "studio.animation.stage_camera",
+        "studio.director.director_engine",
+        "studio.geometry.path_builder",
+        "studio.imagery.satellite_texture",
+        "studio.io.gpx_loader",
+        "studio.scene.scene",
+        "studio.terrain.copernicus_grid",
+        "studio.terrain.srtm_grid",
+        "studio.terrain.terrain_mesh",
+        "studio.terrain.terrain_sampler",
+        "studio.video.video_exporter"
+      ],
+      "imported_by": [
+        "studio.app",
+        "studio.core.app"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/core/project.py",
+      "size_bytes": 261,
+      "sha256": "9a3dda1ccdfa393a51ef7c47a53bfb9c405420a5d51ba927e236dffc8f689bca",
+      "module": "studio.core.project",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.app",
+        "studio.core.app"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/core/project_loader.py",
+      "size_bytes": 8191,
+      "sha256": "552f36e6b688e12d55277981cc540532f24dc2a4f76df67fbb0fbcaab27f8571",
+      "module": "studio.core.project_loader",
+      "imported_modules": [
+        "config",
+        "studio.config_models",
+        "studio.track.presets"
+      ],
+      "imported_by": [
+        "main"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/director/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio.director",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/director/director_camera.py",
+      "size_bytes": 23414,
+      "sha256": "68117b7c4191a6a299475ec2213afe6090a0376efd4cc7f2877ef239666166e3",
+      "module": "studio.director.director_camera",
+      "imported_modules": [
+        "config",
+        "studio.director.orientation"
+      ],
+      "imported_by": [
+        "studio.director.director_engine"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/director/director_camera_v11_lateral.py",
+      "size_bytes": 19984,
+      "sha256": "0320fbbd5a5ea5d14c02754e314af399b3980677b4e1e25cce4c432e8c145162",
+      "module": "studio.director.director_camera_v11_lateral",
+      "imported_modules": [
+        "config",
+        "studio.director.orientation"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": 2
+    },
+    {
+      "path": "studio/director/director_engine.py",
+      "size_bytes": 6134,
+      "sha256": "49a533e994037fef1dc9b25468de260fb83c0ca97d312cfca03351df7c8d06c4",
+      "module": "studio.director.director_engine",
+      "imported_modules": [
+        "studio.director.director_camera",
+        "studio.director.event_director",
+        "studio.director.route_event_analyzer",
+        "studio.director.shot_planner",
+        "studio.director.shots"
+      ],
+      "imported_by": [
+        "studio.core.Ori pipeline",
+        "studio.core.old pipeline",
+        "studio.core.pipeline"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/director/event_director.py",
+      "size_bytes": 7071,
+      "sha256": "7541f2361ef48f3096f36023b984e06a75499c3f7933fc7fd368518eb85de38e",
+      "module": "studio.director.event_director",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.director.director_engine"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/director/old director_camera (2).py",
+      "size_bytes": 16425,
+      "sha256": "3e385879423dfffb77e1a6c044f89fce0545f59665b6f05c59953ab4fed3cd3e",
+      "module": "studio.director.old director_camera (2)",
+      "imported_modules": [
+        "config",
+        "studio.director.orientation"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/director/OLD director_camera (3).py",
+      "size_bytes": 19984,
+      "sha256": "0320fbbd5a5ea5d14c02754e314af399b3980677b4e1e25cce4c432e8c145162",
+      "module": "studio.director.OLD director_camera (3)",
+      "imported_modules": [
+        "config",
+        "studio.director.orientation"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 2
+    },
+    {
+      "path": "studio/director/OLD director_camera (4).py",
+      "size_bytes": 21572,
+      "sha256": "c95c24423f477146f28f16c77bcdd1f1d0c0ef217b06ec5d7060f3f71ef9ade4",
+      "module": "studio.director.OLD director_camera (4)",
+      "imported_modules": [
+        "config",
+        "studio.director.orientation"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/director/OLD director_camera (5).py",
+      "size_bytes": 22179,
+      "sha256": "f57f5d72030a16a8b728059e7df221ebb07c0c99ec8c3346b3d35f104440ebaf",
+      "module": "studio.director.OLD director_camera (5)",
+      "imported_modules": [
+        "config",
+        "studio.director.orientation"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/director/Old director_camera.py",
+      "size_bytes": 15355,
+      "sha256": "b795098938118d84d19d9fa48db7b8b9e3e15882fd586e6b7a9536318cc8bfe4",
+      "module": "studio.director.Old director_camera",
+      "imported_modules": [
+        "config",
+        "studio.director.orientation"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/director/orientation.py",
+      "size_bytes": 2811,
+      "sha256": "b806c76d48c41844570d68da9daf5dab3cdc8352c68f493baf6a36c716fd5764",
+      "module": "studio.director.orientation",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.director.OLD director_camera (3)",
+        "studio.director.OLD director_camera (4)",
+        "studio.director.OLD director_camera (5)",
+        "studio.director.Old director_camera",
+        "studio.director.director_camera",
+        "studio.director.director_camera_v11_lateral",
+        "studio.director.old director_camera (2)"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/director/route_event_analyzer.py",
+      "size_bytes": 9678,
+      "sha256": "300ccbcb84daa6f5c048428985ee1577580b1a20302b3012231fe3c9cfde8676",
+      "module": "studio.director.route_event_analyzer",
+      "imported_modules": [
+        "studio.animation.progress_path"
+      ],
+      "imported_by": [
+        "studio.director.director_engine",
+        "test_route_events"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/director/shot_planner.py",
+      "size_bytes": 2042,
+      "sha256": "babe75b52a4201701aa821e5937db11fc70c85e5d11bb70c87dbabede2baee73",
+      "module": "studio.director.shot_planner",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.director.director_engine"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/director/shots.py",
+      "size_bytes": 3182,
+      "sha256": "314185a77249a89ce9ce99dc87d6840a2117dff5cc0dc1febcfe4c8a4d204108",
+      "module": "studio.director.shots",
+      "imported_modules": [
+        "config"
+      ],
+      "imported_by": [
+        "studio.director.director_engine"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/exporter.py",
+      "size_bytes": 1901,
+      "sha256": "6d01f64b06d2b2822baaf0b1a01c1c8c225c46618782c227a5d74b049723a700",
+      "module": "studio.exporter",
+      "imported_modules": [
+        "studio.io.gpx_loader",
+        "studio.scene.scene",
+        "studio.scene.track",
+        "studio.terrain.srtm_grid",
+        "studio.terrain.terrain_mesh"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/geometry/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio.geometry",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/geometry/path_builder.py",
+      "size_bytes": 1362,
+      "sha256": "dc64f76e37380cc3fc86c57b5f983767f8a0a06dd76e52f0cc45568967782101",
+      "module": "studio.geometry.path_builder",
+      "imported_modules": [
+        "studio.geometry.resampler",
+        "studio.scene.spline",
+        "studio.terrain.projection"
+      ],
+      "imported_by": [
+        "preview_satellite",
+        "studio.core.Ori pipeline",
+        "studio.core.old pipeline",
+        "studio.core.pipeline",
+        "test_route_events",
+        "test_track_segment_cache",
+        "tests.test_track_segment_cache"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/geometry/resampler copy.py",
+      "size_bytes": 818,
+      "sha256": "cc3dad9e8f50c2f63ca683e95956625c63b37b00d9c5fb135edd20ccbdf60e91",
+      "module": "studio.geometry.resampler copy",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 3
+    },
+    {
+      "path": "studio/geometry/resampler.py",
+      "size_bytes": 818,
+      "sha256": "cc3dad9e8f50c2f63ca683e95956625c63b37b00d9c5fb135edd20ccbdf60e91",
+      "module": "studio.geometry.resampler",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.geometry.path_builder",
+        "test_resampler",
+        "test_smoothing"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": 3
+    },
+    {
+      "path": "studio/geometry/smoothing.py",
+      "size_bytes": 660,
+      "sha256": "498eb6be9100321cab97da834be9d7e561f111d4f61a0f9b9d5a5c91e26f8a9f",
+      "module": "studio.geometry.smoothing",
+      "imported_modules": [],
+      "imported_by": [
+        "test_smoothing"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/geometry/tube_builder.py",
+      "size_bytes": 1860,
+      "sha256": "8caf28b60b076826483077522c5a9a7433259f2633b6ff947eaeef3b628b4776",
+      "module": "studio.geometry.tube_builder",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.scene.track"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/imagery/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio.imagery",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/imagery/mosaic_builder.py",
+      "size_bytes": 1541,
+      "sha256": "dd70723b70e68bbad5e6e6e52f69b9fede113f314e577e49948dc745132da607",
+      "module": "studio.imagery.mosaic_builder",
+      "imported_modules": [],
+      "imported_by": [
+        "test_mosaic"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/imagery/satellite_provider.py",
+      "size_bytes": 1111,
+      "sha256": "c46bf70e23db5e518bf4deaac58b69fe4d1e4632c86a264ad2166cb6ca6575d3",
+      "module": "studio.imagery.satellite_provider",
+      "imported_modules": [
+        "studio.terrain.terrain_extent"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/imagery/satellite_texture.py",
+      "size_bytes": 1737,
+      "sha256": "5782175d921a214c10c2e58d1183c80f846bcd30ed89e78889db828dd1ab65f5",
+      "module": "studio.imagery.satellite_texture",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.core.Ori pipeline",
+        "studio.core.pipeline"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/imagery/tile_downloader.py",
+      "size_bytes": 2217,
+      "sha256": "585faa9b6fc7cc28651c0e1dde68e00f5855891b269d28db3036dc197a1ef394",
+      "module": "studio.imagery.tile_downloader",
+      "imported_modules": [
+        "studio.terrain.terrain_extent"
+      ],
+      "imported_by": [
+        "test_mosaic",
+        "test_tile_download"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/io/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio.io",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/io/gpx_loader.py",
+      "size_bytes": 1190,
+      "sha256": "3b076d46812c09ecb2b83925c52a7a1e142edfd0c0911fe402e129e0d2c49908",
+      "module": "studio.io.gpx_loader",
+      "imported_modules": [],
+      "imported_by": [
+        "preview_satellite",
+        "studio.core.Ori pipeline",
+        "studio.core.old pipeline",
+        "studio.core.pipeline",
+        "studio.exporter",
+        "test_dem_download",
+        "test_extent",
+        "test_imagery_bounds",
+        "test_imagery_tiles",
+        "test_mosaic",
+        "test_projection",
+        "test_renderer3d",
+        "test_route_events",
+        "test_satellite",
+        "test_tile_download",
+        "test_track_segment_cache",
+        "tests.test_track_segment_cache"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/leader/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio.leader",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/leader/leader.py",
+      "size_bytes": 9722,
+      "sha256": "c1ad31ca4eeb6a15ae907f1ef6b656f8197abcf505c3fc60e1e095111a9a72d4",
+      "module": "studio.leader.leader",
+      "imported_modules": [
+        "config",
+        "studio.animation.progress_path"
+      ],
+      "imported_by": [
+        "studio.animation.OLD frame_renderer",
+        "studio.animation.OLD frame_renderer (3)",
+        "studio.animation.OLD frame_renderer (4)",
+        "studio.animation.OLD preview_player",
+        "studio.animation.OLD preview_player (2)",
+        "studio.animation.OLD preview_player (3)",
+        "studio.animation.frame_renderer",
+        "studio.animation.preview_player"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/map_engine.py",
+      "size_bytes": 2254,
+      "sha256": "c646816149ec46b1c80058e3d5037611f602e940f951a0b3e130dd266b251985",
+      "module": "studio.map_engine",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/overlay.py",
+      "size_bytes": 1731,
+      "sha256": "9c31ba50e89965ebf81359d0fd203b58990e87e12eca4e365d96f832a75b9fff",
+      "module": "studio.overlay",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.renderer"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/paths.py",
+      "size_bytes": 375,
+      "sha256": "4a05b91b5ebb1ac876e488885d5553365285add85a6f6e103a14caad26ad1a80",
+      "module": "studio.paths",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/profile.py",
+      "size_bytes": 2109,
+      "sha256": "ef5d4da1eea520f736aac432e92d4fb05922398f8477cecf3e927ce5e7d62708",
+      "module": "studio.profile",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.renderer"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/render/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio.render",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/render/renderer3d.py",
+      "size_bytes": 1140,
+      "sha256": "55afe308e5e1d050c70d42bd6bc705dc84c0ea8626ef21b51b9e4b0ab3a1253f",
+      "module": "studio.render.renderer3d",
+      "imported_modules": [],
+      "imported_by": [
+        "test_renderer3d"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/renderer.py",
+      "size_bytes": 4893,
+      "sha256": "f93fd8f3874caaa0abc12169ab4a2c2e72fe115892cfec66ba627d03f6d9cb50",
+      "module": "studio.renderer",
+      "imported_modules": [
+        "studio.overlay",
+        "studio.profile"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/scene/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio.scene",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/scene/scene.py",
+      "size_bytes": 795,
+      "sha256": "ba6f0c05c685fa706f7c8a683557e61a76e1d76e1bb0a2529a37890d43eefaa5",
+      "module": "studio.scene.scene",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.core.Ori pipeline",
+        "studio.core.old pipeline",
+        "studio.core.pipeline",
+        "studio.exporter",
+        "test_scene"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/scene/spline.py",
+      "size_bytes": 1040,
+      "sha256": "cf804e3db9d3d0a980880627954d117feb2ccc4cf81440df93c8369d24784ca4",
+      "module": "studio.scene.spline",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.geometry.path_builder"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/scene/track.py",
+      "size_bytes": 395,
+      "sha256": "135178351b6310692a68a5e2b1bc7f2625a593a248b9a97005d21b8f81107e5d",
+      "module": "studio.scene.track",
+      "imported_modules": [
+        "studio.geometry.tube_builder"
+      ],
+      "imported_by": [
+        "preview_satellite",
+        "studio.animation.OLD frame_renderer",
+        "studio.animation.OLD preview_player",
+        "studio.animation.OLD preview_player (2)",
+        "studio.animation.track_segment_cache",
+        "studio.exporter"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/statistics.py",
+      "size_bytes": 6828,
+      "sha256": "0a1da98f5c0479245d7776d46e1a26a8c5ef3144a2455dd74090b02d32481c91",
+      "module": "studio.statistics",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio.terrain",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/terrain/copernicus_grid.py",
+      "size_bytes": 9556,
+      "sha256": "77181a7dcc5897374d790ad2cb702204c5e90f762ed666b3703f55366c7d4f71",
+      "module": "studio.terrain.copernicus_grid",
+      "imported_modules": [
+        "studio.terrain.projection",
+        "studio.terrain.terrain_extent",
+        "studio.terrain.terrain_grid"
+      ],
+      "imported_by": [
+        "studio.core.pipeline"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain/dem_cache.py",
+      "size_bytes": 402,
+      "sha256": "97da8dbbe0a3994502a5988f27dcc9765b224ff0488d7b3de42da1aede4d3348",
+      "module": "studio.terrain.dem_cache",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain/dem_downloader.py",
+      "size_bytes": 859,
+      "sha256": "0da4ff66c27bf330277ad773545ac54a3a4eb3320ba1d637a7131ace93db83f5",
+      "module": "studio.terrain.dem_downloader",
+      "imported_modules": [
+        "studio.terrain.terrain_extent"
+      ],
+      "imported_by": [
+        "test_dem_download"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain/dem_loader.py",
+      "size_bytes": 523,
+      "sha256": "96434ca3ef810358679e3b05da659a81acce1d009a5d805add538fe4be8b459c",
+      "module": "studio.terrain.dem_loader",
+      "imported_modules": [
+        "studio.terrain.dem_reader"
+      ],
+      "imported_by": [
+        "test_dem_loader"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain/dem_provider.py",
+      "size_bytes": 377,
+      "sha256": "395b067507c7c24d9c60e8598f32adaf027ea24a086f961fcea92ccb8362fafd",
+      "module": "studio.terrain.dem_provider",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain/dem_reader.py",
+      "size_bytes": 858,
+      "sha256": "123a5c5e4cfcade9d24aa7fa33131dd3c0e4d43098e3f8db9a5fa75dc909baa9",
+      "module": "studio.terrain.dem_reader",
+      "imported_modules": [
+        "studio.terrain.terrain_grid"
+      ],
+      "imported_by": [
+        "studio.terrain.dem_loader"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain/old terrain_mesh.py",
+      "size_bytes": 916,
+      "sha256": "e40d0d185a44be932a469640ba61bdcacf94f22bf1fa720e10fa6989bfcf590b",
+      "module": "studio.terrain.old terrain_mesh",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain/projection.py",
+      "size_bytes": 744,
+      "sha256": "792a14667cf44d5f8a7cfcdd0f49b3326b88536b12c38fcb01612ca128eeb57a",
+      "module": "studio.terrain.projection",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.geometry.path_builder",
+        "studio.terrain.copernicus_grid",
+        "studio.terrain.srtm_grid",
+        "test_projection"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain/satellite_provider.py",
+      "size_bytes": 1071,
+      "sha256": "dcad0b3a0125be24a2ffa63b08620bafeb7f50dce5f59ba0797d62c85f1ae3af",
+      "module": "studio.terrain.satellite_provider",
+      "imported_modules": [
+        "studio.terrain.terrain_extent"
+      ],
+      "imported_by": [
+        "test_satellite"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain/srtm_grid.py",
+      "size_bytes": 1599,
+      "sha256": "ad8440bf9092a32f061e7b405294db5d379533c6574ecec108f3801d1506ade1",
+      "module": "studio.terrain.srtm_grid",
+      "imported_modules": [
+        "studio.terrain.projection",
+        "studio.terrain.srtm_provider",
+        "studio.terrain.terrain_extent",
+        "studio.terrain.terrain_grid"
+      ],
+      "imported_by": [
+        "preview_satellite",
+        "studio.core.Ori pipeline",
+        "studio.core.old pipeline",
+        "studio.core.pipeline",
+        "studio.exporter",
+        "test_route_events",
+        "test_track_segment_cache",
+        "tests.test_track_segment_cache"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain/srtm_provider.py",
+      "size_bytes": 271,
+      "sha256": "d40ebca743459a9d94af7ded2e81e6c0d905f40cf5474bd10e08edc026a8139a",
+      "module": "studio.terrain.srtm_provider",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.terrain.srtm_grid",
+        "test_srtm"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain/terrain_extent.py",
+      "size_bytes": 831,
+      "sha256": "63c0503388e9b347be21129fe210186f1ac57092b430222851c255a16aaec471",
+      "module": "studio.terrain.terrain_extent",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.imagery.satellite_provider",
+        "studio.imagery.tile_downloader",
+        "studio.terrain.copernicus_grid",
+        "studio.terrain.dem_downloader",
+        "studio.terrain.satellite_provider",
+        "studio.terrain.srtm_grid",
+        "test_extent",
+        "test_imagery_bounds",
+        "test_imagery_tiles"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain/terrain_grid.py",
+      "size_bytes": 796,
+      "sha256": "7b4f9fb357ff4ba9e7331e5a69999633dc8844cb0856e8660ac34d326b85adef",
+      "module": "studio.terrain.terrain_grid",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.terrain.copernicus_grid",
+        "studio.terrain.dem_reader",
+        "studio.terrain.srtm_grid",
+        "test_grid",
+        "test_mountain",
+        "test_scene"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain/terrain_mesh.py",
+      "size_bytes": 911,
+      "sha256": "8e2ced02988d6f21a7c59ff6508f8135098b63c10536739e2cb3e7bd4f2c19b0",
+      "module": "studio.terrain.terrain_mesh",
+      "imported_modules": [],
+      "imported_by": [
+        "preview_satellite",
+        "studio.core.Ori pipeline",
+        "studio.core.old pipeline",
+        "studio.core.pipeline",
+        "studio.exporter",
+        "test_grid",
+        "test_mountain",
+        "test_scene"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain/terrain_sampler.py",
+      "size_bytes": 285,
+      "sha256": "bd1fc858bc33eb385c7dc8b0385d57b53ef4a824eb6cddb90e8615b023783e1e",
+      "module": "studio.terrain.terrain_sampler",
+      "imported_modules": [],
+      "imported_by": [
+        "preview_satellite",
+        "studio.core.Ori pipeline",
+        "studio.core.old pipeline",
+        "studio.core.pipeline",
+        "test_route_events",
+        "test_track_segment_cache",
+        "tests.test_track_segment_cache"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/terrain.py",
+      "size_bytes": 1808,
+      "sha256": "98e1977feb6d70f702f19ba4bf79fd47c34789d6037e54cbe7cdfe6c4e095eff",
+      "module": "studio.terrain",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/track/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio.track",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/track/presets.py",
+      "size_bytes": 771,
+      "sha256": "1212a2766e1d00a5a77b24dbfe499c60e5ea9e8c68ec13f9f48ff54228a8ea6d",
+      "module": "studio.track.presets",
+      "imported_modules": [],
+      "imported_by": [
+        "studio.core.OLD project_loader",
+        "studio.core.project_loader"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio/ui/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio.ui",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/utils/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio.utils",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/video/__init__.py",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "module": "studio.video",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": true,
+      "duplicate_group": 1
+    },
+    {
+      "path": "studio/video/video_exporter.py",
+      "size_bytes": 1572,
+      "sha256": "8f1998bc396296878fa67bc915fb5a5bb317818ad812e009fdc0137d46f3e9ed",
+      "module": "studio.video.video_exporter",
+      "imported_modules": [
+        "config"
+      ],
+      "imported_by": [
+        "studio.core.Ori pipeline",
+        "studio.core.old pipeline",
+        "studio.core.pipeline"
+      ],
+      "is_entry_point": false,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "studio_gui.py",
+      "size_bytes": 16941,
+      "sha256": "f21456b9c38302a422e530c06cab4c2c337a5decc0e47d542086133730c9de91",
+      "module": "studio_gui",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": true,
+      "is_suspect_name": false,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_dem_download.py",
+      "size_bytes": 231,
+      "sha256": "c405bcbb6efa6c2b82cb8167d3afa9b5ab001452e0a096e2709d256ad2c15543",
+      "module": "test_dem_download",
+      "imported_modules": [
+        "studio.io.gpx_loader",
+        "studio.terrain.dem_downloader"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_dem_loader.py",
+      "size_bytes": 214,
+      "sha256": "aabd7639c1216863f0304ad57b37f842affec01405cb066f7ba2f790a88222e7",
+      "module": "test_dem_loader",
+      "imported_modules": [
+        "studio",
+        "studio.terrain.dem_loader"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_extent.py",
+      "size_bytes": 324,
+      "sha256": "ef6d7904c526f42ef8f3ac7fab79363b4dfd5b57c3f2d69254d090c5ce8ad330",
+      "module": "test_extent",
+      "imported_modules": [
+        "studio.io.gpx_loader",
+        "studio.terrain.terrain_extent"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_grid.py",
+      "size_bytes": 371,
+      "sha256": "d3785c8e35a5d963ca02d86a6933eb3225ffc9b28887a8d0eb3ab27aa8a729d4",
+      "module": "test_grid",
+      "imported_modules": [
+        "studio.terrain.terrain_grid",
+        "studio.terrain.terrain_mesh"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_imagery_bounds.py",
+      "size_bytes": 357,
+      "sha256": "12be73ea111bb41724fcb905a742316f5e86302cf1a1467afa4dc11c34f8fe3c",
+      "module": "test_imagery_bounds",
+      "imported_modules": [
+        "studio.io.gpx_loader",
+        "studio.terrain.terrain_extent"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_imagery_tiles.py",
+      "size_bytes": 573,
+      "sha256": "685eb1f5e544c7dc1f08bc80a4e4faf248b1856d82f167f8e8ff57fbddf2df80",
+      "module": "test_imagery_tiles",
+      "imported_modules": [
+        "studio.io.gpx_loader",
+        "studio.terrain.terrain_extent"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_mosaic.py",
+      "size_bytes": 449,
+      "sha256": "b83e6767e10ae6efe67e2374b2e920d012589c31b30c0c6b66d18006a8fd11e4",
+      "module": "test_mosaic",
+      "imported_modules": [
+        "studio.imagery.mosaic_builder",
+        "studio.imagery.tile_downloader",
+        "studio.io.gpx_loader"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_mountain.py",
+      "size_bytes": 822,
+      "sha256": "445d29a226b0921c19e5bd8789d99f9e7042aed6105d3c08bd801cdef0830f96",
+      "module": "test_mountain",
+      "imported_modules": [
+        "studio.terrain.terrain_grid",
+        "studio.terrain.terrain_mesh"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_projection.py",
+      "size_bytes": 315,
+      "sha256": "69730477efb9ac59122e1c039f41d5111fe25d9d1f637dd2584baf247364c939",
+      "module": "test_projection",
+      "imported_modules": [
+        "studio.io.gpx_loader",
+        "studio.terrain.projection"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_pyvista.py",
+      "size_bytes": 186,
+      "sha256": "aadde6ecf0c977a08fb4b77512681a8974730721af93bb8c996d2ad852e6ce69",
+      "module": "test_pyvista",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_renderer3d.py",
+      "size_bytes": 191,
+      "sha256": "0369a39f6acfb50d3871276e6435807be8302ec0114db49fec31a26a62673beb",
+      "module": "test_renderer3d",
+      "imported_modules": [
+        "studio.io.gpx_loader",
+        "studio.render.renderer3d"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_resampler.py",
+      "size_bytes": 295,
+      "sha256": "37ce9ebbe4e989751b3311d6fad007ee13a6cf89be00791ad5c2178ab6c5c2d2",
+      "module": "test_resampler",
+      "imported_modules": [
+        "studio.geometry.resampler"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_route_events.py",
+      "size_bytes": 1484,
+      "sha256": "b6f79936ea7d8255b26bdc5dfd5098f7f0afec70d018583e2f1ea00494324127",
+      "module": "test_route_events",
+      "imported_modules": [
+        "studio.animation.progress_path",
+        "studio.director.route_event_analyzer",
+        "studio.geometry.path_builder",
+        "studio.io.gpx_loader",
+        "studio.terrain.srtm_grid",
+        "studio.terrain.terrain_sampler"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_satellite.py",
+      "size_bytes": 248,
+      "sha256": "ac1f1f72f9dca1d470b49934a62cfadae7972d56c404639dd087428518abb9a6",
+      "module": "test_satellite",
+      "imported_modules": [
+        "studio.io.gpx_loader",
+        "studio.terrain.satellite_provider"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_scene.py",
+      "size_bytes": 734,
+      "sha256": "fe8b65da1f416b8a72730067d132760d430e102d4b65af77e31634886687e584",
+      "module": "test_scene",
+      "imported_modules": [
+        "studio.scene.scene",
+        "studio.terrain.terrain_grid",
+        "studio.terrain.terrain_mesh"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_smoothing.py",
+      "size_bytes": 473,
+      "sha256": "6ba0a4e5e1271a47a6ea091ad8bb75b4f36fb2126681b1685ef42635eb406870",
+      "module": "test_smoothing",
+      "imported_modules": [
+        "studio.geometry.resampler",
+        "studio.geometry.smoothing"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_srtm.py",
+      "size_bytes": 126,
+      "sha256": "7ae138b568b5683be1df11aff9228b6e65c1c49a4116889a134cf3d1a3cad0bd",
+      "module": "test_srtm",
+      "imported_modules": [
+        "studio.terrain.srtm_provider"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_tile_download.py",
+      "size_bytes": 281,
+      "sha256": "e477784a6380cac7ee2e0a96d1e25710face2594a4df608f19c85e71ac7b10b3",
+      "module": "test_tile_download",
+      "imported_modules": [
+        "studio.imagery.tile_downloader",
+        "studio.io.gpx_loader"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "test_track_segment_cache.py",
+      "size_bytes": 833,
+      "sha256": "3aa30f5c79c1c0687f84f02aa9620e3bb78e264e9e5addd6cd8d5c5065122e51",
+      "module": "test_track_segment_cache",
+      "imported_modules": [
+        "studio.animation.track_segment_cache",
+        "studio.geometry.path_builder",
+        "studio.io.gpx_loader",
+        "studio.terrain.srtm_grid",
+        "studio.terrain.terrain_sampler"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": true,
+      "duplicate_group": null
+    },
+    {
+      "path": "tests/test_track_segment_cache.py",
+      "size_bytes": 833,
+      "sha256": "b56acbfe51ed64255a8aaf3ea36c5456ba19301e6c848a2b90779ed9aeaa0da5",
+      "module": "tests.test_track_segment_cache",
+      "imported_modules": [
+        "studio.animation.track_segment_cache",
+        "studio.geometry.path_builder",
+        "studio.io.gpx_loader",
+        "studio.terrain.srtm_grid",
+        "studio.terrain.terrain_sampler"
+      ],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": false,
+      "duplicate_group": null
+    },
+    {
+      "path": "tools/cleanup_v5.py",
+      "size_bytes": 13938,
+      "sha256": "9ffbf272cda353ccda3225516287c3c3ef12b38b011774f99faa30046846ca4a",
+      "module": "tools.cleanup_v5",
+      "imported_modules": [],
+      "imported_by": [],
+      "is_entry_point": false,
+      "is_suspect_name": true,
+      "is_orphan": false,
+      "duplicate_group": null
+    }
+  ],
+  "generated_directories": [
+    {
+      "path": "cache",
+      "size_bytes": 1256422735,
+      "file_count": 1211
+    },
+    {
+      "path": "cache/frames",
+      "size_bytes": 1125376940,
+      "file_count": 1020
+    },
+    {
+      "path": "output",
+      "size_bytes": 350533529,
+      "file_count": 11
+    },
+    {
+      "path": "output/logs",
+      "size_bytes": 0,
+      "file_count": 0
+    }
+  ]
+}

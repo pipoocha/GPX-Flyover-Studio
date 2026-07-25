@@ -1,8 +1,8 @@
 project:
-  title: Dev GPX court
+  title: Kabgeni
 
 gpx:
-  file: gpx/test_5km.gpx
+  file: gpx/31_kagbeni_sangda-24667827-1784704753-767.gpx
 
 video:
   mode: PREVIEW

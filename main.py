@@ -1,116 +1,70 @@
+from __future__ import annotations
+
+import argparse
 import sys
 from pathlib import Path
 
-import config
-from config.paths import DEFAULT_GPX, create_directories
+from config.paths import create_directories
+from studio.config.loader import ProjectLoaderV5
 from studio.core.app import FlyoverApp
-from studio.core.project_loader import ProjectLoader
+from studio.core.project import Project
 
 
-def parse_size(value):
-    width, height = value.lower().split("x")
-    return int(width), int(height)
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="GPX Flyover Studio V5"
+    )
+
+    parser.add_argument(
+        "command",
+        choices=("project",),
+    )
+
+    parser.add_argument(
+        "project_file",
+        type=Path,
+    )
+
+    parser.add_argument(
+        "--mode",
+        choices=("PREVIEW", "VIDEO"),
+    )
+
+    return parser.parse_args()
 
 
-def apply_option(option, value):
-    if option == "--duration":
-        config.VIDEO_DURATION = int(value)
-        config.TOTAL_FRAMES = config.VIDEO_DURATION * config.FPS
+def main():
+    arguments = parse_arguments()
+    create_directories()
 
-    elif option == "--fps":
-        config.FPS = int(value)
-        config.TOTAL_FRAMES = config.VIDEO_DURATION * config.FPS
+    project_config = ProjectLoaderV5(
+        arguments.project_file
+    ).load(require_existing_gpx=True)
 
-    elif option == "--output":
-        config.DEFAULT_VIDEO = Path(value)
+    if arguments.mode:
+        project_config.video.mode = arguments.mode
 
-    elif option == "--size":
-        width, height = parse_size(value)
-        config.WINDOW_WIDTH = width
-        config.WINDOW_HEIGHT = height
+    project = Project(project_config)
 
-    else:
-        print("Option inconnue :", option)
-        sys.exit(1)
+    print("===================================")
+    print(project.title)
+    print("Mode :", project.video.mode)
+    print("GPX  :", project.gpx_file)
+    print("Durée:", project.timeline.travel, "s")
+    print("FPS  :", project.video.fps)
+    print("Taille:", project.video.resolution)
+    print("Sortie:", project.video.output)
+    print("===================================")
 
-
-def parse_args():
-    args = sys.argv[1:]
-
-    if not args:
-        return DEFAULT_GPX
-
-    if args[0].lower() == "project":
-        if len(args) < 2:
-            print("Projet manquant.")
-            print("Exemple : python main.py project projects\\ranchal.yaml")
-            sys.exit(1)
-
-        project_config = ProjectLoader(args[1]).load()
-        gpx_file = project_config.gpx_file
-        remaining = args[2:]
-
-    else:
-        gpx_file = DEFAULT_GPX
-
-        first = args.pop(0)
-
-        if first.upper() in ("PREVIEW", "DEV", "PROD"):
-            config.MODE = first.upper()
-        else:
-            gpx_file = Path(first)
-
-        if args and not args[0].startswith("--"):
-            gpx_file = Path(args.pop(0))
-
-        remaining = args
-
-    while remaining:
-        option = remaining.pop(0)
-
-        if option == "--help":
-            print("Utilisation :")
-            print("  python main.py preview")
-            print("  python main.py dev")
-            print("  python main.py prod")
-            print("  python main.py project projects\\ranchal.yaml")
-            print("  python main.py dev --duration 20 --fps 20")
-            print("  python main.py dev --size 1280x720")
-            sys.exit(0)
-
-        if not remaining:
-            print("Valeur manquante pour", option)
-            sys.exit(1)
-
-        value = remaining.pop(0)
-        apply_option(option, value)
-
-    return gpx_file
+    FlyoverApp(project).run()
 
 
 if __name__ == "__main__":
-    create_directories()
-
-    gpx_file = parse_args()
-
-    if not Path(gpx_file).exists():
-        print("GPX introuvable :")
-        print(gpx_file)
-        sys.exit(1)
-
-    print("===================================")
-    print(config.PROJECT_TITLE)
-    print("Mode :", config.MODE)
-    print("GPX  :", gpx_file)
-    print("Durée:", config.VIDEO_DURATION, "s")
-    print("FPS  :", config.FPS)
-    print("Frames:", config.TOTAL_FRAMES)
-    print("Taille:", f"{config.WINDOW_WIDTH}x{config.WINDOW_HEIGHT}")
-    print("Sortie:", config.DEFAULT_VIDEO)
-    print("===================================")
-
-    app = FlyoverApp(
-        gpx_file=str(gpx_file)
-    )
-
-    app.run()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nInterrompu.")
+        sys.exit(130)
+    except Exception as error:
+        print("\nERREUR :", error)
+        raise

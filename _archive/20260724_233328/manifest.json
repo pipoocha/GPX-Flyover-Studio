@@ -1,0 +1,161 @@
+{
+  "created_at": "2026-07-24T23:33:28",
+  "files": [
+    {
+      "source": "output/video/__init__.py",
+      "destination": "_archive/20260724_233328/output/video/__init__.py"
+    },
+    {
+      "source": "studio/__init__.py",
+      "destination": "_archive/20260724_233328/studio/__init__.py"
+    },
+    {
+      "source": "studio/animation/__init__.py",
+      "destination": "_archive/20260724_233328/studio/animation/__init__.py"
+    },
+    {
+      "source": "studio/camera/__init__.py",
+      "destination": "_archive/20260724_233328/studio/camera/__init__.py"
+    },
+    {
+      "source": "studio/core/__init__.py",
+      "destination": "_archive/20260724_233328/studio/core/__init__.py"
+    },
+    {
+      "source": "studio/director/__init__.py",
+      "destination": "_archive/20260724_233328/studio/director/__init__.py"
+    },
+    {
+      "source": "studio/director/director_camera_v11_lateral.py",
+      "destination": "_archive/20260724_233328/studio/director/director_camera_v11_lateral.py"
+    },
+    {
+      "source": "studio/geometry/__init__.py",
+      "destination": "_archive/20260724_233328/studio/geometry/__init__.py"
+    },
+    {
+      "source": "studio/geometry/resampler copy.py",
+      "destination": "_archive/20260724_233328/studio/geometry/resampler copy.py"
+    },
+    {
+      "source": "studio/imagery/__init__.py",
+      "destination": "_archive/20260724_233328/studio/imagery/__init__.py"
+    },
+    {
+      "source": "studio/io/__init__.py",
+      "destination": "_archive/20260724_233328/studio/io/__init__.py"
+    },
+    {
+      "source": "studio/leader/__init__.py",
+      "destination": "_archive/20260724_233328/studio/leader/__init__.py"
+    },
+    {
+      "source": "studio/render/__init__.py",
+      "destination": "_archive/20260724_233328/studio/render/__init__.py"
+    },
+    {
+      "source": "studio/scene/__init__.py",
+      "destination": "_archive/20260724_233328/studio/scene/__init__.py"
+    },
+    {
+      "source": "studio/terrain/__init__.py",
+      "destination": "_archive/20260724_233328/studio/terrain/__init__.py"
+    },
+    {
+      "source": "studio/track/__init__.py",
+      "destination": "_archive/20260724_233328/studio/track/__init__.py"
+    },
+    {
+      "source": "studio/ui/__init__.py",
+      "destination": "_archive/20260724_233328/studio/ui/__init__.py"
+    },
+    {
+      "source": "studio/utils/__init__.py",
+      "destination": "_archive/20260724_233328/studio/utils/__init__.py"
+    },
+    {
+      "source": "studio/video/__init__.py",
+      "destination": "_archive/20260724_233328/studio/video/__init__.py"
+    },
+    {
+      "source": "test_dem_download.py",
+      "destination": "_archive/20260724_233328/test_dem_download.py"
+    },
+    {
+      "source": "test_dem_loader.py",
+      "destination": "_archive/20260724_233328/test_dem_loader.py"
+    },
+    {
+      "source": "test_extent.py",
+      "destination": "_archive/20260724_233328/test_extent.py"
+    },
+    {
+      "source": "test_grid.py",
+      "destination": "_archive/20260724_233328/test_grid.py"
+    },
+    {
+      "source": "test_imagery_bounds.py",
+      "destination": "_archive/20260724_233328/test_imagery_bounds.py"
+    },
+    {
+      "source": "test_imagery_tiles.py",
+      "destination": "_archive/20260724_233328/test_imagery_tiles.py"
+    },
+    {
+      "source": "test_mosaic.py",
+      "destination": "_archive/20260724_233328/test_mosaic.py"
+    },
+    {
+      "source": "test_mountain.py",
+      "destination": "_archive/20260724_233328/test_mountain.py"
+    },
+    {
+      "source": "test_projection.py",
+      "destination": "_archive/20260724_233328/test_projection.py"
+    },
+    {
+      "source": "test_pyvista.py",
+      "destination": "_archive/20260724_233328/test_pyvista.py"
+    },
+    {
+      "source": "test_renderer3d.py",
+      "destination": "_archive/20260724_233328/test_renderer3d.py"
+    },
+    {
+      "source": "test_resampler.py",
+      "destination": "_archive/20260724_233328/test_resampler.py"
+    },
+    {
+      "source": "test_route_events.py",
+      "destination": "_archive/20260724_233328/test_route_events.py"
+    },
+    {
+      "source": "test_satellite.py",
+      "destination": "_archive/20260724_233328/test_satellite.py"
+    },
+    {
+      "source": "test_scene.py",
+      "destination": "_archive/20260724_233328/test_scene.py"
+    },
+    {
+      "source": "test_smoothing.py",
+      "destination": "_archive/20260724_233328/test_smoothing.py"
+    },
+    {
+      "source": "test_srtm.py",
+      "destination": "_archive/20260724_233328/test_srtm.py"
+    },
+    {
+      "source": "test_tile_download.py",
+      "destination": "_archive/20260724_233328/test_tile_download.py"
+    },
+    {
+      "source": "test_track_segment_cache.py",
+      "destination": "_archive/20260724_233328/test_track_segment_cache.py"
+    },
+    {
+      "source": "tests/test_track_segment_cache.py",
+      "destination": "_archive/20260724_233328/tests/test_track_segment_cache.py"
+    }
+  ]
+}

@@ -1,11 +1,45 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
+
+from studio.config.models import ProjectConfig
 
 
 @dataclass
-class FlyoverProject:
-    gpx_file: str
-    points: list | None = None
-    grid: object | None = None
-    mesh: object | None = None
-    sampler: object | None = None
-    path_coords: object | None = None
+class Project:
+    config: ProjectConfig
+    points: list[Any] = field(default_factory=list)
+    grid: Any = None
+    mesh: Any = None
+    sampler: Any = None
+    path_coords: Any = None
+
+    @property
+    def title(self) -> str:
+        return self.config.title
+
+    @property
+    def gpx_file(self) -> Path:
+        return self.config.gpx.file
+
+    @property
+    def video(self):
+        return self.config.video
+
+    @property
+    def camera(self):
+        return self.config.camera
+
+    @property
+    def track(self):
+        return self.config.track
+
+    @property
+    def terrain(self):
+        return self.config.terrain
+
+    @property
+    def timeline(self):
+        return self.config.timeline

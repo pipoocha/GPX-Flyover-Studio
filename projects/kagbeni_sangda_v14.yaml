@@ -1,0 +1,42 @@
+project:
+  title: Kagbeni - Sangda V14
+gpx:
+  file: gpx/31_kagbeni_sangda-24667827-1784704753-767.gpx
+video:
+  mode: VIDEO
+  duration: 30
+  final_hold_seconds: 0
+  fps: 20
+  size: 1280x720
+  output: output/video/kagbeni_sangda_v14_final.mp4
+camera:
+  mode: director
+  preset: cinematic
+  orientation:
+    mode: auto
+  local_fit_distance_scale: 0.4
+  local_fit_height_scale: 0.2
+  local_fit_min_distance: 500.0
+  local_fit_max_distance: 2500.0
+  local_fit_min_height: 600.0
+  local_fit_max_height: 1900.0
+  lateral_distance_scale: 0.12
+  lateral_minimum: 160.0
+  lateral_maximum: 700.0
+track:
+  render_mode: line
+  progressive: true
+  update_every: 6
+  line_width: 1.5
+  z_offset: 8.0
+leader:
+  enabled: false
+terrain:
+  source: copernicus
+  copernicus_max_cells: 60000
+  use_satellite: true
+outro:
+  start_hold_seconds: 3.0
+  arrival_hold_seconds: 5.0
+  profile_seconds: 6.0
+timeline: []

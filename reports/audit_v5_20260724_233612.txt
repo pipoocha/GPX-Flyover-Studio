@@ -1,0 +1,27 @@
+========================================================================
+GPX FLYOVER STUDIO V5 - AUDIT
+========================================================================
+
+Racine : C:\Users\pc\Documents\PERSO\Sport\GPX-Flyover-Studio V5
+Fichiers Python : 47
+Noms suspects : 1
+Modules orphelins potentiels : 0
+Groupes de doublons exacts : 0
+
+DOSSIERS GÉNÉRÉS
+------------------------------------------------------------------------
+Aucun.
+
+FICHIERS AUX NOMS SUSPECTS
+------------------------------------------------------------------------
+tools/cleanup_v5.py
+
+MODULES ORPHELINS POTENTIELS
+------------------------------------------------------------------------
+Aucun.
+
+DOUBLONS EXACTS
+------------------------------------------------------------------------
+Aucun.
+
+Aucune suppression effectuée.

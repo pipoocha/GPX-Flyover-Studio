@@ -1,0 +1,57 @@
+project:
+  title: GPX Flyover Studio
+gpx:
+  file: C:/Users/pc/Documents/PERSO/Sport/GPX-Flyover-Studio V4/gpx/31_kagbeni_sangda-24667827-1784704753-767.gpx
+video:
+  mode: PREVIEW
+  duration: 30
+  final_hold_seconds: 0
+  fps: 20
+  size: 1280x720
+  output: output/video/flyover_v15.mp4
+camera:
+  mode: director
+  preset: cinematic
+  orientation:
+    mode: auto
+  local_fit_distance_scale: 0.4
+  local_fit_height_scale: 0.2
+  local_fit_min_distance: 1200.0
+  local_fit_max_distance: 3600.0
+  local_fit_min_height: 600.0
+  local_fit_max_height: 1900.0
+  lateral_distance_scale: 0.12
+  lateral_minimum: 160.0
+  lateral_maximum: 700.0
+track:
+  render_mode: line
+  progressive: true
+  update_every: 6
+  line_width: 4.0
+  z_offset: 8.0
+  color: '#04FB4F'
+  start_visible_segments: 12
+leader:
+  enabled: false
+terrain:
+  source: copernicus
+  copernicus_margin: 0.006
+  copernicus_max_cells: 60000
+  use_satellite: true
+  satellite_zoom: 14
+  satellite_flip_vertical: true
+outro:
+  start_hold_seconds: 3.0
+  arrival_hold_seconds: 5.0
+  flatten_transition_seconds: 3.0
+  profile_animation_seconds: 6.0
+  profile_hold_seconds: 4.0
+  travel_ease_strength: 1.0
+  start_camera_progress: 0.004
+  profile_inset_width_ratio: 0.4
+  profile_inset_height_ratio: 0.3
+  profile_inset_margin: 24
+  profile_inset_corner: bottom_right
+  final_topdown_height_scale: 1.1
+  final_topdown_min_height: 2500.0
+timeline: []

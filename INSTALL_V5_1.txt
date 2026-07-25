@@ -1,0 +1,28 @@
+GPX FLYOVER STUDIO V5.1
+
+Fichiers principaux modifies :
+- studio/camera/camera.py
+- studio/camera/__init__.py
+- studio/timeline/timeline.py
+- studio/timeline/__init__.py
+- studio/core/pipeline.py
+- studio/animation/frame_renderer.py
+- projects/project_v5_1.yaml
+
+Lancement preview :
+python main.py project projects\project_v5_1.yaml
+
+Lancement video :
+python main.py project projects\project_v5_1.yaml --mode VIDEO
+
+Fonctions V5.1 :
+- camera unique V5 plus proche et moins haute ;
+- ralentissement distinct au depart et a l'arrivee ;
+- pause de 3 s sur le debut de la trace ;
+- pause de 5 s sur l'arrivee ;
+- transition vers une vue verticale ;
+- aplatissement progressif du terrain ;
+- profil dans un coin avec echelles distance/altitude ;
+- point synchronise sur la carte et sur le profil ;
+- maintien final et fondu noir ;
+- satellite non bloquant s'il manque.

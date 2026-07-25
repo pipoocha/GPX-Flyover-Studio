@@ -1,0 +1,189 @@
+{
+  "created_at": "2026-07-24T23:33:50",
+  "files": [
+    {
+      "source": "OLD studio_gui.py",
+      "destination": "_archive/20260724_233350/OLD studio_gui.py"
+    },
+    {
+      "source": "add_elevation_profile_outro.py",
+      "destination": "_archive/20260724_233350/add_elevation_profile_outro.py"
+    },
+    {
+      "source": "preview_satellite.py",
+      "destination": "_archive/20260724_233350/preview_satellite.py"
+    },
+    {
+      "source": "satellite_downloader.py",
+      "destination": "_archive/20260724_233350/satellite_downloader.py"
+    },
+    {
+      "source": "studio/animation/OLD frame_renderer (2).py",
+      "destination": "_archive/20260724_233350/studio/animation/OLD frame_renderer (2).py"
+    },
+    {
+      "source": "studio/animation/OLD frame_renderer (3).py",
+      "destination": "_archive/20260724_233350/studio/animation/OLD frame_renderer (3).py"
+    },
+    {
+      "source": "studio/animation/OLD frame_renderer (4).py",
+      "destination": "_archive/20260724_233350/studio/animation/OLD frame_renderer (4).py"
+    },
+    {
+      "source": "studio/animation/OLD frame_renderer.py",
+      "destination": "_archive/20260724_233350/studio/animation/OLD frame_renderer.py"
+    },
+    {
+      "source": "studio/animation/OLD preview_player (2).py",
+      "destination": "_archive/20260724_233350/studio/animation/OLD preview_player (2).py"
+    },
+    {
+      "source": "studio/animation/OLD preview_player (3).py",
+      "destination": "_archive/20260724_233350/studio/animation/OLD preview_player (3).py"
+    },
+    {
+      "source": "studio/animation/OLD preview_player.py",
+      "destination": "_archive/20260724_233350/studio/animation/OLD preview_player.py"
+    },
+    {
+      "source": "studio/animation/timeline.py",
+      "destination": "_archive/20260724_233350/studio/animation/timeline.py"
+    },
+    {
+      "source": "studio/animation/track_segment_cache.py",
+      "destination": "_archive/20260724_233350/studio/animation/track_segment_cache.py"
+    },
+    {
+      "source": "studio/app.py",
+      "destination": "_archive/20260724_233350/studio/app.py"
+    },
+    {
+      "source": "studio/camera.py",
+      "destination": "_archive/20260724_233350/studio/camera.py"
+    },
+    {
+      "source": "studio/config.py",
+      "destination": "_archive/20260724_233350/studio/config.py"
+    },
+    {
+      "source": "studio/core/OLD project_loader.py",
+      "destination": "_archive/20260724_233350/studio/core/OLD project_loader.py"
+    },
+    {
+      "source": "studio/core/Ori pipeline.py",
+      "destination": "_archive/20260724_233350/studio/core/Ori pipeline.py"
+    },
+    {
+      "source": "studio/core/old pipeline.py",
+      "destination": "_archive/20260724_233350/studio/core/old pipeline.py"
+    },
+    {
+      "source": "studio/director/OLD director_camera (3).py",
+      "destination": "_archive/20260724_233350/studio/director/OLD director_camera (3).py"
+    },
+    {
+      "source": "studio/director/OLD director_camera (4).py",
+      "destination": "_archive/20260724_233350/studio/director/OLD director_camera (4).py"
+    },
+    {
+      "source": "studio/director/OLD director_camera (5).py",
+      "destination": "_archive/20260724_233350/studio/director/OLD director_camera (5).py"
+    },
+    {
+      "source": "studio/director/Old director_camera.py",
+      "destination": "_archive/20260724_233350/studio/director/Old director_camera.py"
+    },
+    {
+      "source": "studio/director/old director_camera (2).py",
+      "destination": "_archive/20260724_233350/studio/director/old director_camera (2).py"
+    },
+    {
+      "source": "studio/exporter.py",
+      "destination": "_archive/20260724_233350/studio/exporter.py"
+    },
+    {
+      "source": "studio/geometry/smoothing.py",
+      "destination": "_archive/20260724_233350/studio/geometry/smoothing.py"
+    },
+    {
+      "source": "studio/geometry/tube_builder.py",
+      "destination": "_archive/20260724_233350/studio/geometry/tube_builder.py"
+    },
+    {
+      "source": "studio/imagery/mosaic_builder.py",
+      "destination": "_archive/20260724_233350/studio/imagery/mosaic_builder.py"
+    },
+    {
+      "source": "studio/imagery/satellite_provider.py",
+      "destination": "_archive/20260724_233350/studio/imagery/satellite_provider.py"
+    },
+    {
+      "source": "studio/imagery/tile_downloader.py",
+      "destination": "_archive/20260724_233350/studio/imagery/tile_downloader.py"
+    },
+    {
+      "source": "studio/map_engine.py",
+      "destination": "_archive/20260724_233350/studio/map_engine.py"
+    },
+    {
+      "source": "studio/overlay.py",
+      "destination": "_archive/20260724_233350/studio/overlay.py"
+    },
+    {
+      "source": "studio/paths.py",
+      "destination": "_archive/20260724_233350/studio/paths.py"
+    },
+    {
+      "source": "studio/profile.py",
+      "destination": "_archive/20260724_233350/studio/profile.py"
+    },
+    {
+      "source": "studio/render/renderer3d.py",
+      "destination": "_archive/20260724_233350/studio/render/renderer3d.py"
+    },
+    {
+      "source": "studio/renderer.py",
+      "destination": "_archive/20260724_233350/studio/renderer.py"
+    },
+    {
+      "source": "studio/scene/track.py",
+      "destination": "_archive/20260724_233350/studio/scene/track.py"
+    },
+    {
+      "source": "studio/statistics.py",
+      "destination": "_archive/20260724_233350/studio/statistics.py"
+    },
+    {
+      "source": "studio/terrain.py",
+      "destination": "_archive/20260724_233350/studio/terrain.py"
+    },
+    {
+      "source": "studio/terrain/dem_cache.py",
+      "destination": "_archive/20260724_233350/studio/terrain/dem_cache.py"
+    },
+    {
+      "source": "studio/terrain/dem_downloader.py",
+      "destination": "_archive/20260724_233350/studio/terrain/dem_downloader.py"
+    },
+    {
+      "source": "studio/terrain/dem_loader.py",
+      "destination": "_archive/20260724_233350/studio/terrain/dem_loader.py"
+    },
+    {
+      "source": "studio/terrain/dem_provider.py",
+      "destination": "_archive/20260724_233350/studio/terrain/dem_provider.py"
+    },
+    {
+      "source": "studio/terrain/dem_reader.py",
+      "destination": "_archive/20260724_233350/studio/terrain/dem_reader.py"
+    },
+    {
+      "source": "studio/terrain/old terrain_mesh.py",
+      "destination": "_archive/20260724_233350/studio/terrain/old terrain_mesh.py"
+    },
+    {
+      "source": "studio/terrain/satellite_provider.py",
+      "destination": "_archive/20260724_233350/studio/terrain/satellite_provider.py"
+    }
+  ]
+}

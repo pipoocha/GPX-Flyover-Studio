@@ -1,0 +1,44 @@
+project:
+  title: Kagbeni - Sangda satellite
+
+gpx:
+  file: gpx/31_kagbeni_sangda-24667827-1784704753-767.gpx
+
+video:
+  mode: PREVIEW
+  duration: 20
+  final_hold_seconds: 2
+  fps: 20
+  size: 1280x720
+  output: output/video/kagbeni_sangda_satellite.mp4
+
+camera:
+  mode: director
+  preset: cinematic
+
+  height: 1100
+  distance: 2200
+  look_ahead: 260
+  focal_height: 120
+  side_offset: 300
+
+  orientation:
+    mode: auto
+
+timeline: []
+
+track:
+  radius: 1
+  sides: 6
+  render_mode: line
+  progressive: true
+  update_every: 3
+
+leader:
+  enabled: false
+  style: glow
+  radius: 5
+  z_offset: 5
+  color: "#FC4C02"
+  halo_scale: 1.3
+  halo_opacity: 0.10
