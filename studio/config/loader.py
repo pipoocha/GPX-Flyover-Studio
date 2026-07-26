@@ -95,6 +95,7 @@ class ProjectLoaderV5:
                 margin=float(terrain["margin"]),
             ),
             timeline=TimelineConfig(
+                speed=float(timeline["speed"]),
                 intro=float(timeline["intro"]),
                 zoom_to_start=float(timeline["zoom_to_start"]),
                 start_hold=float(timeline["start_hold"]),

@@ -75,6 +75,7 @@ class TerrainConfig:
 
 @dataclass
 class TimelineConfig:
+    speed: float
     intro: float
     zoom_to_start: float
     start_hold: float
@@ -88,8 +89,15 @@ class TimelineConfig:
     fade_out: float
 
     @property
+    def effective_travel(self) -> float:
+        return float(self.travel / max(0.05, self.speed))
+
+    @property
     def total_duration(self) -> float:
-        return float(sum(asdict(self).values()))
+        values = asdict(self)
+        values.pop("speed", None)
+        values["travel"] = self.effective_travel
+        return float(sum(values.values()))
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

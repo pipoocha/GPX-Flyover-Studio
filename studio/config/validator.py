@@ -60,8 +60,13 @@ def validate_project(project: ProjectConfig, require_existing_gpx: bool = False)
         errors.append("Le nombre maximal de cellules doit être au moins 10000.")
 
     for name, value in project.timeline.to_dict().items():
+        if name == "speed":
+            continue
         if value < 0:
             errors.append(f"Timeline {name} : durée négative.")
+
+    if not 0.05 <= project.timeline.speed <= 10.0:
+        errors.append("La vitesse de progression doit être comprise entre 0,05× et 10×.")
 
     if project.timeline.travel <= 0:
         errors.append("La durée de parcours doit être positive.")

@@ -25,6 +25,7 @@ DEFAULT_CONFIG = {
         "margin": 0.006,
     },
     "timeline": {
+        "speed": 1.0,
         "intro": 2.0,
         "zoom_to_start": 2.0,
         "start_hold": 3.0,

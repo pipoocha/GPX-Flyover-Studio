@@ -1,0 +1,1 @@
+Copiez install_hotfix.py à la racine du projet puis lancez :\npython install_hotfix.py\nPuis : python -m studio.gui.main_window\n

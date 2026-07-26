@@ -14,7 +14,7 @@ class TimelineMapper:
 
     def travel_progress(self, linear_progress):
         linear = max(0.0, min(1.0, float(linear_progress)))
-        travel = max(0.001, float(self.config.travel))
+        travel = max(0.001, float(self.config.effective_travel))
         start_ratio = min(0.35, max(0.0, float(self.config.slowdown_start) / travel))
         end_ratio = min(0.35, max(0.0, float(self.config.slowdown_end) / travel))
 

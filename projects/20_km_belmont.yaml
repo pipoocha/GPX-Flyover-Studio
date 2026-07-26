@@ -4,14 +4,14 @@ gpx:
   file: C:/Users/pc/Documents/PERSO/Sport/GPX-Flyover-Studio V5/gpx/20_km_belmont.gpx
 camera:
   mode: director
-  orientation: route
+  orientation: auto
   distance:
     min: 933.6391437308869
     max: 1878.8990825688074
-    scale: 0.3012232415902141
+    scale: 0.42
   height:
-    min: 600.0
-    max: 1900.0
+    min: 307.4074074074074
+    max: 825.9259259259259
     scale: 0.19464831804281346
   lateral:
     min: 67.2782874617737
@@ -20,9 +20,9 @@ camera:
   look_ahead: 260
   smoothing: 0.1
 track:
-  color: '#FC4C02'
-  width: 1.5
-  z_offset: 8.0
+  color: '#D2F50A'
+  width: 2.0
+  z_offset: 2.0
   progressive: true
   leader: false
 terrain:
@@ -32,6 +32,7 @@ terrain:
   max_cells: 60000
   margin: 0.006
 timeline:
+  speed: 3.25
   intro: 4.790697674418604
   zoom_to_start: 3.0
   start_hold: 3.0

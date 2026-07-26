@@ -4,7 +4,7 @@ gpx:
   file: C:/Users/pc/Documents/PERSO/Sport/GPX-Flyover-Studio V5/gpx/20_km_belmont.gpx
 camera:
   mode: director
-  orientation: route
+  orientation: auto
   distance:
     min: 933.6391437308869
     max: 1878.8990825688074
@@ -32,6 +32,7 @@ terrain:
   max_cells: 60000
   margin: 0.006
 timeline:
+  speed: 2.7654320987654324
   intro: 4.790697674418604
   zoom_to_start: 3.0
   start_hold: 3.0
@@ -47,4 +48,4 @@ video:
   fps: 20
   resolution: 1280x720
   output: output/video/flyover_v5.mp4
-  mode: VIDEO
+  mode: PREVIEW

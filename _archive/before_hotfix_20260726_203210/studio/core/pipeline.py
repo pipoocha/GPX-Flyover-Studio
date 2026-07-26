@@ -39,10 +39,6 @@ class FlyoverPipeline:
         self.origin_x = 0.0
         self.origin_y = 0.0
         self.satellite_texture = None
-        self.satellite_metadata = None
-        self.terrain_projection = None
-        self.terrain_mesh_builder = None
-        self.texture_alignment = None
 
         self.apply_legacy_config()
 
@@ -140,15 +136,8 @@ class FlyoverPipeline:
             raise ValueError(f"Source terrain inconnue : {source}")
 
         self.project.grid = builder.build()
-        self.terrain_projection = builder.projection
-
-        self.terrain_mesh_builder = TerrainMesh(
-            self.project.grid
-        )
-        self.project.mesh = self.terrain_mesh_builder.build()
-        self.project.sampler = TerrainSampler(
-            self.project.grid
-        )
+        self.project.mesh = TerrainMesh(self.project.grid).build()
+        self.project.sampler = TerrainSampler(self.project.grid)
 
         self.origin_x = float(builder.origin_x)
         self.origin_y = float(builder.origin_y)
@@ -156,14 +145,14 @@ class FlyoverPipeline:
     def build_path(self):
         print("Construction trajectoire...")
 
-        self.project.path_coords = PathBuilder(
-            self.project.points,
-            origin_x=self.origin_x,
-            origin_y=self.origin_y,
-            sampler=self.project.sampler,
-            projection=self.terrain_projection,
-            z_offset=self.project.track.z_offset,
-        ).build()
+       self.project.path_coords = PathBuilder(
+    self.project.points,
+    origin_x=self.origin_x,
+    origin_y=self.origin_y,
+    sampler=self.project.sampler,
+    projection=self.project.grid.projection,
+    z_offset=self.project.track.z_offset,
+    ).build()
 
     def load_satellite_texture(self):
         if not self.project.terrain.satellite:
@@ -278,30 +267,8 @@ class FlyoverPipeline:
         print("  Image :", description["image"])
         print("  Zoom  :", description["zoom"])
 
-        self.satellite_metadata = satellite.load_metadata()
-        self.satellite_texture = satellite.load_texture()
-
-        self.texture_alignment = (
-            self.terrain_mesh_builder
-            .apply_satellite_texture_coordinates(
-                self.project.mesh,
-                metadata=self.satellite_metadata,
-                projection=self.terrain_projection,
-                origin_x=self.origin_x,
-                origin_y=self.origin_y,
-            )
-        )
-
-        print(
-            "Texture UV : "
-            f"U {self.texture_alignment['u_min']:.3f} à "
-            f"{self.texture_alignment['u_max']:.3f} | "
-            f"V {self.texture_alignment['v_min']:.3f} à "
-            f"{self.texture_alignment['v_max']:.3f}"
-        )
-        print(
-            "Terrain hors mosaïque : "
-            f"{self.texture_alignment['outside_percent']:.1f} %"
+        self.satellite_texture = (
+            satellite.load_texture()
         )
 
     def build_scene(self, off_screen=True):
@@ -410,8 +377,8 @@ class FlyoverPipeline:
     def prepare(self):
         self.load_gpx()
         self.build_terrain()
-        self.load_satellite_texture()
         self.build_path()
+        self.load_satellite_texture()
 
     def run(self):
         print(f"{self.project.title} {config.VERSION}")
