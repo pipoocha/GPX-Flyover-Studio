@@ -36,7 +36,10 @@ class LeaderMarker:
                 "LEADER_STYLE",
                 "glow",
             )
-        ).lower()
+        ).strip().lower()
+
+        if self.style not in {"point", "glow", "comet"}:
+            self.style = "glow"
 
         self.radius = float(
             getattr(
@@ -162,6 +165,25 @@ class LeaderMarker:
         self.update_count = 0
         self.current_position = None
 
+        print()
+        print("===================================")
+        print("CONFIGURATION LEADER")
+        print("-----------------------------------")
+        print("Actif              :", self.enabled)
+        print("Style              :", self.style)
+        print("Couleur            :", self.color)
+        print("Rayon              :", self.radius)
+        print("Hauteur            :", self.z_offset)
+        print("Taille halo        :", self.halo_scale)
+        print("Opacité halo       :", self.halo_opacity)
+        print("Traînée active     :", self.trail_enabled)
+        print("Longueur traînée   :", self.trail_fraction)
+        print("Largeur traînée    :", self.trail_width)
+        print("Opacité traînée    :", self.trail_opacity)
+        print("Taille adaptative  :", self.screen_space_enabled)
+        print("===================================")
+        print()
+
     def create(self):
         if not self.enabled:
             return
@@ -179,9 +201,10 @@ class LeaderMarker:
             core_mesh,
             color=self.color,
             smooth_shading=True,
+            lighting=False,
         )
 
-        if self.style == "glow":
+        if self.style in {"glow", "comet"}:
             halo_mesh = pv.Sphere(
                 radius=self.radius * self.halo_scale,
                 theta_resolution=24,
@@ -193,6 +216,7 @@ class LeaderMarker:
                 color=self.color,
                 opacity=self.halo_opacity,
                 smooth_shading=True,
+                lighting=False,
             )
 
         self.update(
@@ -317,7 +341,7 @@ class LeaderMarker:
         progress,
         force=False,
     ):
-        if not self.trail_enabled:
+        if not self.trail_enabled or self.style == "point":
             return
 
         if (

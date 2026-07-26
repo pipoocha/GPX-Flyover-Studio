@@ -20,16 +20,16 @@ camera:
   look_ahead: 260
   smoothing: 0.1
 track:
-  color: '#FFFF00'
+  color: '#00FF40'
   width: 8.5
   z_offset: 8.0
   progressive: true
-  leader: false
+  leader: true
 leader:
-  enabled: false
-  style: glow
-  color: '#FC4C02'
-  radius: 20.0
+  enabled: true
+  style: point
+  color: '#FFFFFF'
+  radius: 6.0
   z_offset: 18.0
   halo_scale: 1.8
   halo_opacity: 0.2

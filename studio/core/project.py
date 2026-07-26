@@ -35,6 +35,9 @@ class Project:
     @property
     def track(self):
         return self.config.track
+    @property
+    def leader(self):
+        return self.config.leader
 
     @property
     def terrain(self):

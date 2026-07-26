@@ -96,7 +96,12 @@ class HelpRow(ttk.Frame):
         )
 
         def refresh_value(*_):
-            value = variable.get()
+            try:
+                value = variable.get()
+            except (tk.TclError, ValueError):
+                if isinstance(value_label, ttk.Label):
+                    value_label.configure(text="")
+                return
 
             if isinstance(value, float):
                 if resolution >= 1:
@@ -240,6 +245,43 @@ class MainWindow(tk.Tk):
             ),
             "track_leader": tk.BooleanVar(
                 value=False
+            ),
+
+            "leader_enabled": tk.BooleanVar(
+                value=False
+            ),
+            "leader_style": tk.StringVar(
+                value="glow"
+            ),
+            "leader_color": tk.StringVar(
+                value="#FC4C02"
+            ),
+            "leader_radius": tk.DoubleVar(
+                value=20.0
+            ),
+            "leader_z_offset": tk.DoubleVar(
+                value=18.0
+            ),
+            "leader_halo_scale": tk.DoubleVar(
+                value=1.8
+            ),
+            "leader_halo_opacity": tk.DoubleVar(
+                value=0.20
+            ),
+            "leader_trail_enabled": tk.BooleanVar(
+                value=True
+            ),
+            "leader_trail_fraction": tk.DoubleVar(
+                value=0.035
+            ),
+            "leader_trail_width": tk.DoubleVar(
+                value=10.0
+            ),
+            "leader_trail_opacity": tk.DoubleVar(
+                value=0.55
+            ),
+            "leader_screen_space": tk.BooleanVar(
+                value=True
             ),
 
             "terrain_source": tk.StringVar(
@@ -1261,15 +1303,213 @@ class MainWindow(tk.Tk):
             pady=4,
         )
 
-        ttk.Checkbutton(
+        ttk.Separator(
+            parent,
+            orient="horizontal",
+        ).pack(
+            fill="x",
+            pady=(12, 10),
+        )
+
+        ttk.Label(
             parent,
             text="Leader lumineux",
+            font=("Segoe UI", 11, "bold"),
+        ).pack(
+            anchor="w",
+            pady=(0, 6),
+        )
+
+        ttk.Checkbutton(
+            parent,
+            text="Activer le leader",
             variable=self.vars[
-                "track_leader"
+                "leader_enabled"
             ],
         ).pack(
             anchor="w",
             pady=4,
+        )
+
+        self._add_help_row(
+            parent,
+            label="Style",
+            help_text=(
+                "Point : marqueur seul. Glow : point avec halo. "
+                "Comet : point, halo et traînée."
+            ),
+            key="leader_style",
+            values=(
+                "point",
+                "glow",
+                "comet",
+            ),
+        )
+
+        leader_color_frame = ttk.Frame(
+            parent
+        )
+
+        leader_color_frame.pack(
+            fill="x",
+            pady=4,
+        )
+
+        ttk.Label(
+            leader_color_frame,
+            text="Couleur du leader",
+            width=30,
+        ).pack(
+            side="left",
+        )
+
+        ttk.Entry(
+            leader_color_frame,
+            textvariable=self.vars[
+                "leader_color"
+            ],
+        ).pack(
+            side="left",
+            fill="x",
+            expand=True,
+        )
+
+        ttk.Button(
+            leader_color_frame,
+            text="Choisir...",
+            command=self.choose_leader_color,
+        ).pack(
+            side="left",
+            padx=(8, 0),
+        )
+
+        self._add_help_row(
+            parent,
+            label="Taille du point",
+            help_text=(
+                "Rayon du cœur lumineux. Augmentez-le si le leader "
+                "est trop discret avec une caméra éloignée."
+            ),
+            key="leader_radius",
+            unit="m",
+            from_=2,
+            to=60,
+            resolution=1,
+        )
+
+        self._add_help_row(
+            parent,
+            label="Hauteur du leader",
+            help_text=(
+                "Distance verticale entre le leader et la trace."
+            ),
+            key="leader_z_offset",
+            unit="m",
+            from_=0,
+            to=60,
+            resolution=1,
+        )
+
+        ttk.Label(
+            parent,
+            text="Halo",
+            font=("Segoe UI", 10, "bold"),
+        ).pack(
+            anchor="w",
+            pady=(10, 2),
+        )
+
+        self._add_help_row(
+            parent,
+            label="Taille du halo",
+            help_text=(
+                "Multiplicateur appliqué à la taille du point."
+            ),
+            key="leader_halo_scale",
+            from_=1.0,
+            to=4.0,
+            resolution=0.1,
+        )
+
+        self._add_help_row(
+            parent,
+            label="Intensité du halo",
+            help_text=(
+                "Opacité du halo : 0 le rend invisible, 1 le rend opaque."
+            ),
+            key="leader_halo_opacity",
+            from_=0.0,
+            to=1.0,
+            resolution=0.05,
+        )
+
+        ttk.Label(
+            parent,
+            text="Traînée",
+            font=("Segoe UI", 10, "bold"),
+        ).pack(
+            anchor="w",
+            pady=(10, 2),
+        )
+
+        ttk.Checkbutton(
+            parent,
+            text="Afficher la traînée",
+            variable=self.vars[
+                "leader_trail_enabled"
+            ],
+        ).pack(
+            anchor="w",
+            pady=4,
+        )
+
+        self._add_help_row(
+            parent,
+            label="Longueur de traînée",
+            help_text=(
+                "Fraction du parcours conservée derrière le leader. "
+                "0,035 correspond à environ 3,5 % du parcours."
+            ),
+            key="leader_trail_fraction",
+            from_=0.0,
+            to=0.15,
+            resolution=0.005,
+        )
+
+        self._add_help_row(
+            parent,
+            label="Largeur de traînée",
+            help_text=(
+                "Épaisseur de la traînée lumineuse."
+            ),
+            key="leader_trail_width",
+            unit="px",
+            from_=1,
+            to=30,
+            resolution=1,
+        )
+
+        self._add_help_row(
+            parent,
+            label="Opacité de traînée",
+            help_text=(
+                "Transparence de la traînée."
+            ),
+            key="leader_trail_opacity",
+            from_=0.0,
+            to=1.0,
+            resolution=0.05,
+        )
+
+        ttk.Checkbutton(
+            parent,
+            text="Adapter la taille à la distance caméra",
+            variable=self.vars[
+                "leader_screen_space"
+            ],
+        ).pack(
+            anchor="w",
+            pady=(6, 4),
         )
 
     def _build_timeline_tab(
@@ -1409,7 +1649,13 @@ class MainWindow(tk.Tk):
         "camera_mode", "orientation", "distance_min", "distance_max", "distance_scale",
         "height_min", "height_max", "height_scale", "lateral_min", "lateral_max",
         "lateral_scale", "look_ahead", "smoothing", "track_color", "track_width",
-        "track_z", "track_progressive", "track_leader", "terrain_source",
+        "track_z", "track_progressive", "track_leader",
+        "leader_enabled", "leader_style", "leader_color",
+        "leader_radius", "leader_z_offset", "leader_halo_scale",
+        "leader_halo_opacity", "leader_trail_enabled",
+        "leader_trail_fraction", "leader_trail_width",
+        "leader_trail_opacity", "leader_screen_space",
+        "terrain_source",
         "terrain_satellite", "terrain_zoom", "terrain_max_cells", "terrain_margin",
         "progress_speed", "intro", "zoom_to_start", "start_hold", "travel", "slowdown_start",
         "slowdown_end", "arrival_hold", "flatten", "profile_animation",
@@ -1691,6 +1937,20 @@ class MainWindow(tk.Tk):
                     f"le projet :\n{error}",
                 )
 
+    def choose_leader_color(self):
+        selected = colorchooser.askcolor(
+            color=self.vars[
+                "leader_color"
+            ].get()
+        )[1]
+
+        if selected:
+            self.vars[
+                "leader_color"
+            ].set(
+                selected.upper()
+            )
+
     def choose_color(self):
         selected = colorchooser.askcolor(
             color=self.vars[
@@ -1759,6 +2019,19 @@ class MainWindow(tk.Tk):
             "track_z": project.track.z_offset,
             "track_progressive": project.track.progressive,
             "track_leader": project.track.leader,
+
+            "leader_enabled": project.leader.enabled,
+            "leader_style": project.leader.style,
+            "leader_color": project.leader.color,
+            "leader_radius": project.leader.radius,
+            "leader_z_offset": project.leader.z_offset,
+            "leader_halo_scale": project.leader.halo_scale,
+            "leader_halo_opacity": project.leader.halo_opacity,
+            "leader_trail_enabled": project.leader.trail_enabled,
+            "leader_trail_fraction": project.leader.trail_fraction,
+            "leader_trail_width": project.leader.trail_width,
+            "leader_trail_opacity": project.leader.trail_opacity,
+            "leader_screen_space": project.leader.screen_space_enabled,
 
             "terrain_source": project.terrain.source,
             "terrain_satellite": project.terrain.satellite,
@@ -1928,7 +2201,79 @@ class MainWindow(tk.Tk):
 
         project.track.leader = bool(
             self.vars[
-                "track_leader"
+                "leader_enabled"
+            ].get()
+        )
+
+        project.leader.enabled = bool(
+            self.vars[
+                "leader_enabled"
+            ].get()
+        )
+
+        project.leader.style = str(
+            self.vars[
+                "leader_style"
+            ].get()
+        )
+
+        project.leader.color = str(
+            self.vars[
+                "leader_color"
+            ].get()
+        )
+
+        project.leader.radius = float(
+            self.vars[
+                "leader_radius"
+            ].get()
+        )
+
+        project.leader.z_offset = float(
+            self.vars[
+                "leader_z_offset"
+            ].get()
+        )
+
+        project.leader.halo_scale = float(
+            self.vars[
+                "leader_halo_scale"
+            ].get()
+        )
+
+        project.leader.halo_opacity = float(
+            self.vars[
+                "leader_halo_opacity"
+            ].get()
+        )
+
+        project.leader.trail_enabled = bool(
+            self.vars[
+                "leader_trail_enabled"
+            ].get()
+        )
+
+        project.leader.trail_fraction = float(
+            self.vars[
+                "leader_trail_fraction"
+            ].get()
+        )
+
+        project.leader.trail_width = float(
+            self.vars[
+                "leader_trail_width"
+            ].get()
+        )
+
+        project.leader.trail_opacity = float(
+            self.vars[
+                "leader_trail_opacity"
+            ].get()
+        )
+
+        project.leader.screen_space_enabled = bool(
+            self.vars[
+                "leader_screen_space"
             ].get()
         )
 

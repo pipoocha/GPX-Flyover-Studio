@@ -51,6 +51,7 @@ class FlyoverPipeline:
         video = project.video
         camera = project.camera
         track = project.track
+        leader = project.leader
         terrain = project.terrain
         timeline = project.timeline
 
@@ -90,7 +91,30 @@ class FlyoverPipeline:
         config.TRACK_LINE_WIDTH = float(track.width)
         config.TRACK_Z_OFFSET = float(track.z_offset)
         config.TRACE_PROGRESSIVE = bool(track.progressive)
-        config.LEADER_ENABLED = bool(track.leader)
+
+        config.LEADER_ENABLED = bool(leader.enabled)
+        config.LEADER_STYLE = str(leader.style).lower()
+        config.LEADER_COLOR = str(leader.color)
+        config.LEADER_RADIUS = float(leader.radius)
+        config.LEADER_Z_OFFSET = float(leader.z_offset)
+        config.LEADER_HALO_SCALE = float(leader.halo_scale)
+        config.LEADER_HALO_OPACITY = float(leader.halo_opacity)
+        config.LEADER_TRAIL_ENABLED = bool(leader.trail_enabled)
+        config.LEADER_TRAIL_FRACTION = float(leader.trail_fraction)
+        config.LEADER_TRAIL_WIDTH = float(leader.trail_width)
+        config.LEADER_TRAIL_OPACITY = float(leader.trail_opacity)
+        config.LEADER_SCREEN_SPACE_ENABLED = bool(
+            leader.screen_space_enabled
+        )
+        config.LEADER_REFERENCE_DISTANCE = float(
+            leader.reference_distance
+        )
+        config.LEADER_MINIMUM_SCALE = float(
+            leader.minimum_scale
+        )
+        config.LEADER_MAXIMUM_SCALE = float(
+            leader.maximum_scale
+        )
 
         config.TERRAIN_SOURCE = terrain.source
         config.USE_SATELLITE = bool(terrain.satellite)
