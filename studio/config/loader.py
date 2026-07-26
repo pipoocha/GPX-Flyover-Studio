@@ -11,6 +11,7 @@ from studio.config.models import (
     CameraConfig,
     CameraRange,
     GPXConfig,
+    LeaderConfig,
     ProjectConfig,
     TerrainConfig,
     TimelineConfig,
@@ -51,7 +52,17 @@ class ProjectLoaderV5:
 
         camera = data["camera"]
         track = data["track"]
+        leader = data["leader"]
         terrain = data["terrain"]
+
+        # Compatibilité avec les anciens projets :
+        # track.leader: true/false pilote leader.enabled si aucune
+        # section "leader" n'était présente dans le YAML d'origine.
+        raw_track = raw.get("track", {})
+        raw_leader = raw.get("leader")
+
+        if raw_leader is None and "leader" in raw_track:
+            leader["enabled"] = bool(raw_track["leader"])
         timeline = data["timeline"]
         video = data["video"]
         width, height = self.parse_resolution(video["resolution"])
@@ -86,6 +97,27 @@ class ProjectLoaderV5:
                 z_offset=float(track["z_offset"]),
                 progressive=bool(track["progressive"]),
                 leader=bool(track["leader"]),
+            ),
+            leader=LeaderConfig(
+                enabled=bool(leader["enabled"]),
+                style=str(leader["style"]).lower(),
+                color=str(leader["color"]),
+                radius=float(leader["radius"]),
+                z_offset=float(leader["z_offset"]),
+                halo_scale=float(leader["halo_scale"]),
+                halo_opacity=float(leader["halo_opacity"]),
+                trail_enabled=bool(leader["trail_enabled"]),
+                trail_fraction=float(leader["trail_fraction"]),
+                trail_width=float(leader["trail_width"]),
+                trail_opacity=float(leader["trail_opacity"]),
+                screen_space_enabled=bool(
+                    leader["screen_space_enabled"]
+                ),
+                reference_distance=float(
+                    leader["reference_distance"]
+                ),
+                minimum_scale=float(leader["minimum_scale"]),
+                maximum_scale=float(leader["maximum_scale"]),
             ),
             terrain=TerrainConfig(
                 source=str(terrain["source"]).lower(),

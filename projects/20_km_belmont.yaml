@@ -25,6 +25,22 @@ track:
   z_offset: 2.0
   progressive: true
   leader: false
+leader:
+  enabled: false
+  style: glow
+  color: '#FC4C02'
+  radius: 20.0
+  z_offset: 18.0
+  halo_scale: 1.8
+  halo_opacity: 0.2
+  trail_enabled: true
+  trail_fraction: 0.035
+  trail_width: 10.0
+  trail_opacity: 0.55
+  screen_space_enabled: true
+  reference_distance: 3500.0
+  minimum_scale: 0.45
+  maximum_scale: 4.0
 terrain:
   source: copernicus
   satellite: true

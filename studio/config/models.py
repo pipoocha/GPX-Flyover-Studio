@@ -62,6 +62,30 @@ class TrackConfig:
 
 
 @dataclass
+class LeaderConfig:
+    """Réglages persistants du leader lumineux."""
+
+    enabled: bool
+    style: str
+    color: str
+    radius: float
+    z_offset: float
+    halo_scale: float
+    halo_opacity: float
+    trail_enabled: bool
+    trail_fraction: float
+    trail_width: float
+    trail_opacity: float
+    screen_space_enabled: bool
+    reference_distance: float
+    minimum_scale: float
+    maximum_scale: float
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
 class TerrainConfig:
     source: str
     satellite: bool
@@ -130,6 +154,7 @@ class ProjectConfig:
     gpx: GPXConfig
     camera: CameraConfig
     track: TrackConfig
+    leader: LeaderConfig
     terrain: TerrainConfig
     timeline: TimelineConfig
     video: VideoConfig
@@ -141,6 +166,7 @@ class ProjectConfig:
             "gpx": self.gpx.to_dict(),
             "camera": self.camera.to_dict(),
             "track": self.track.to_dict(),
+            "leader": self.leader.to_dict(),
             "terrain": self.terrain.to_dict(),
             "timeline": self.timeline.to_dict(),
             "video": self.video.to_dict(),

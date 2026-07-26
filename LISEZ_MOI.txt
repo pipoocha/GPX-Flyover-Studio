@@ -1,1 +1,20 @@
-Copiez install_hotfix.py à la racine du projet puis lancez :\npython install_hotfix.py\nPuis : python -m studio.gui.main_window\n
+SPRINT 2.2.1 — MODÈLE DU LEADER
+
+Remplacer uniquement :
+- studio/config/models.py
+- studio/config/loader.py
+- studio/config/defaults.py
+
+Aucun changement dans l'interface ni dans le pipeline.
+
+Compatibilité :
+- les anciens YAML avec track: leader: true/false continuent de fonctionner ;
+- les nouveaux YAML contiennent aussi une section leader complète.
+
+Test :
+python -m studio.gui.main_window
+
+Après validation :
+git add .
+git commit -m "Sprint 2.2.1 - configuration persistante du leader"
+git push
