@@ -4,14 +4,17 @@ import subprocess
 import sys
 import tkinter as tk
 from pathlib import Path
-from tkinter import colorchooser, filedialog, messagebox, ttk
+from tkinter import colorchooser, filedialog, messagebox, simpledialog, ttk
 
 from studio.config.loader import ProjectLoaderV5
 from studio.config.models import CameraRange
 from studio.config.validator import validate_project
+from studio.profiles import ProfileManager
 
 
 class HelpRow(ttk.Frame):
+    """Contrôle précis : curseur long, saisie, pas fins et remise à zéro."""
+
     def __init__(
         self,
         parent,
@@ -30,6 +33,13 @@ class HelpRow(ttk.Frame):
 
         self.variable = variable
         self.advisor = advisor
+        self.help_text = help_text
+        self.unit = unit
+        self.resolution = float(resolution)
+        self.minimum = from_
+        self.maximum = to
+        self.default_value = variable.get()
+
         self.columnconfigure(1, weight=1)
 
         ttk.Label(
@@ -39,82 +49,108 @@ class HelpRow(ttk.Frame):
         ).grid(
             row=0,
             column=0,
-            sticky="w",
+            sticky="nw",
             padx=(0, 10),
+            pady=(2, 0),
         )
 
+        control_frame = ttk.Frame(self)
+        control_frame.grid(
+            row=0,
+            column=1,
+            columnspan=2,
+            sticky="ew",
+        )
+        control_frame.columnconfigure(0, weight=1)
+
         if values is not None:
-            widget = ttk.Combobox(
-                self,
+            self.widget = ttk.Combobox(
+                control_frame,
                 textvariable=variable,
                 values=values,
                 state="readonly",
-                width=20,
+                width=28,
             )
+            self.widget.grid(row=0, column=0, sticky="ew")
+
         elif from_ is not None and to is not None:
-            widget = ttk.Scale(
-                self,
+            self.widget = ttk.Scale(
+                control_frame,
                 variable=variable,
                 from_=from_,
                 to=to,
                 orient="horizontal",
+                length=620,
             )
+            self.widget.grid(row=0, column=0, sticky="ew")
+
+            self.value_box = ttk.Spinbox(
+                control_frame,
+                textvariable=variable,
+                from_=from_,
+                to=to,
+                increment=self.resolution,
+                width=11,
+                justify="right",
+            )
+            self.value_box.grid(row=0, column=1, padx=(10, 4))
+
+            ttk.Label(
+                control_frame,
+                text=unit,
+                width=5,
+            ).grid(row=0, column=2, sticky="w")
+
+            button_frame = ttk.Frame(control_frame)
+            button_frame.grid(
+                row=1,
+                column=0,
+                columnspan=3,
+                sticky="w",
+                pady=(5, 0),
+            )
+
+            small = self.resolution
+            medium = self._useful_step(10)
+            large = self._useful_step(100)
+
+            for caption, delta in (
+                (f"−{self._format_step(large)}", -large),
+                (f"−{self._format_step(medium)}", -medium),
+                (f"−{self._format_step(small)}", -small),
+                (f"+{self._format_step(small)}", small),
+                (f"+{self._format_step(medium)}", medium),
+                (f"+{self._format_step(large)}", large),
+            ):
+                ttk.Button(
+                    button_frame,
+                    text=caption,
+                    width=8,
+                    command=lambda d=delta: self.adjust(d),
+                ).pack(side="left", padx=(0, 4))
+
+            ttk.Button(
+                button_frame,
+                text="↺ Valeur initiale",
+                command=self.reset_default,
+            ).pack(side="left", padx=(8, 0))
+
+            for target in (self.widget, self.value_box, control_frame):
+                target.bind("<MouseWheel>", self.on_mousewheel)
+                target.bind("<Double-Button-1>", self.reset_default_event)
+
         else:
-            widget = ttk.Entry(
-                self,
+            self.widget = ttk.Entry(
+                control_frame,
                 textvariable=variable,
             )
-
-        widget.grid(
-            row=0,
-            column=1,
-            sticky="ew",
-        )
-
-        value_label = ttk.Label(
-            self,
-            width=12,
-            anchor="e",
-        )
-
-        value_label.grid(
-            row=0,
-            column=2,
-            padx=(10, 0),
-        )
-
-        def refresh_value(*_):
-            value = variable.get()
-
-            if isinstance(value, float):
-                if resolution >= 1:
-                    display = f"{value:.0f}"
-                elif resolution >= 0.1:
-                    display = f"{value:.1f}"
-                else:
-                    display = f"{value:.2f}"
-            else:
-                display = str(value)
-
-            value_label.configure(
-                text=f"{display} {unit}".strip()
-            )
-
-            if self.advisor is not None:
-                try:
-                    self.help_label.configure(
-                        text=self.advisor(value)
-                    )
-                except Exception:
-                    self.help_label.configure(
-                        text=help_text
-                    )
+            self.widget.grid(row=0, column=0, sticky="ew")
 
         self.help_label = ttk.Label(
             self,
             text=help_text,
             foreground="#666666",
-            wraplength=620,
+            wraplength=760,
             justify="left",
         )
         self.help_label.grid(
@@ -122,15 +158,71 @@ class HelpRow(ttk.Frame):
             column=0,
             columnspan=3,
             sticky="w",
-            pady=(2, 8),
+            pady=(4, 10),
         )
 
-        variable.trace_add(
-            "write",
-            refresh_value,
-        )
+        variable.trace_add("write", self.refresh_value)
+        self.refresh_value()
 
-        refresh_value()
+    def _useful_step(self, multiplier):
+        step = self.resolution * multiplier
+        if self.maximum is not None and self.minimum is not None:
+            span = float(self.maximum) - float(self.minimum)
+            step = min(step, max(self.resolution, span / 10.0))
+        return step
+
+    def _format_step(self, value):
+        if abs(value - round(value)) < 1e-9:
+            return str(int(round(value)))
+        if abs(value) >= 0.1:
+            return f"{value:.1f}"
+        return f"{value:.3f}".rstrip("0").rstrip(".")
+
+    def clamp(self, value):
+        value = float(value)
+        if self.minimum is not None:
+            value = max(float(self.minimum), value)
+        if self.maximum is not None:
+            value = min(float(self.maximum), value)
+        return value
+
+    def set_numeric_value(self, value):
+        value = self.clamp(value)
+        if isinstance(self.variable, tk.IntVar):
+            self.variable.set(int(round(value)))
+        else:
+            decimals = 0
+            if self.resolution < 1:
+                decimals = max(1, min(4, len(str(self.resolution).split('.')[-1])))
+            self.variable.set(round(value, decimals))
+
+    def adjust(self, delta):
+        try:
+            current = float(self.variable.get())
+        except (TypeError, ValueError, tk.TclError):
+            current = float(self.default_value)
+        self.set_numeric_value(current + float(delta))
+
+    def on_mousewheel(self, event):
+        direction = 1 if event.delta > 0 else -1
+        self.adjust(direction * self.resolution)
+        return "break"
+
+    def reset_default(self):
+        self.variable.set(self.default_value)
+
+    def reset_default_event(self, _event):
+        self.reset_default()
+        return "break"
+
+    def refresh_value(self, *_):
+        if self.advisor is not None:
+            try:
+                self.help_label.configure(
+                    text=self.advisor(self.variable.get())
+                )
+            except Exception:
+                self.help_label.configure(text=self.help_text)
 
 
 class MainWindow(tk.Tk):
@@ -288,6 +380,10 @@ class MainWindow(tk.Tk):
             "output": tk.StringVar(
                 value="output/video/flyover_v5.mp4"
             ),
+            "profile_terrain": tk.StringVar(value="Moyenne montagne"),
+            "profile_style": tk.StringVar(value="Tour de France"),
+            "profile_quality": tk.StringVar(value="Standard"),
+            "user_profile": tk.StringVar(value=""),
         }
 
     def _build_ui(self):
@@ -409,6 +505,32 @@ class MainWindow(tk.Tk):
             column=2,
             padx=(8, 0),
         )
+
+        profile_box = ttk.LabelFrame(root, text="Profils de rendu", padding=10)
+        profile_box.pack(fill="x", pady=(0, 10))
+        for column in (1, 3, 5):
+            profile_box.columnconfigure(column, weight=1)
+
+        ttk.Label(profile_box, text="Terrain").grid(row=0,column=0,sticky="w",padx=(0,6))
+        ttk.Combobox(profile_box,textvariable=self.vars["profile_terrain"],values=tuple(ProfileManager.TERRAIN_PROFILES),state="readonly",width=22).grid(row=0,column=1,sticky="ew",padx=(0,14))
+        ttk.Label(profile_box, text="Style").grid(row=0,column=2,sticky="w",padx=(0,6))
+        ttk.Combobox(profile_box,textvariable=self.vars["profile_style"],values=tuple(ProfileManager.STYLE_PROFILES),state="readonly",width=20).grid(row=0,column=3,sticky="ew",padx=(0,14))
+        ttk.Label(profile_box, text="Qualité").grid(row=0,column=4,sticky="w",padx=(0,6))
+        ttk.Combobox(profile_box,textvariable=self.vars["profile_quality"],values=tuple(ProfileManager.QUALITY_PROFILES),state="readonly",width=14).grid(row=0,column=5,sticky="ew",padx=(0,14))
+        ttk.Button(profile_box,text="Appliquer les profils",command=self.apply_selected_profiles).grid(row=0,column=6,padx=(8,0))
+
+        ttk.Separator(profile_box,orient="horizontal").grid(row=1,column=0,columnspan=7,sticky="ew",pady=10)
+        ttk.Label(profile_box,text="Mes profils").grid(row=2,column=0,sticky="w",padx=(0,6))
+        self.user_profile_combo=ttk.Combobox(profile_box,textvariable=self.vars["user_profile"],state="readonly",width=28)
+        self.user_profile_combo.grid(row=2,column=1,columnspan=2,sticky="ew",padx=(0,14))
+        ttk.Button(profile_box,text="Charger",command=self.load_user_profile).grid(row=2,column=3,padx=(0,6))
+        ttk.Button(profile_box,text="Enregistrer sous...",command=self.save_user_profile_as).grid(row=2,column=4,padx=(0,6))
+        ttk.Button(profile_box,text="Mettre à jour",command=self.update_user_profile).grid(row=2,column=5,padx=(0,6))
+        ttk.Button(profile_box,text="Supprimer",command=self.delete_user_profile).grid(row=2,column=6)
+        self.user_profile_description=ttk.Label(profile_box,text="Aucun profil personnel sélectionné.",foreground="#666666",wraplength=860,justify="left")
+        self.user_profile_description.grid(row=3,column=0,columnspan=7,sticky="w",pady=(7,0))
+        self.user_profile_combo.bind("<<ComboboxSelected>>",self.show_user_profile_description)
+        self.refresh_user_profiles()
 
         notebook = ttk.Notebook(
             root
@@ -1344,6 +1466,123 @@ class MainWindow(tk.Tk):
             ),
             key="output",
         )
+
+    PROFILE_SETTING_KEYS = (
+        "camera_mode", "orientation", "distance_min", "distance_max", "distance_scale",
+        "height_min", "height_max", "height_scale", "lateral_min", "lateral_max",
+        "lateral_scale", "look_ahead", "smoothing", "track_color", "track_width",
+        "track_z", "track_progressive", "track_leader", "terrain_source",
+        "terrain_satellite", "terrain_zoom", "terrain_max_cells", "terrain_margin",
+        "intro", "zoom_to_start", "start_hold", "travel", "slowdown_start",
+        "slowdown_end", "arrival_hold", "flatten", "profile_animation",
+        "profile_hold", "fade_out", "fps", "resolution",
+    )
+
+    def collect_profile_settings(self):
+        return {key:self.vars[key].get() for key in self.PROFILE_SETTING_KEYS}
+
+    def apply_profile_settings(self, settings):
+        missing=[]
+        for key in self.PROFILE_SETTING_KEYS:
+            if key not in settings: missing.append(key); continue
+            self.vars[key].set(settings[key])
+        self.status_text.set("Profil personnalisé appliqué." if not missing else "Profil chargé avec réglages absents : "+", ".join(missing))
+
+    def refresh_user_profiles(self):
+        profiles=ProfileManager.list_user_profiles()
+        if hasattr(self,"user_profile_combo"): self.user_profile_combo.configure(values=profiles)
+        selected=self.vars["user_profile"].get()
+        if selected not in profiles: self.vars["user_profile"].set(profiles[0] if profiles else "")
+        self.show_user_profile_description()
+
+    def show_user_profile_description(self, _event=None):
+        if not hasattr(self,"user_profile_description"): return
+        name=self.vars["user_profile"].get().strip()
+        if not name:
+            self.user_profile_description.configure(text="Aucun profil personnel enregistré."); return
+        description=ProfileManager.profile_description(name)
+        self.user_profile_description.configure(text=description or "Profil personnel sans description.")
+
+    def save_user_profile_as(self):
+        name=simpledialog.askstring("Nouveau profil","Nom du profil personnalisé :",parent=self)
+        if not name: return
+        description=simpledialog.askstring("Description","Description du profil :",parent=self) or ""
+        try:
+            path=ProfileManager.save_user_profile(name,description,self.collect_profile_settings())
+            self.refresh_user_profiles(); self.vars["user_profile"].set(name); self.show_user_profile_description()
+            self.status_text.set(f"Profil enregistré : {path}")
+        except Exception as error:
+            messagebox.showerror("Enregistrement du profil",str(error))
+
+    def update_user_profile(self):
+        name=self.vars["user_profile"].get().strip()
+        if not name:
+            messagebox.showwarning("Profil","Sélectionnez d'abord un profil personnel."); return
+        try:
+            path=ProfileManager.save_user_profile(name,ProfileManager.profile_description(name),self.collect_profile_settings())
+            self.status_text.set(f"Profil mis à jour : {path}")
+        except Exception as error:
+            messagebox.showerror("Mise à jour du profil",str(error))
+
+    def load_user_profile(self):
+        name=self.vars["user_profile"].get().strip()
+        if not name:
+            messagebox.showwarning("Profil","Aucun profil personnel sélectionné."); return
+        try:
+            self.apply_profile_settings(ProfileManager.load_user_profile(name))
+            self.show_user_profile_description(); self.status_text.set(f"Profil chargé : {name}")
+        except Exception as error:
+            messagebox.showerror("Chargement du profil",str(error))
+
+    def delete_user_profile(self):
+        name=self.vars["user_profile"].get().strip()
+        if not name: return
+        if not messagebox.askyesno("Supprimer le profil",f"Supprimer définitivement le profil « {name} » ?"): return
+        try:
+            ProfileManager.delete_user_profile(name); self.refresh_user_profiles(); self.status_text.set(f"Profil supprimé : {name}")
+        except Exception as error:
+            messagebox.showerror("Suppression du profil",str(error))
+
+    def apply_selected_profiles(self):
+        try:
+            settings = ProfileManager.build(
+                self.vars["profile_terrain"].get(),
+                self.vars["profile_style"].get(),
+                self.vars["profile_quality"].get(),
+            )
+
+            mapping = {
+                "camera_mode": "camera_mode",
+                "orientation": "orientation",
+                "distance_min": "distance_min",
+                "distance_max": "distance_max",
+                "distance_scale": "distance_scale",
+                "height_min": "height_min",
+                "height_max": "height_max",
+                "height_scale": "height_scale",
+                "lateral_min": "lateral_min",
+                "lateral_max": "lateral_max",
+                "lateral_scale": "lateral_scale",
+                "look_ahead": "look_ahead",
+                "smoothing": "smoothing",
+                "terrain_margin": "terrain_margin",
+                "terrain_max_cells": "terrain_max_cells",
+                "terrain_zoom": "terrain_zoom",
+                "fps": "fps",
+                "resolution": "resolution",
+            }
+
+            for setting_name, variable_name in mapping.items():
+                self.vars[variable_name].set(settings[setting_name])
+
+            self.status_text.set(
+                "Profils appliqués : "
+                f"{self.vars['profile_terrain'].get()} / "
+                f"{self.vars['profile_style'].get()} / "
+                f"{self.vars['profile_quality'].get()}"
+            )
+        except Exception as error:
+            messagebox.showerror("Profils", str(error))
 
     def create_project_from_gpx(self):
         filename = filedialog.askopenfilename(

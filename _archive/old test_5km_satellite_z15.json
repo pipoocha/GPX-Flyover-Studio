@@ -1,0 +1,24 @@
+{
+  "source": "Esri World Imagery",
+  "zoom": 15,
+  "image_width": 2048,
+  "image_height": 2048,
+  "tile_bounds": {
+    "x_min": 16778,
+    "x_max": 16785,
+    "y_min": 11634,
+    "y_max": 11641
+  },
+  "geographic_bounds_wgs84": {
+    "west": 4.32861328125,
+    "south": 46.11894150610706,
+    "east": 4.41650390625,
+    "north": 46.17983040759435
+  },
+  "gpx_bounds_wgs84": {
+    "west": 4.34277,
+    "south": 46.12672,
+    "east": 4.40371,
+    "north": 46.17067
+  }
+}

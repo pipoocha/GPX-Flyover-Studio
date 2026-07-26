@@ -41,6 +41,7 @@ class CopernicusGridBuilder:
 
         self.origin_x = 0.0
         self.origin_y = 0.0
+        self.projection = Projection(self.points)
 
     @staticmethod
     def tile_name(latitude: int, longitude: int) -> str:
@@ -268,9 +269,7 @@ class CopernicusGridBuilder:
             .add_margin(self.margin)
         )
 
-        projection = Projection(
-            self.points
-        )
+        projection = self.projection
 
         tile_files = [
             self.download_tile(
@@ -346,42 +345,16 @@ class CopernicusGridBuilder:
             elevations,
         )
 
-        x = np.zeros_like(
-            elevations,
-            dtype=float,
+        print(
+            "Projection DEM :",
+            elevations.size,
+            "points",
         )
 
-        y = np.zeros_like(
-            elevations,
-            dtype=float,
+        x, y = projection.project_arrays(
+            latitudes,
+            longitudes,
         )
-
-        total = elevations.size
-        count = 0
-
-        for row in range(
-            elevations.shape[0]
-        ):
-            for column in range(
-                elevations.shape[1]
-            ):
-                projected_x, projected_y = (
-                    projection.project_point(
-                        latitudes[row, column],
-                        longitudes[row, column],
-                    )
-                )
-
-                x[row, column] = projected_x
-                y[row, column] = projected_y
-
-                count += 1
-
-                if count % 10_000 == 0:
-                    print(
-                        f"Projection DEM "
-                        f"{count}/{total}"
-                    )
 
         self.origin_x = float(
             x.min()

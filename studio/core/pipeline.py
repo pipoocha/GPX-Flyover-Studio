@@ -39,6 +39,9 @@ class FlyoverPipeline:
         self.origin_x = 0.0
         self.origin_y = 0.0
         self.satellite_texture = None
+        self.satellite_metadata = None
+        self.terrain_projection = None
+        self.texture_alignment = None
 
         self.apply_legacy_config()
 
@@ -134,11 +137,13 @@ class FlyoverPipeline:
             raise ValueError(f"Source terrain inconnue : {source}")
 
         self.project.grid = builder.build()
-        self.project.mesh = TerrainMesh(self.project.grid).build()
-        self.project.sampler = TerrainSampler(self.project.grid)
-
+        self.terrain_projection = builder.projection
         self.origin_x = float(builder.origin_x)
         self.origin_y = float(builder.origin_y)
+
+        self.terrain_mesh_builder = TerrainMesh(self.project.grid)
+        self.project.mesh = self.terrain_mesh_builder.build()
+        self.project.sampler = TerrainSampler(self.project.grid)
 
     def build_path(self):
         print("Construction trajectoire...")
@@ -148,8 +153,50 @@ class FlyoverPipeline:
             origin_x=self.origin_x,
             origin_y=self.origin_y,
             sampler=self.project.sampler,
+            projection=self.terrain_projection,
             z_offset=self.project.track.z_offset,
         ).build()
+
+    def print_alignment_diagnostic(self):
+        statistics = self.project.sampler.alignment_statistics(
+            self.project.path_coords,
+            expected_offset=self.project.track.z_offset,
+        )
+
+        print()
+        print("===================================")
+        print("DIAGNOSTIC TRACE / TERRAIN")
+        print("-----------------------------------")
+        print(
+            "Projection EPSG :",
+            self.terrain_projection.epsg,
+        )
+        print(
+            "Origine locale  :",
+            f"{self.origin_x:.3f}, {self.origin_y:.3f}",
+        )
+        print(
+            "Erreur Z moyenne:",
+            f"{statistics['mean_error_m']:.3f} m",
+        )
+        print(
+            "Erreur Z maxi   :",
+            f"{statistics['max_error_m']:.3f} m",
+        )
+
+        if self.texture_alignment is not None:
+            print(
+                "Hors texture    :",
+                f"{self.texture_alignment['outside_percent']:.1f} %",
+            )
+
+        if statistics["max_error_m"] <= 0.25:
+            print("Trace / relief  : OK")
+        else:
+            print("Trace / relief  : À vérifier")
+
+        print("===================================")
+        print()
 
     def load_satellite_texture(self):
         if not self.project.terrain.satellite:
@@ -264,8 +311,30 @@ class FlyoverPipeline:
         print("  Image :", description["image"])
         print("  Zoom  :", description["zoom"])
 
-        self.satellite_texture = (
-            satellite.load_texture()
+        self.satellite_metadata = satellite.load_metadata()
+        self.satellite_texture = satellite.load_texture()
+
+        self.texture_alignment = (
+            self.terrain_mesh_builder
+            .apply_satellite_texture_coordinates(
+                self.project.mesh,
+                metadata=self.satellite_metadata,
+                projection=self.terrain_projection,
+                origin_x=self.origin_x,
+                origin_y=self.origin_y,
+            )
+        )
+
+        print(
+            "Texture UV : "
+            f"U {self.texture_alignment['u_min']:.3f} à "
+            f"{self.texture_alignment['u_max']:.3f} | "
+            f"V {self.texture_alignment['v_min']:.3f} à "
+            f"{self.texture_alignment['v_max']:.3f}"
+        )
+        print(
+            "Terrain hors mosaïque : "
+            f"{self.texture_alignment['outside_percent']:.1f} %"
         )
 
     def build_scene(self, off_screen=True):
@@ -374,8 +443,9 @@ class FlyoverPipeline:
     def prepare(self):
         self.load_gpx()
         self.build_terrain()
-        self.build_path()
         self.load_satellite_texture()
+        self.build_path()
+        self.print_alignment_diagnostic()
 
     def run(self):
         print(f"{self.project.title} {config.VERSION}")

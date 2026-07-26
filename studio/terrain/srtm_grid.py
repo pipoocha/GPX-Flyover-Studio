@@ -13,10 +13,11 @@ class SRTMGridBuilder:
         self.provider = SRTMProvider()
         self.origin_x = 0
         self.origin_y = 0
+        self.projection = Projection(self.points)
 
     def build(self):
         extent = TerrainExtent.from_points(self.points).add_margin(0.02)
-        projection = Projection(self.points)
+        projection = self.projection
 
         lats = np.arange(extent.south, extent.north + self.resolution, self.resolution)
         lons = np.arange(extent.west, extent.east + self.resolution, self.resolution)
