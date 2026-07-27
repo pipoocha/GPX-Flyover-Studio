@@ -4,39 +4,39 @@ gpx:
   file: C:/Users/pc/Documents/PERSO/Sport/GPX-Flyover-Studio V5/gpx/20_km_belmont.gpx
 camera:
   mode: director
-  orientation: route
+  orientation: auto
   distance:
-    min: 850.0
-    max: 2850.0
-    scale: 0.3
+    min: 933.6391437308869
+    max: 1878.8990825688074
+    scale: 0.3012232415902141
   height:
-    min: 369.6
-    max: 1232.0
-    scale: 0.132
+    min: 600.0
+    max: 1900.0
+    scale: 0.19464831804281346
   lateral:
-    min: 42.0
-    max: 230.99999999999997
-    scale: 0.049
-  look_ahead: 170
-  smoothing: 0.09
+    min: 67.2782874617737
+    max: 199.84709480122325
+    scale: 0.09908256880733946
+  look_ahead: 260
+  smoothing: 0.1
 track:
-  color: '#D2F50A'
-  width: 1.0
-  z_offset: 2.0
+  color: '#FF8000'
+  width: 4.077160493827161
+  z_offset: 6.275720164609054
   progressive: true
   leader: true
 leader:
   enabled: true
   style: comet
-  color: '#FFFFFF'
-  radius: 25.0
-  z_offset: 18.0
-  halo_scale: 1.8
-  halo_opacity: 0.2
+  color: '#F8C7F7'
+  radius: 3.6995884773662553
+  z_offset: 11.728395061728396
+  halo_scale: 4.0
+  halo_opacity: 0.0
   trail_enabled: true
-  trail_fraction: 0.15
-  trail_width: 4.0
-  trail_opacity: 0.102880658436214
+  trail_fraction: 0.06604938271604938
+  trail_width: 15.380658436213992
+  trail_opacity: 1.0
   screen_space_enabled: true
   reference_distance: 3500.0
   minimum_scale: 0.45
@@ -45,10 +45,10 @@ terrain:
   source: copernicus
   satellite: true
   satellite_zoom: 14
-  max_cells: 80000
-  margin: 0.017
+  max_cells: 60000
+  margin: 0.006
 timeline:
-  speed: 1.0
+  speed: 2.7654320987654324
   intro: 4.790697674418604
   zoom_to_start: 3.0
   start_hold: 3.0

@@ -1363,11 +1363,24 @@ class MainWindow(tk.Tk):
             side="left",
         )
 
+        self.leader_color_swatch = tk.Canvas(
+            leader_color_frame,
+            width=34,
+            height=22,
+            highlightthickness=1,
+            highlightbackground="#777777",
+        )
+        self.leader_color_swatch.pack(
+            side="left",
+            padx=(0, 8),
+        )
+
         ttk.Entry(
             leader_color_frame,
             textvariable=self.vars[
                 "leader_color"
             ],
+            width=14,
         ).pack(
             side="left",
             fill="x",
@@ -1511,6 +1524,68 @@ class MainWindow(tk.Tk):
             anchor="w",
             pady=(6, 4),
         )
+
+        ttk.Separator(
+            parent,
+            orient="horizontal",
+        ).pack(
+            fill="x",
+            pady=(12, 10),
+        )
+
+        ttk.Label(
+            parent,
+            text="Aperçu du leader",
+            font=("Segoe UI", 10, "bold"),
+        ).pack(
+            anchor="w",
+            pady=(0, 4),
+        )
+
+        self.leader_preview_canvas = tk.Canvas(
+            parent,
+            width=620,
+            height=150,
+            background="#202020",
+            highlightthickness=1,
+            highlightbackground="#555555",
+        )
+        self.leader_preview_canvas.pack(
+            fill="x",
+            pady=(0, 8),
+        )
+
+        ttk.Label(
+            parent,
+            text=(
+                "Cet aperçu montre la couleur, le style, le halo, "
+                "la taille et la traînée sans lancer le moteur 3D."
+            ),
+            foreground="#666666",
+            wraplength=620,
+        ).pack(
+            anchor="w",
+            pady=(0, 6),
+        )
+
+        for preview_key in (
+            "leader_enabled",
+            "leader_style",
+            "leader_color",
+            "leader_radius",
+            "leader_halo_scale",
+            "leader_halo_opacity",
+            "leader_trail_enabled",
+            "leader_trail_fraction",
+            "leader_trail_width",
+            "leader_trail_opacity",
+        ):
+            self.vars[preview_key].trace_add(
+                "write",
+                self._update_leader_preview,
+            )
+
+        self._update_leader_preview()
 
     def _build_timeline_tab(
         self,
@@ -1937,19 +2012,235 @@ class MainWindow(tk.Tk):
                     f"le projet :\n{error}",
                 )
 
+    @staticmethod
+    def _leader_preview_float(variable, default):
+        try:
+            return float(variable.get())
+        except (tk.TclError, ValueError, TypeError):
+            return float(default)
+
+    @staticmethod
+    def _valid_hex_color(value, default="#FC4C02"):
+        value = str(value).strip().upper()
+
+        if len(value) != 7 or not value.startswith("#"):
+            return default
+
+        try:
+            int(value[1:], 16)
+        except ValueError:
+            return default
+
+        return value
+
+    def _update_leader_preview(self, *_):
+        if not hasattr(self, "leader_preview_canvas"):
+            return
+
+        canvas = self.leader_preview_canvas
+        canvas.delete("all")
+
+        color = self._valid_hex_color(
+            self.vars["leader_color"].get()
+        )
+
+        if hasattr(self, "leader_color_swatch"):
+            self.leader_color_swatch.delete("all")
+            self.leader_color_swatch.create_rectangle(
+                1,
+                1,
+                33,
+                21,
+                fill=color,
+                outline=color,
+            )
+
+        enabled = bool(
+            self.vars["leader_enabled"].get()
+        )
+
+        style = str(
+            self.vars["leader_style"].get()
+        ).strip().lower()
+
+        radius_value = self._leader_preview_float(
+            self.vars["leader_radius"],
+            20.0,
+        )
+        halo_scale = self._leader_preview_float(
+            self.vars["leader_halo_scale"],
+            1.8,
+        )
+        halo_opacity = self._leader_preview_float(
+            self.vars["leader_halo_opacity"],
+            0.20,
+        )
+        trail_fraction = self._leader_preview_float(
+            self.vars["leader_trail_fraction"],
+            0.035,
+        )
+        trail_width = self._leader_preview_float(
+            self.vars["leader_trail_width"],
+            10.0,
+        )
+        trail_opacity = self._leader_preview_float(
+            self.vars["leader_trail_opacity"],
+            0.55,
+        )
+
+        width = max(
+            1,
+            int(canvas.winfo_width() or 620),
+        )
+        height = max(
+            1,
+            int(canvas.winfo_height() or 150),
+        )
+
+        center_x = int(width * 0.68)
+        center_y = int(height * 0.55)
+
+        canvas.create_text(
+            14,
+            14,
+            anchor="nw",
+            fill="#E8E8E8",
+            font=("Segoe UI", 10, "bold"),
+            text=(
+                f"Style : {style or 'glow'}   "
+                f"Couleur : {color}"
+            ),
+        )
+
+        if not enabled:
+            canvas.create_text(
+                width // 2,
+                height // 2,
+                fill="#AAAAAA",
+                font=("Segoe UI", 12),
+                text="Leader désactivé",
+            )
+            return
+
+        radius = max(
+            5,
+            min(
+                28,
+                int(round(radius_value * 0.45)),
+            ),
+        )
+
+        if style in {"glow", "comet"}:
+            halo_radius = max(
+                radius + 2,
+                min(
+                    60,
+                    int(round(radius * halo_scale)),
+                ),
+            )
+
+            halo_stipple = (
+                "gray75"
+                if halo_opacity >= 0.65
+                else "gray50"
+                if halo_opacity >= 0.35
+                else "gray25"
+            )
+
+            canvas.create_oval(
+                center_x - halo_radius,
+                center_y - halo_radius,
+                center_x + halo_radius,
+                center_y + halo_radius,
+                fill=color,
+                outline="",
+                stipple=halo_stipple,
+            )
+
+        trail_enabled = bool(
+            self.vars["leader_trail_enabled"].get()
+        )
+
+        if style == "comet" and trail_enabled:
+            trail_length = max(
+                35,
+                min(
+                    280,
+                    int(round(50 + trail_fraction * 1500)),
+                ),
+            )
+            line_width = max(
+                1,
+                min(
+                    18,
+                    int(round(trail_width * 0.55)),
+                ),
+            )
+
+            trail_stipple = (
+                "gray75"
+                if trail_opacity >= 0.65
+                else "gray50"
+                if trail_opacity >= 0.35
+                else "gray25"
+            )
+
+            canvas.create_line(
+                center_x - trail_length,
+                center_y,
+                center_x - radius,
+                center_y,
+                fill=color,
+                width=line_width,
+                capstyle=tk.ROUND,
+                stipple=trail_stipple,
+            )
+
+        canvas.create_oval(
+            center_x - radius,
+            center_y - radius,
+            center_x + radius,
+            center_y + radius,
+            fill=color,
+            outline="#FFFFFF",
+            width=1,
+        )
+
+        style_description = {
+            "point": "Point seul",
+            "glow": "Point + halo",
+            "comet": "Point + halo + traînée",
+        }.get(
+            style,
+            "Point + halo",
+        )
+
+        canvas.create_text(
+            14,
+            height - 16,
+            anchor="sw",
+            fill="#BEBEBE",
+            font=("Segoe UI", 9),
+            text=style_description,
+        )
+
+    
     def choose_leader_color(self):
         selected = colorchooser.askcolor(
-            color=self.vars[
-                "leader_color"
-            ].get()
+            color=self.vars["leader_color"].get()
         )[1]
 
         if selected:
-            self.vars[
-                "leader_color"
-            ].set(
-                selected.upper()
+            selected = selected.upper()
+            self.vars["leader_color"].set(selected)
+
+            print("Leader choisi :", selected)
+            print(
+                "Variable leader_color :",
+                self.vars["leader_color"].get(),
             )
+
+            self._update_leader_preview()
 
     def choose_color(self):
         selected = colorchooser.askcolor(
@@ -2054,6 +2345,8 @@ class MainWindow(tk.Tk):
                 self.vars[key].set(
                     value
                 )
+
+        self._update_leader_preview()
 
     def _update_project_from_form(
         self,

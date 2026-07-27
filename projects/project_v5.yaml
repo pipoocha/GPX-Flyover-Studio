@@ -20,9 +20,9 @@ camera:
   look_ahead: 260
   smoothing: 0.1
 track:
-  color: '#00FF40'
+  color: '#0AFC03'
   width: 8.5
-  z_offset: 8.0
+  z_offset: 25.0
   progressive: true
   leader: true
 leader:
