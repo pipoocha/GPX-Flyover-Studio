@@ -1,23 +1,11 @@
-SPRINT 2.3.5 — OPTIMISATION DES TEXTURES SATELLITE
+CORRECTIF DU SPRINT 2.3.9
 
 Remplacer :
-- studio/imagery/satellite_texture.py
-- satellite_downloader.py
+tools\stabilize_v5.py
 
-Fonctionnement :
-- mosaïque originale conservée ;
-- texture preview limitée à 2048 px ;
-- texture vidéo limitée à 4096 px ;
-- sélection automatique selon PREVIEW ou VIDEO ;
-- métadonnées géographiques inchangées, donc alignement inchangé.
+Corrections :
+- ajout de l'import py_compile ;
+- suppression du contrôle du module inexistant studio.project.project.
 
-Pour un GPX existant, relancer :
-python satellite_downloader.py "gpx/mon_parcours.gpx" --zoom 14 --preview-max-size 2048 --video-max-size 4096
-
-Puis lancer le logiciel. La console doit indiquer :
-Texture satellite chargée : ..._preview.png
-
-Commit :
-git add .
-git commit -m "Sprint 2.3.5 - textures satellite optimisées"
-git push
+Relancer :
+python tools\stabilize_v5.py --project projects\20_km_belmont.yaml
