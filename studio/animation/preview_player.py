@@ -54,6 +54,7 @@ class PreviewPlayer:
     def restart(self):
         self.frame_index = 0
         self.paused = False
+        self.leader.restore_trail(progress=0.0)
         self.update_scene(force_track=True)
         print("\nPreview recommencée.")
 
@@ -268,6 +269,16 @@ class PreviewPlayer:
                     self.frame_index = self.frames - 1
                     self.paused = True
                     self.update_scene(force_track=True)
+
+                    if bool(
+                        getattr(
+                            config,
+                            "LEADER_FADE_TRAIL_ON_ARRIVAL",
+                            True,
+                        )
+                    ):
+                        self.leader.set_trail_fade(1.0)
+                        self.scene.plotter.render()
                     print()
                     print("Fin du preview — R pour recommencer, Q pour quitter.")
 

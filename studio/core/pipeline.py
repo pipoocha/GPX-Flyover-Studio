@@ -103,6 +103,12 @@ class FlyoverPipeline:
         config.LEADER_TRAIL_FRACTION = float(leader.trail_fraction)
         config.LEADER_TRAIL_WIDTH = float(leader.trail_width)
         config.LEADER_TRAIL_OPACITY = float(leader.trail_opacity)
+        config.LEADER_FADE_TRAIL_ON_ARRIVAL = bool(
+            leader.fade_trail_on_arrival
+        )
+        config.LEADER_TRAIL_FADE_DURATION = float(
+            leader.trail_fade_duration
+        )
         config.LEADER_SCREEN_SPACE_ENABLED = bool(
             leader.screen_space_enabled
         )

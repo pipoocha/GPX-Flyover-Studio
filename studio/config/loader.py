@@ -110,6 +110,13 @@ class ProjectLoaderV5:
                 trail_fraction=float(leader["trail_fraction"]),
                 trail_width=float(leader["trail_width"]),
                 trail_opacity=float(leader["trail_opacity"]),
+                fade_trail_on_arrival=bool(
+                    leader.get("fade_trail_on_arrival", True)
+                ),
+                trail_fade_duration=max(
+                    0.1,
+                    float(leader.get("trail_fade_duration", 1.5)),
+                ),
                 screen_space_enabled=bool(
                     leader["screen_space_enabled"]
                 ),

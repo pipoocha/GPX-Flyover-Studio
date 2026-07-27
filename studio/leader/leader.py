@@ -147,6 +147,25 @@ class LeaderMarker:
             )
         )
 
+        self.fade_trail_on_arrival = bool(
+            getattr(
+                config,
+                "LEADER_FADE_TRAIL_ON_ARRIVAL",
+                True,
+            )
+        )
+
+        self.trail_fade_duration = max(
+            0.1,
+            float(
+                getattr(
+                    config,
+                    "LEADER_TRAIL_FADE_DURATION",
+                    1.5,
+                )
+            ),
+        )
+
         self.trail_update_every = max(
             1,
             int(
@@ -180,6 +199,8 @@ class LeaderMarker:
         print("Longueur traînée   :", self.trail_fraction)
         print("Largeur traînée    :", self.trail_width)
         print("Opacité traînée    :", self.trail_opacity)
+        print("Effacement arrivée :", self.fade_trail_on_arrival)
+        print("Durée effacement   :", self.trail_fade_duration, "s")
         print("Taille adaptative  :", self.screen_space_enabled)
         print("===================================")
         print()
@@ -432,6 +453,69 @@ class LeaderMarker:
         )
 
         self.update_count += 1
+
+    def set_trail_fade(self, fade_progress):
+        """Réduit puis masque la traînée pendant la pause d'arrivée."""
+        if (
+            not self.enabled
+            or not self.trail_enabled
+            or self.style == "point"
+            or not self.fade_trail_on_arrival
+        ):
+            return
+
+        fade_progress = max(
+            0.0,
+            min(1.0, float(fade_progress)),
+        )
+
+        if fade_progress >= 1.0:
+            self.hide_trail()
+            return
+
+        remaining = 1.0 - fade_progress
+        effective_fraction = self.trail_fraction * remaining
+
+        if effective_fraction <= 1e-6:
+            self.hide_trail()
+            return
+
+        original_fraction = self.trail_fraction
+        original_opacity = self.trail_opacity
+
+        try:
+            self.trail_fraction = effective_fraction
+            self.trail_opacity = original_opacity * remaining
+            self.update_trail(
+                progress=1.0,
+                force=True,
+            )
+        finally:
+            self.trail_fraction = original_fraction
+            self.trail_opacity = original_opacity
+
+    def hide_trail(self):
+        if self.trail_actor is None:
+            return
+
+        try:
+            self.scene.plotter.remove_actor(
+                self.trail_actor,
+                render=False,
+            )
+        except Exception:
+            pass
+
+        self.trail_actor = None
+
+    def restore_trail(self, progress=0.0):
+        if not self.enabled or not self.trail_enabled:
+            return
+
+        self.update_trail(
+            progress=progress,
+            force=True,
+        )
 
     def remove(self):
         plotter = self.scene.plotter

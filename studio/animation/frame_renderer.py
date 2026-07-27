@@ -171,6 +171,7 @@ class FrameRenderer:
         progress,
         force_track=False,
         minimum_segments=0,
+        trail_fade_progress=None,
     ):
         self.set_route_camera(progress)
         self.update_track(
@@ -181,6 +182,11 @@ class FrameRenderer:
 
         if bool(getattr(config, "LEADER_ENABLED", False)):
             self.leader.update(progress)
+
+            if trail_fade_progress is not None:
+                self.leader.set_trail_fade(
+                    trail_fade_progress
+                )
 
         plotter = self.scene.plotter
         plotter.reset_camera_clipping_range()
@@ -584,12 +590,45 @@ class FrameRenderer:
                 )
         print()
 
-        # Pause sur l'arrivée.
+        # Pause sur l'arrivée avec disparition progressive de la traînée.
+        trail_fade_enabled = bool(
+            getattr(
+                config,
+                "LEADER_FADE_TRAIL_ON_ARRIVAL",
+                True,
+            )
+        )
+        trail_fade_frames = max(
+            1,
+            int(
+                round(
+                    float(
+                        getattr(
+                            config,
+                            "LEADER_TRAIL_FADE_DURATION",
+                            1.5,
+                        )
+                    )
+                    * fps
+                )
+            ),
+        )
+
         for hold_index in range(arrival_hold_frames):
+            trail_fade_progress = None
+
+            if trail_fade_enabled:
+                trail_fade_progress = min(
+                    1.0,
+                    (hold_index + 1)
+                    / max(1, trail_fade_frames),
+                )
+
             self.render_route_frame(
                 frame_index,
                 1.0,
                 force_track=(hold_index == 0),
+                trail_fade_progress=trail_fade_progress,
             )
             frame_index += 1
 

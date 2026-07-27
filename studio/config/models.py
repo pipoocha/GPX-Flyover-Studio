@@ -76,6 +76,8 @@ class LeaderConfig:
     trail_fraction: float
     trail_width: float
     trail_opacity: float
+    fade_trail_on_arrival: bool
+    trail_fade_duration: float
     screen_space_enabled: bool
     reference_distance: float
     minimum_scale: float

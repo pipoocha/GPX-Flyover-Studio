@@ -1,31 +1,69 @@
 project:
-  title: Kagbeni - Sangda satellite rapide
-
+  title: 31 kagbeni sangda-24667827-1784704753-767
 gpx:
-  file: gpx/31_kagbeni_sangda-24667827-1784704753-767.gpx
-
-video:
-  mode: PREVIEW
-  duration: 20
-  final_hold_seconds: 2
-  fps: 20
-  size: 1280x720
-  output: output/video/kagbeni_sangda_satellite.mp4
-
+  file: C:/Users/pc/Documents/PERSO/Sport/GPX-Flyover-Studio V5/gpx/31_kagbeni_sangda-24667827-1784704753-767.gpx
 camera:
   mode: director
-  preset: cinematic
-  orientation:
-    mode: auto
-
-timeline: []
-
+  orientation: auto
+  distance:
+    min: 300.0
+    max: 800.0
+    scale: 0.3012232415902141
+  height:
+    min: 600.0
+    max: 1024.6913580246915
+    scale: 0.10432098765432099
+  lateral:
+    min: 67.2782874617737
+    max: 199.84709480122325
+    scale: 0.09908256880733946
+  look_ahead: 260
+  smoothing: 0.1
 track:
-  radius: 1
-  sides: 6
-  render_mode: line
+  color: '#FF8000'
+  width: 4.077160493827161
+  z_offset: 6.275720164609054
   progressive: true
-  update_every: 6
-
+  leader: true
 leader:
-  enabled: false
+  enabled: true
+  style: comet
+  color: '#F8C7F7'
+  radius: 16.699588477366255
+  z_offset: 11.728395061728396
+  halo_scale: 2.0
+  halo_opacity: 0.48559670781893005
+  trail_enabled: true
+  trail_fraction: 0.01
+  trail_width: 11.380658436213992
+  trail_opacity: 1.0
+  fade_trail_on_arrival: true
+  trail_fade_duration: 4.7
+  screen_space_enabled: true
+  reference_distance: 3500.0
+  minimum_scale: 0.45
+  maximum_scale: 4.0
+terrain:
+  source: copernicus
+  satellite: true
+  satellite_zoom: 18
+  max_cells: 250000
+  margin: 0.006
+timeline:
+  speed: 1.9290123456790123
+  intro: 4.790697674418604
+  zoom_to_start: 3.0
+  start_hold: 3.0
+  travel: 43.25581395348837
+  slowdown_start: 4.0
+  slowdown_end: 4.0
+  arrival_hold: 5.0
+  flatten: 3.0
+  profile_animation: 7.0
+  profile_hold: 10.0
+  fade_out: 4.0
+video:
+  fps: 20
+  resolution: 1280x720
+  output: output/video/flyover_v5.mp4
+  mode: PREVIEW

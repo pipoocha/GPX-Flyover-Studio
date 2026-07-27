@@ -6,13 +6,13 @@ camera:
   mode: director
   orientation: auto
   distance:
-    min: 933.6391437308869
-    max: 1878.8990825688074
+    min: 300.0
+    max: 800.0
     scale: 0.3012232415902141
   height:
     min: 600.0
-    max: 1900.0
-    scale: 0.19464831804281346
+    max: 1024.6913580246915
+    scale: 0.10432098765432099
   lateral:
     min: 67.2782874617737
     max: 199.84709480122325
@@ -29,14 +29,16 @@ leader:
   enabled: true
   style: comet
   color: '#F8C7F7'
-  radius: 3.6995884773662553
+  radius: 16.699588477366255
   z_offset: 11.728395061728396
-  halo_scale: 4.0
-  halo_opacity: 0.0
+  halo_scale: 2.0
+  halo_opacity: 0.48559670781893005
   trail_enabled: true
-  trail_fraction: 0.06604938271604938
-  trail_width: 15.380658436213992
+  trail_fraction: 0.01
+  trail_width: 11.380658436213992
   trail_opacity: 1.0
+  fade_trail_on_arrival: true
+  trail_fade_duration: 4.7
   screen_space_enabled: true
   reference_distance: 3500.0
   minimum_scale: 0.45
@@ -44,11 +46,11 @@ leader:
 terrain:
   source: copernicus
   satellite: true
-  satellite_zoom: 14
-  max_cells: 60000
+  satellite_zoom: 18
+  max_cells: 250000
   margin: 0.006
 timeline:
-  speed: 2.7654320987654324
+  speed: 1.9290123456790123
   intro: 4.790697674418604
   zoom_to_start: 3.0
   start_hold: 3.0

@@ -280,6 +280,12 @@ class MainWindow(tk.Tk):
             "leader_trail_opacity": tk.DoubleVar(
                 value=0.55
             ),
+            "leader_fade_trail_on_arrival": tk.BooleanVar(
+                value=True
+            ),
+            "leader_trail_fade_duration": tk.DoubleVar(
+                value=1.5
+            ),
             "leader_screen_space": tk.BooleanVar(
                 value=True
             ),
@@ -1516,6 +1522,31 @@ class MainWindow(tk.Tk):
 
         ttk.Checkbutton(
             parent,
+            text="Effacer la traînée à l'arrivée",
+            variable=self.vars[
+                "leader_fade_trail_on_arrival"
+            ],
+        ).pack(
+            anchor="w",
+            pady=(8, 4),
+        )
+
+        self._add_help_row(
+            parent,
+            label="Durée d'effacement",
+            help_text=(
+                "Durée pendant laquelle la traînée se raccourcit "
+                "et devient transparente après l'arrivée."
+            ),
+            key="leader_trail_fade_duration",
+            unit="s",
+            from_=0.2,
+            to=5.0,
+            resolution=0.1,
+        )
+
+        ttk.Checkbutton(
+            parent,
             text="Adapter la taille à la distance caméra",
             variable=self.vars[
                 "leader_screen_space"
@@ -1729,7 +1760,8 @@ class MainWindow(tk.Tk):
         "leader_radius", "leader_z_offset", "leader_halo_scale",
         "leader_halo_opacity", "leader_trail_enabled",
         "leader_trail_fraction", "leader_trail_width",
-        "leader_trail_opacity", "leader_screen_space",
+        "leader_trail_opacity", "leader_fade_trail_on_arrival",
+        "leader_trail_fade_duration", "leader_screen_space",
         "terrain_source",
         "terrain_satellite", "terrain_zoom", "terrain_max_cells", "terrain_margin",
         "progress_speed", "intro", "zoom_to_start", "start_hold", "travel", "slowdown_start",
@@ -2322,6 +2354,12 @@ class MainWindow(tk.Tk):
             "leader_trail_fraction": project.leader.trail_fraction,
             "leader_trail_width": project.leader.trail_width,
             "leader_trail_opacity": project.leader.trail_opacity,
+            "leader_fade_trail_on_arrival": (
+                project.leader.fade_trail_on_arrival
+            ),
+            "leader_trail_fade_duration": (
+                project.leader.trail_fade_duration
+            ),
             "leader_screen_space": project.leader.screen_space_enabled,
 
             "terrain_source": project.terrain.source,
@@ -2561,6 +2599,18 @@ class MainWindow(tk.Tk):
         project.leader.trail_opacity = float(
             self.vars[
                 "leader_trail_opacity"
+            ].get()
+        )
+
+        project.leader.fade_trail_on_arrival = bool(
+            self.vars[
+                "leader_fade_trail_on_arrival"
+            ].get()
+        )
+
+        project.leader.trail_fade_duration = float(
+            self.vars[
+                "leader_trail_fade_duration"
             ].get()
         )
 
