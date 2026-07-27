@@ -15,6 +15,8 @@ from PIL import Image, ImageDraw
 TILE_SIZE = 256
 DEFAULT_ZOOM = 14
 DEFAULT_MARGIN_RATIO = 0.08
+DEFAULT_PREVIEW_MAX_SIZE = 2048
+DEFAULT_VIDEO_MAX_SIZE = 4096
 
 ESRI_WORLD_IMAGERY = (
     "https://server.arcgisonline.com/ArcGIS/rest/services/"
@@ -127,12 +129,35 @@ def download_tile(
     )
 
 
+def resized_copy(image: Image.Image, maximum_size: int) -> Image.Image:
+    maximum_size = max(256, int(maximum_size))
+    if max(image.size) <= maximum_size:
+        return image.copy()
+    resized = image.copy()
+    resized.thumbnail((maximum_size, maximum_size), Image.Resampling.LANCZOS)
+    return resized
+
+
+def save_optimized_texture(
+    image: Image.Image,
+    output_file: Path,
+    maximum_size: int,
+) -> tuple[int, int]:
+    optimized = resized_copy(image, maximum_size)
+    optimized.save(output_file, format="PNG", optimize=True, compress_level=6)
+    size = optimized.size
+    optimized.close()
+    return size
+
+
 def create_mosaic(
     gpx_file: Path,
     zoom: int,
     margin_ratio: float,
     cache_dir: Path,
     output_dir: Path,
+    preview_max_size: int = DEFAULT_PREVIEW_MAX_SIZE,
+    video_max_size: int = DEFAULT_VIDEO_MAX_SIZE,
 ) -> tuple[Path, Path, Path]:
     points = read_gpx_points(gpx_file)
 
@@ -225,14 +250,36 @@ def create_mosaic(
     mosaic_file = output_dir / f"{stem}_satellite_z{zoom}.png"
     metadata_file = output_dir / f"{stem}_satellite_z{zoom}.json"
     preview_file = output_dir / f"{stem}_satellite_preview_z{zoom}.png"
+    preview_texture_file = output_dir / f"{stem}_satellite_z{zoom}_preview.png"
+    video_texture_file = output_dir / f"{stem}_satellite_z{zoom}_video.png"
 
-    mosaic.save(mosaic_file)
+    mosaic.save(mosaic_file, format="PNG", optimize=True, compress_level=6)
+    preview_texture_size = save_optimized_texture(
+        mosaic, preview_texture_file, preview_max_size
+    )
+    video_texture_size = save_optimized_texture(
+        mosaic, video_texture_file, video_max_size
+    )
 
     metadata = {
         "source": "Esri World Imagery",
         "zoom": zoom,
         "image_width": mosaic.width,
         "image_height": mosaic.height,
+        "optimized_textures": {
+            "preview": {
+                "file": preview_texture_file.name,
+                "width": preview_texture_size[0],
+                "height": preview_texture_size[1],
+                "maximum_size": int(preview_max_size),
+            },
+            "video": {
+                "file": video_texture_file.name,
+                "width": video_texture_size[0],
+                "height": video_texture_size[1],
+                "maximum_size": int(video_max_size),
+            },
+        },
         "tile_bounds": {
             "x_min": x_min,
             "x_max": x_max,
@@ -304,7 +351,17 @@ def create_mosaic(
 
     preview.save(preview_file)
 
-    print("Mosaïque :", mosaic_file)
+    print("Mosaïque originale :", mosaic_file)
+    print(
+        "Texture preview :",
+        preview_texture_file,
+        f"{preview_texture_size[0]} x {preview_texture_size[1]}",
+    )
+    print(
+        "Texture vidéo :",
+        video_texture_file,
+        f"{video_texture_size[0]} x {video_texture_size[1]}",
+    )
     print("Métadonnées :", metadata_file)
     print("Aperçu GPX :", preview_file)
 
@@ -351,6 +408,20 @@ def parse_arguments() -> argparse.Namespace:
         default=Path("cache/satellite"),
     )
 
+    parser.add_argument(
+        "--preview-max-size",
+        type=int,
+        default=DEFAULT_PREVIEW_MAX_SIZE,
+        help="Dimension maximale de la texture de preview.",
+    )
+
+    parser.add_argument(
+        "--video-max-size",
+        type=int,
+        default=DEFAULT_VIDEO_MAX_SIZE,
+        help="Dimension maximale de la texture vidéo.",
+    )
+
     return parser.parse_args()
 
 
@@ -368,6 +439,8 @@ def main() -> None:
         margin_ratio=arguments.margin,
         cache_dir=arguments.cache_dir,
         output_dir=arguments.output_dir,
+        preview_max_size=arguments.preview_max_size,
+        video_max_size=arguments.video_max_size,
     )
 
 

@@ -173,9 +173,14 @@ class MainWindow(tk.Tk):
         self._create_variables()
         self._build_ui()
 
-        self.status_text.set(
-            "Choisissez un fichier GPX pour ouvrir ou créer son projet."
+        default_project = Path(
+            self.project_file.get()
         )
+
+        if default_project.exists():
+            self.load_project(
+                default_project
+            )
 
     def _create_variables(self):
         self.vars = {
@@ -380,49 +385,97 @@ class MainWindow(tk.Tk):
             weight=1,
         )
 
-        ttk.Label(project_box, text="Fichier GPX").grid(
-            row=0, column=0, sticky="w", padx=(0, 10), pady=4
-        )
-        ttk.Entry(
+        ttk.Label(
             project_box,
-            textvariable=self.vars["gpx"],
+            text="Projet YAML",
         ).grid(
-            row=0, column=1, sticky="ew", pady=4
-        )
-        ttk.Button(
-            project_box,
-            text="Choisir un GPX...",
-            command=self.choose_gpx,
-        ).grid(
-            row=0, column=2, padx=(8, 0)
+            row=0,
+            column=0,
+            sticky="w",
+            padx=(0, 10),
+            pady=4,
         )
 
-        ttk.Label(project_box, text="Titre du projet").grid(
-            row=1, column=0, sticky="w", padx=(0, 10), pady=4
+        ttk.Entry(
+            project_box,
+            textvariable=self.project_file,
+        ).grid(
+            row=0,
+            column=1,
+            sticky="ew",
+            pady=4,
         )
+
+        ttk.Button(
+            project_box,
+            text="Ouvrir...",
+            command=self.choose_project,
+        ).grid(
+            row=0,
+            column=2,
+            padx=(8, 0),
+        )
+
+        ttk.Button(
+            project_box,
+            text="Nouveau depuis GPX",
+            command=self.create_project_from_gpx,
+        ).grid(
+            row=0,
+            column=3,
+            padx=(8, 0),
+        )
+
+        ttk.Label(
+            project_box,
+            text="Titre du projet",
+        ).grid(
+            row=1,
+            column=0,
+            sticky="w",
+            padx=(0, 10),
+            pady=4,
+        )
+
         ttk.Entry(
             project_box,
             textvariable=self.vars["title"],
         ).grid(
-            row=1, column=1, sticky="ew", pady=4
+            row=1,
+            column=1,
+            sticky="ew",
+            pady=4,
         )
 
-        ttk.Label(project_box, text="Projet associé").grid(
-            row=2, column=0, sticky="w", padx=(0, 10), pady=4
-        )
         ttk.Label(
             project_box,
-            textvariable=self.project_file,
-            foreground="#666666",
+            text="Fichier GPX",
         ).grid(
-            row=2, column=1, sticky="w", pady=4
+            row=2,
+            column=0,
+            sticky="w",
+            padx=(0, 10),
+            pady=4,
         )
+
+        ttk.Entry(
+            project_box,
+            textvariable=self.vars["gpx"],
+        ).grid(
+            row=2,
+            column=1,
+            sticky="ew",
+            pady=4,
+        )
+
         ttk.Button(
             project_box,
-            text="Ouvrir un YAML...",
-            command=self.choose_project,
+            text="Parcourir...",
+            command=self.choose_gpx,
         ).grid(
-            row=2, column=2, padx=(8, 0)
+            row=2,
+            column=2,
+            padx=(8, 0),
         )
 
         profile_box = ttk.LabelFrame(root, text="Profils de rendu", padding=10)
@@ -1822,90 +1875,174 @@ class MainWindow(tk.Tk):
         except Exception as error:
             messagebox.showerror("Profils", str(error))
 
-    @staticmethod
-    def project_path_for_gpx(gpx_path):
-        return Path("projects") / f"{Path(gpx_path).stem}.yaml"
-
-    def template_project_file(self):
-        for candidate in (
-            Path("projects/project_v5.yaml"),
-            Path("projects/project_template.yaml"),
-        ):
-            if candidate.exists():
-                return candidate
-
-        raise FileNotFoundError(
-            "Aucun projet modèle trouvé dans projects."
-        )
-
-    def open_or_create_project_for_gpx(self, gpx_path):
-        gpx_path = Path(gpx_path)
-
-        if not gpx_path.exists():
-            raise FileNotFoundError(f"GPX introuvable : {gpx_path}")
-
-        if gpx_path.suffix.lower() != ".gpx":
-            raise ValueError("Le fichier doit être au format .gpx.")
-
-        project_path = self.project_path_for_gpx(gpx_path)
-
-        if project_path.exists():
-            project = ProjectLoaderV5(project_path).load()
-            project.gpx.file = gpx_path
-            project.source_file = project_path
-
-            self.project = project
-            self.project_file.set(str(project_path))
-            self._fill_form()
-            self.status_text.set(
-                f"Projet existant chargé : {project_path}"
-            )
-            return
-
-        template = ProjectLoaderV5(
-            self.template_project_file()
-        ).load()
-
-        template.title = gpx_path.stem.replace("_", " ")
-        template.gpx.file = gpx_path
-        template.source_file = project_path
-
-        self.project = template
-        self.project_file.set(str(project_path))
-
-        ProjectLoaderV5.save(self.project, project_path)
-        self._fill_form()
-
-        self.status_text.set(
-            f"Nouveau projet créé automatiquement : {project_path}"
-        )
-
     def create_project_from_gpx(self):
-        self.choose_gpx()
-
-    def choose_project(self):
         filename = filedialog.askopenfilename(
-            title="Ouvrir exceptionnellement un projet YAML",
-            filetypes=[("Projet YAML", "*.yaml *.yml")],
-        )
-
-        if filename:
-            self.load_project(Path(filename))
-
-    def choose_gpx(self):
-        filename = filedialog.askopenfilename(
-            title="Choisir le GPX du projet",
-            initialdir="gpx",
-            filetypes=[("Fichier GPX", "*.gpx")],
+            title="Choisir le GPX du nouveau projet",
+            filetypes=[
+                (
+                    "Fichier GPX",
+                    "*.gpx",
+                )
+            ],
         )
 
         if not filename:
             return
 
+        gpx_path = Path(filename)
+
+        project_file = filedialog.asksaveasfilename(
+            title="Enregistrer le nouveau projet",
+            initialdir="projects",
+            initialfile=f"{gpx_path.stem}.yaml",
+            defaultextension=".yaml",
+            filetypes=[
+                (
+                    "Projet YAML",
+                    "*.yaml",
+                )
+            ],
+        )
+
+        if not project_file:
+            return
+
+        project_path = Path(
+            project_file
+        )
+
         try:
-            self.open_or_create_project_for_gpx(Path(filename))
+            template = ProjectLoaderV5(
+                "projects/project_v5.yaml"
+            ).load()
+
+            template.title = (
+                gpx_path.stem
+                .replace("_", " ")
+            )
+
+            template.gpx.file = gpx_path
+            template.source_file = project_path
+
+            self.project = template
+
+            self.project_file.set(
+                str(project_path)
+            )
+
+            ProjectLoaderV5.save(
+                self.project,
+                project_path,
+            )
+
+            self._fill_form()
+
+            self.status_text.set(
+                "Nouveau projet créé : "
+                f"{project_path}"
+            )
+
         except Exception as error:
-            messagebox.showerror("Ouverture du GPX", str(error))
+            messagebox.showerror(
+                "Erreur",
+                str(error),
+            )
+
+    def choose_project(self):
+        filename = filedialog.askopenfilename(
+            title="Choisir un projet YAML",
+            filetypes=[
+                (
+                    "Projet YAML",
+                    "*.yaml *.yml",
+                )
+            ],
+        )
+
+        if filename:
+            self.project_file.set(
+                filename
+            )
+
+            self.load_project(
+                Path(filename)
+            )
+
+    def choose_gpx(self):
+        filename = filedialog.askopenfilename(
+            title="Choisir un fichier GPX",
+            filetypes=[
+                (
+                    "Fichier GPX",
+                    "*.gpx",
+                )
+            ],
+        )
+
+        if not filename:
+            return
+
+        gpx_path = Path(filename)
+
+        self.vars["gpx"].set(
+            str(gpx_path)
+        )
+
+        self.vars["title"].set(
+            gpx_path.stem.replace("_", " ")
+        )
+
+        current_project = Path(
+            self.project_file.get()
+        )
+
+        project_is_missing = (
+            self.project is None
+            or not current_project.exists()
+        )
+
+        if project_is_missing:
+            default_project = (
+                Path("projects")
+                / f"{gpx_path.stem}.yaml"
+            )
+
+            self.project_file.set(
+                str(default_project)
+            )
+
+            try:
+                template = ProjectLoaderV5(
+                    "projects/project_v5.yaml"
+                ).load()
+
+                template.title = self.vars[
+                    "title"
+                ].get()
+
+                template.gpx.file = gpx_path
+                template.source_file = default_project
+
+                self.project = template
+
+                ProjectLoaderV5.save(
+                    self.project,
+                    default_project,
+                )
+
+                self._fill_form()
+
+                self.status_text.set(
+                    "Projet créé automatiquement : "
+                    f"{default_project}"
+                )
+
+            except Exception as error:
+                messagebox.showerror(
+                    "Erreur",
+                    "Impossible de créer automatiquement "
+                    f"le projet :\n{error}",
+                )
 
     @staticmethod
     def _leader_preview_float(variable, default):

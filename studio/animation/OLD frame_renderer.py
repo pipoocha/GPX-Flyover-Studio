@@ -53,37 +53,12 @@ class FrameRenderer:
             self.profile_distances,
             self.profile_elevations,
         )
-        effective_travel = float(
-            getattr(
-                config,
-                "VIDEO_DURATION",
-                30.0,
-            )
-        )
-
         self.timeline_mapper = TimelineMapper(
-            type(
-                "TimelineProxy",
-                (),
-                {
-                    "travel": effective_travel,
-                    "effective_travel": effective_travel,
-                    "slowdown_start": float(
-                        getattr(
-                            config,
-                            "SLOWDOWN_START_SECONDS",
-                            2.0,
-                        )
-                    ),
-                    "slowdown_end": float(
-                        getattr(
-                            config,
-                            "SLOWDOWN_END_SECONDS",
-                            3.0,
-                        )
-                    ),
-                },
-            )()
+            type("TimelineProxy", (), {
+                "travel": float(getattr(config, "VIDEO_DURATION", 30.0)),
+                "slowdown_start": float(getattr(config, "SLOWDOWN_START_SECONDS", 2.0)),
+                "slowdown_end": float(getattr(config, "SLOWDOWN_END_SECONDS", 3.0)),
+            })()
         )
         self.profile_marker_actor = None
 
