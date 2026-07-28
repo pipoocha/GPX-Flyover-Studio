@@ -1,24 +1,24 @@
 project:
-  title: 20 km belmont
+  title: ranchalaise 7 km 2026-21330150-1785255325-818
 gpx:
-  file: C:/Users/pc/Documents/PERSO/Sport/GPX-Flyover-Studio V5/gpx/20_km_belmont.gpx
+  file: C:/Users/pc/Documents/PERSO/Sport/GPX-Flyover-Studio V5/gpx/ranchalaise_7_km_2026-21330150-1785255325-818.gpx
 camera:
   mode: director
-  orientation: north
+  orientation: auto
   distance:
-    min: 765.0
-    max: 2550.0
-    scale: 0.3
+    min: 680.0
+    max: 2210.0
+    scale: 0.4413580246913581
   height:
-    min: 530.0
-    max: 1590.0
-    scale: 0.1875
+    min: 434.0
+    max: 1291.0
+    scale: 0.23672839506172838
   lateral:
-    min: 21.0
-    max: 115.49999999999999
-    scale: 0.0245
-  look_ahead: 280
-  smoothing: 0.1
+    min: 211.93415637860082
+    max: 362.5514403292181
+    scale: 0.08312757201646091
+  look_ahead: 260
+  smoothing: 0.11
 track:
   color: '#FF8000'
   width: 4.077160493827161
@@ -44,9 +44,9 @@ leader:
   minimum_scale: 0.45
   maximum_scale: 4.0
 profile:
-  selected: moyenne_montagne_compacte
-  recommended: moyenne_montagne_compacte
-  confidence: 98.29833987686035
+  selected: vallonne_compact
+  recommended: vallonne_compact
+  confidence: 80.46972109162496
   source: user
 cinematic:
   start_centered: true
@@ -56,15 +56,15 @@ cinematic:
 terrain:
   source: copernicus
   satellite: true
-  satellite_zoom: 18
-  max_cells: 65000
-  margin: 0.017
+  satellite_zoom: 17
+  max_cells: 58000
+  margin: 0.05
 timeline:
   speed: 1.3148148148148147
   intro: 4.0
   zoom_to_start: 5.0
   start_hold: 2.0
-  travel: 28.05141044867535
+  travel: 12.0
   slowdown_start: 3.0
   slowdown_end: 4.0
   arrival_hold: 5.0

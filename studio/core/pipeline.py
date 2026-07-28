@@ -52,6 +52,7 @@ class FlyoverPipeline:
         camera = project.camera
         track = project.track
         leader = project.leader
+        cinematic = project.cinematic
         terrain = project.terrain
         timeline = project.timeline
 
@@ -120,6 +121,19 @@ class FlyoverPipeline:
         )
         config.LEADER_MAXIMUM_SCALE = float(
             leader.maximum_scale
+        )
+
+        config.START_CAMERA_CENTERED = bool(
+            cinematic.start_centered
+        )
+        config.START_CAMERA_ZOOM_FACTOR = float(
+            cinematic.start_zoom
+        )
+        config.START_CAMERA_BLEND_SECONDS = float(
+            cinematic.start_transition
+        )
+        config.FINISH_CAMERA_ZOOM_FACTOR = float(
+            cinematic.finish_zoom
         )
 
         config.TERRAIN_SOURCE = terrain.source

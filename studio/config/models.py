@@ -88,6 +88,28 @@ class LeaderConfig:
 
 
 @dataclass
+class ProfileSelectionConfig:
+    selected: str = ""
+    recommended: str = ""
+    confidence: float = 0.0
+    source: str = "none"
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class CinematicConfig:
+    start_centered: bool = True
+    start_zoom: float = 0.45
+    start_transition: float = 3.0
+    finish_zoom: float = 0.70
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
 class TerrainConfig:
     source: str
     satellite: bool
@@ -157,6 +179,8 @@ class ProjectConfig:
     camera: CameraConfig
     track: TrackConfig
     leader: LeaderConfig
+    profile: ProfileSelectionConfig
+    cinematic: CinematicConfig
     terrain: TerrainConfig
     timeline: TimelineConfig
     video: VideoConfig
@@ -169,6 +193,8 @@ class ProjectConfig:
             "camera": self.camera.to_dict(),
             "track": self.track.to_dict(),
             "leader": self.leader.to_dict(),
+            "profile": self.profile.to_dict(),
+            "cinematic": self.cinematic.to_dict(),
             "terrain": self.terrain.to_dict(),
             "timeline": self.timeline.to_dict(),
             "video": self.video.to_dict(),

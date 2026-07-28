@@ -22,6 +22,41 @@ class PreviewPlayer:
         self.base_fps = max(1, int(fps or config.FPS))
         self.speed_multiplier = 1.0
         self.frame_index = 0
+        self.start_hold_frames = max(
+            0,
+            int(
+                round(
+                    float(
+                        getattr(
+                            config,
+                            "START_HOLD_SECONDS",
+                            3.0,
+                        )
+                    )
+                    * self.base_fps
+                )
+            ),
+        )
+        self.start_hold_index = 0
+        self.start_blend_frames = max(
+            1,
+            int(
+                round(
+                    float(
+                        getattr(
+                            config,
+                            "START_CAMERA_BLEND_SECONDS",
+                            getattr(
+                                config,
+                                "SLOWDOWN_START_SECONDS",
+                                3.0,
+                            ),
+                        )
+                    )
+                    * self.base_fps
+                )
+            ),
+        )
         self.paused = False
         self.stopped = False
 
@@ -53,9 +88,13 @@ class PreviewPlayer:
 
     def restart(self):
         self.frame_index = 0
+        self.start_hold_index = 0
         self.paused = False
         self.leader.restore_trail(progress=0.0)
-        self.update_scene(force_track=True)
+        self.update_scene(
+            force_track=True,
+            start_centered=True,
+        )
         print("\nPreview recommencée.")
 
     def seek_forward(self):
@@ -163,16 +202,246 @@ class PreviewPlayer:
 
         self.visible_segment_count = visible_segments
 
-    def update_scene(self, force_track=False):
-        progress = self.current_progress()
-        position, focal_point, _ = self.camera_path.camera_at_progress(progress)
+    def start_camera(self):
+        position, focal_point, _ = (
+            self.camera_path.camera_at_progress(0.0)
+        )
+
+        position = np.asarray(position, dtype=float)
+        focal_point = np.asarray(focal_point, dtype=float)
+
+        target = self.path_coords[0].copy()
+        target[2] += float(
+            getattr(
+                config,
+                "LEADER_Z_OFFSET",
+                18.0,
+            )
+        )
+
+        camera_vector = position - focal_point
+        normal_distance = float(np.linalg.norm(camera_vector))
+
+        if normal_distance < 1e-9:
+            camera_vector = np.array([0.0, -1.0, 0.35], dtype=float)
+            normal_distance = float(np.linalg.norm(camera_vector))
+
+        direction = camera_vector / normal_distance
+
+        zoom_factor = max(
+            0.20,
+            min(
+                1.0,
+                float(
+                    getattr(
+                        config,
+                        "START_CAMERA_ZOOM_FACTOR",
+                        0.45,
+                    )
+                ),
+            ),
+        )
+
+        view_angle = float(
+            getattr(
+                self.scene.plotter.camera,
+                "view_angle",
+                30.0,
+            )
+        )
+        leader_radius = float(
+            getattr(
+                config,
+                "LEADER_RADIUS",
+                20.0,
+            )
+        )
+        halo_scale = max(
+            1.0,
+            float(
+                getattr(
+                    config,
+                    "LEADER_HALO_SCALE",
+                    1.8,
+                )
+            ),
+        )
+        screen_fraction = max(
+            0.08,
+            min(
+                0.30,
+                float(
+                    getattr(
+                        config,
+                        "START_LEADER_SCREEN_FRACTION",
+                        0.16,
+                    )
+                ),
+            ),
+        )
+
+        visible_radius = leader_radius * halo_scale
+        allowed_half_angle = np.radians(
+            max(
+                0.5,
+                view_angle * screen_fraction * 0.5,
+            )
+        )
+        minimum_safe_distance = (
+            visible_radius
+            / max(
+                1e-6,
+                np.tan(allowed_half_angle),
+            )
+        )
+
+        start_distance = max(
+            normal_distance * zoom_factor,
+            minimum_safe_distance,
+        )
+
+        return target + direction * start_distance, target
+
+    def set_start_camera(self):
+        if not bool(
+            getattr(
+                config,
+                "START_CAMERA_CENTERED",
+                True,
+            )
+        ):
+            position, focal_point, _ = (
+                self.camera_path.camera_at_progress(0.0)
+            )
+            self.scene.set_camera(
+                position=tuple(position),
+                focal_point=tuple(focal_point),
+            )
+            return
+
+        position, target = self.start_camera()
 
         self.scene.set_camera(
             position=tuple(position),
-            focal_point=tuple(focal_point),
+            focal_point=tuple(target),
         )
 
-        self.update_track(progress=progress, force=force_track)
+    def finish_camera(self):
+        position, focal_point, _ = (
+            self.camera_path.camera_at_progress(1.0)
+        )
+        position = np.asarray(position, dtype=float)
+        focal_point = np.asarray(focal_point, dtype=float)
+
+        target = self.path_coords[-1].copy()
+        target[2] += float(
+            getattr(
+                config,
+                "LEADER_Z_OFFSET",
+                18.0,
+            )
+        )
+
+        vector = position - focal_point
+        distance = float(np.linalg.norm(vector))
+
+        if distance < 1e-9:
+            vector = np.array([0.0, -1.0, 0.35], dtype=float)
+            distance = float(np.linalg.norm(vector))
+
+        zoom = max(
+            0.30,
+            min(
+                1.50,
+                float(
+                    getattr(
+                        config,
+                        "FINISH_CAMERA_ZOOM_FACTOR",
+                        0.70,
+                    )
+                ),
+            ),
+        )
+
+        return target + vector / distance * distance * zoom, target
+
+    def update_scene(
+        self,
+        force_track=False,
+        start_centered=False,
+    ):
+        progress = 0.0 if start_centered else self.current_progress()
+
+        if start_centered:
+            self.set_start_camera()
+        else:
+            position, focal_point, _ = (
+                self.camera_path.camera_at_progress(progress)
+            )
+            position = np.asarray(position, dtype=float)
+            focal_point = np.asarray(focal_point, dtype=float)
+
+            if self.frame_index < self.start_blend_frames:
+                start_position, start_focal = self.start_camera()
+                value = (
+                    self.frame_index
+                    / max(1, self.start_blend_frames)
+                )
+                value = max(0.0, min(1.0, value))
+                blend = value * value * (3.0 - 2.0 * value)
+
+                position = (
+                    start_position * (1.0 - blend)
+                    + position * blend
+                )
+                focal_point = (
+                    start_focal * (1.0 - blend)
+                    + focal_point * blend
+                )
+
+            finish_blend_frames = max(
+                1,
+                int(
+                    round(
+                        float(
+                            getattr(
+                                config,
+                                "SLOWDOWN_END_SECONDS",
+                                3.0,
+                            )
+                        )
+                        * self.base_fps
+                    )
+                ),
+            )
+            finish_start = self.frames - finish_blend_frames
+
+            if self.frame_index >= finish_start:
+                finish_position, finish_focal = self.finish_camera()
+                value = (
+                    self.frame_index - finish_start
+                ) / max(1, finish_blend_frames)
+                value = max(0.0, min(1.0, value))
+                blend = value * value * (3.0 - 2.0 * value)
+
+                position = (
+                    position * (1.0 - blend)
+                    + finish_position * blend
+                )
+                focal_point = (
+                    focal_point * (1.0 - blend)
+                    + finish_focal * blend
+                )
+
+            self.scene.set_camera(
+                position=tuple(position),
+                focal_point=tuple(focal_point),
+            )
+
+        self.update_track(
+            progress=progress,
+            force=force_track,
+        )
 
         if bool(getattr(config, "LEADER_ENABLED", False)):
             self.leader.update(progress)
@@ -224,7 +493,10 @@ class PreviewPlayer:
         if bool(getattr(config, "LEADER_ENABLED", False)):
             self.leader.create()
 
-        self.update_scene(force_track=True)
+        self.update_scene(
+            force_track=True,
+            start_centered=True,
+        )
 
         plotter.show(
             auto_close=False,
@@ -245,7 +517,23 @@ class PreviewPlayer:
                 break
 
             if not self.paused:
-                self.update_scene()
+                in_start_hold = (
+                    self.start_hold_index
+                    < self.start_hold_frames
+                )
+
+                self.update_scene(
+                    start_centered=in_start_hold,
+                )
+
+                if in_start_hold:
+                    self.start_hold_index += 1
+                else:
+                    advance = max(
+                        1,
+                        int(round(self.speed_multiplier)),
+                    )
+                    self.frame_index += advance
 
                 display_interval = max(1, self.base_fps // 2)
 
@@ -262,23 +550,10 @@ class PreviewPlayer:
                     )
                     last_display = self.frame_index
 
-                advance = max(1, int(round(self.speed_multiplier)))
-                self.frame_index += advance
-
                 if self.frame_index >= self.frames:
                     self.frame_index = self.frames - 1
                     self.paused = True
                     self.update_scene(force_track=True)
-
-                    if bool(
-                        getattr(
-                            config,
-                            "LEADER_FADE_TRAIL_ON_ARRIVAL",
-                            True,
-                        )
-                    ):
-                        self.leader.set_trail_fade(1.0)
-                        self.scene.plotter.render()
                     print()
                     print("Fin du preview — R pour recommencer, Q pour quitter.")
 

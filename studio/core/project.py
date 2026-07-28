@@ -35,9 +35,18 @@ class Project:
     @property
     def track(self):
         return self.config.track
+
     @property
     def leader(self):
         return self.config.leader
+
+    @property
+    def profile(self):
+        return self.config.profile
+
+    @property
+    def cinematic(self):
+        return self.config.cinematic
 
     @property
     def terrain(self):

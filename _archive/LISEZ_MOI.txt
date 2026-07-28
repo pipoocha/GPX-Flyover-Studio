@@ -1,0 +1,16 @@
+V6.2 — POI MANUELS + POINT SYNCHRONISÉ AU PROFIL
+
+Remplacer :
+- studio/config/models.py
+- studio/config/loader.py
+- studio/core/pipeline.py
+- studio/gui/main_window.py
+- studio/animation/frame_renderer.py
+
+Onglet POI : ajout, modification, suppression et activation manuelle.
+Chaque POI contient nom, type, kilomètre, durée, texte et couleur.
+Le panneau flash apparaît pendant la vidéo lorsque le leader atteint le kilomètre choisi.
+
+Pendant l'animation finale du profil, un point de la couleur du leader avance simultanément sur la trace. Il reste à l'arrivée pendant le maintien final.
+
+Test : ajouter un POI vers le km 5, enregistrer, générer une courte vidéo.

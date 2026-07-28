@@ -10,8 +10,10 @@ from studio.config.defaults import DEFAULT_CONFIG
 from studio.config.models import (
     CameraConfig,
     CameraRange,
+    CinematicConfig,
     GPXConfig,
     LeaderConfig,
+    ProfileSelectionConfig,
     ProjectConfig,
     TerrainConfig,
     TimelineConfig,
@@ -53,6 +55,8 @@ class ProjectLoaderV5:
         camera = data["camera"]
         track = data["track"]
         leader = data["leader"]
+        profile = data.get("profile", {})
+        cinematic = data.get("cinematic", {})
         terrain = data["terrain"]
 
         # Compatibilité avec les anciens projets :
@@ -125,6 +129,35 @@ class ProjectLoaderV5:
                 ),
                 minimum_scale=float(leader["minimum_scale"]),
                 maximum_scale=float(leader["maximum_scale"]),
+            ),
+            profile=ProfileSelectionConfig(
+                selected=str(profile.get("selected", "")),
+                recommended=str(profile.get("recommended", "")),
+                confidence=float(profile.get("confidence", 0.0)),
+                source=str(profile.get("source", "none")),
+            ),
+            cinematic=CinematicConfig(
+                start_centered=bool(
+                    cinematic.get("start_centered", True)
+                ),
+                start_zoom=max(
+                    0.20,
+                    min(
+                        1.0,
+                        float(cinematic.get("start_zoom", 0.45)),
+                    ),
+                ),
+                start_transition=max(
+                    0.0,
+                    float(cinematic.get("start_transition", 3.0)),
+                ),
+                finish_zoom=max(
+                    0.30,
+                    min(
+                        1.5,
+                        float(cinematic.get("finish_zoom", 0.70)),
+                    ),
+                ),
             ),
             terrain=TerrainConfig(
                 source=str(terrain["source"]).lower(),

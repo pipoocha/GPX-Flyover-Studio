@@ -182,6 +182,121 @@ class FrameRenderer:
     def save_frame(self, frame_index):
         self.scene.plotter.screenshot(str(self.frame_path(frame_index)))
 
+    def start_camera(self):
+        """Cadrage très serré du départ, centré et sans couper le leader."""
+        position, focal_point, _ = self.camera_path.camera_at_progress(0.0)
+
+        position = np.asarray(position, dtype=float)
+        focal_point = np.asarray(focal_point, dtype=float)
+
+        target = self.path_coords[0].copy()
+        target[2] += float(
+            getattr(
+                config,
+                "LEADER_Z_OFFSET",
+                18.0,
+            )
+        )
+
+        camera_vector = position - focal_point
+        normal_distance = float(np.linalg.norm(camera_vector))
+
+        if normal_distance < 1e-9:
+            camera_vector = np.array([0.0, -1.0, 0.35], dtype=float)
+            normal_distance = float(np.linalg.norm(camera_vector))
+
+        direction = camera_vector / normal_distance
+
+        zoom_factor = max(
+            0.20,
+            min(
+                1.0,
+                float(
+                    getattr(
+                        config,
+                        "START_CAMERA_ZOOM_FACTOR",
+                        0.45,
+                    )
+                ),
+            ),
+        )
+
+        view_angle = float(
+            getattr(
+                self.scene.plotter.camera,
+                "view_angle",
+                30.0,
+            )
+        )
+
+        leader_radius = float(
+            getattr(
+                config,
+                "LEADER_RADIUS",
+                20.0,
+            )
+        )
+        halo_scale = max(
+            1.0,
+            float(
+                getattr(
+                    config,
+                    "LEADER_HALO_SCALE",
+                    1.8,
+                )
+            ),
+        )
+        screen_fraction = max(
+            0.08,
+            min(
+                0.30,
+                float(
+                    getattr(
+                        config,
+                        "START_LEADER_SCREEN_FRACTION",
+                        0.16,
+                    )
+                ),
+            ),
+        )
+
+        visible_radius = leader_radius * halo_scale
+        allowed_half_angle = np.radians(
+            max(
+                0.5,
+                view_angle * screen_fraction * 0.5,
+            )
+        )
+        minimum_safe_distance = (
+            visible_radius
+            / max(
+                1e-6,
+                np.tan(allowed_half_angle),
+            )
+        )
+
+        start_distance = max(
+            normal_distance * zoom_factor,
+            minimum_safe_distance,
+        )
+
+        centered_position = (
+            target
+            + direction * start_distance
+        )
+
+        return centered_position, target
+
+    def set_start_camera(self):
+        position, focal_point = self.start_camera()
+
+        self.scene.set_camera(
+            position=tuple(position),
+            focal_point=tuple(focal_point),
+        )
+
+        return position, focal_point
+
     def set_route_camera(self, progress):
         position, focal_point, _ = self.camera_path.camera_at_progress(progress)
         self.scene.set_camera(
@@ -190,6 +305,29 @@ class FrameRenderer:
         )
         return np.asarray(position, dtype=float), np.asarray(focal_point, dtype=float)
 
+    def render_start_frame(
+        self,
+        frame_index,
+        force_track=False,
+    ):
+        """Image de départ fixe : leader centré et progression strictement nulle."""
+        self.set_start_camera()
+
+        self.update_track(
+            0.0,
+            force=force_track,
+            minimum_segments=self.start_visible_segments,
+        )
+
+        if bool(getattr(config, "LEADER_ENABLED", False)):
+            self.leader.update(0.0)
+
+        plotter = self.scene.plotter
+        plotter.reset_camera_clipping_range()
+        plotter.render()
+        plotter.update()
+        self.save_frame(frame_index)
+
     def render_route_frame(
         self,
         frame_index,
@@ -197,8 +335,33 @@ class FrameRenderer:
         force_track=False,
         minimum_segments=0,
         trail_fade_progress=None,
+        start_camera_blend=None,
     ):
-        self.set_route_camera(progress)
+        if start_camera_blend is None:
+            self.set_route_camera(progress)
+        else:
+            route_position, route_focal, _ = (
+                self.camera_path.camera_at_progress(progress)
+            )
+            route_position = np.asarray(route_position, dtype=float)
+            route_focal = np.asarray(route_focal, dtype=float)
+
+            start_position, start_focal = self.start_camera()
+            blend = self.smootherstep(start_camera_blend)
+
+            position = (
+                start_position * (1.0 - blend)
+                + route_position * blend
+            )
+            focal = (
+                start_focal * (1.0 - blend)
+                + route_focal * blend
+            )
+
+            self.scene.set_camera(
+                position=tuple(position),
+                focal_point=tuple(focal),
+            )
         self.update_track(
             progress,
             force=force_track,
@@ -220,45 +383,272 @@ class FrameRenderer:
         self.save_frame(frame_index)
 
     def create_profile_marker(self):
+        """Point mobile sur la trace, synchronisé avec le profil."""
         if self.profile_marker_actor is not None:
             return
 
-        radius = max(14.0, float(getattr(config, "PROFILE_MAP_MARKER_RADIUS", 28.0)))
-        marker = pv.Sphere(radius=radius, theta_resolution=20, phi_resolution=20)
+        leader_radius = float(
+            getattr(
+                config,
+                "LEADER_RADIUS",
+                20.0,
+            )
+        )
+        radius = max(
+            16.0,
+            float(
+                getattr(
+                    config,
+                    "PROFILE_MAP_MARKER_RADIUS",
+                    leader_radius * 1.4,
+                )
+            ),
+        )
+
+        marker = pv.Sphere(
+            radius=radius,
+            theta_resolution=28,
+            phi_resolution=28,
+        )
+
+        marker_color = str(
+            getattr(
+                config,
+                "LEADER_COLOR",
+                self.track_color_hex,
+            )
+        )
+
         self.profile_marker_actor = self.scene.add_mesh(
             marker,
-            color=self.track_color_hex,
+            color=marker_color,
             smooth_shading=True,
             lighting=False,
         )
 
+    def profile_marker_position(self, progress):
+        """Interpolation selon la distance réelle, pas selon l'index GPX."""
+        progress = max(
+            0.0,
+            min(1.0, float(progress)),
+        )
+
+        target_distance = (
+            progress
+            * float(self.profile_distances[-1])
+        )
+
+        upper_index = int(
+            np.searchsorted(
+                self.profile_distances,
+                target_distance,
+                side="left",
+            )
+        )
+        upper_index = max(
+            1,
+            min(
+                len(self.path_coords) - 1,
+                upper_index,
+            ),
+        )
+        lower_index = upper_index - 1
+
+        lower_distance = float(
+            self.profile_distances[lower_index]
+        )
+        upper_distance = float(
+            self.profile_distances[upper_index]
+        )
+        span = max(
+            1e-9,
+            upper_distance - lower_distance,
+        )
+        local_progress = (
+            target_distance - lower_distance
+        ) / span
+
+        point = (
+            self.path_coords[lower_index]
+            * (1.0 - local_progress)
+            + self.path_coords[upper_index]
+            * local_progress
+        )
+
+        point = point.copy()
+        point[2] += self.track_z_offset + 25.0
+        return point
+
     def update_profile_marker(self, progress):
         self.create_profile_marker()
-        progress = max(0.0, min(1.0, float(progress)))
-        index = int(round(progress * (len(self.path_coords) - 1)))
-        point = self.path_coords[index].copy()
-        point[2] += self.track_z_offset + 25.0
-        self.profile_marker_actor.SetPosition(tuple(point))
+
+        point = self.profile_marker_position(
+            progress
+        )
+        self.profile_marker_actor.SetPosition(
+            tuple(point)
+        )
+
+        try:
+            self.profile_marker_actor.SetVisibility(True)
+        except Exception:
+            pass
 
     def top_down_camera(self):
+        """
+        Cadre toute la trace dans la zone supérieure de l'image.
+
+        La bande inférieure est réservée au profil altimétrique.
+        Le calcul utilise le FOV réel et le format de la vidéo.
+        """
         xy = self.path_coords[:, :2]
-        center_xy = (xy.min(axis=0) + xy.max(axis=0)) / 2.0
-        center_z = float(np.mean(self.path_coords[:, 2]))
 
-        width = float(xy[:, 0].max() - xy[:, 0].min())
-        height = float(xy[:, 1].max() - xy[:, 1].min())
-        route_size = max(width, height, 1.0)
+        minimum = xy.min(axis=0)
+        maximum = xy.max(axis=0)
+        route_center = (minimum + maximum) / 2.0
+        center_z = float(
+            np.mean(self.path_coords[:, 2])
+        )
 
-        altitude = max(
-            float(getattr(config, "FINAL_TOPDOWN_MIN_HEIGHT", 2500.0)),
-            route_size * float(getattr(config, "FINAL_TOPDOWN_HEIGHT_SCALE", 1.10)),
+        route_width = max(
+            1.0,
+            float(maximum[0] - minimum[0]),
+        )
+        route_height = max(
+            1.0,
+            float(maximum[1] - minimum[1]),
+        )
+
+        image_width = max(
+            1.0,
+            float(
+                getattr(
+                    config,
+                    "WINDOW_WIDTH",
+                    1280,
+                )
+            ),
+        )
+        image_height = max(
+            1.0,
+            float(
+                getattr(
+                    config,
+                    "WINDOW_HEIGHT",
+                    720,
+                )
+            ),
+        )
+        aspect_ratio = image_width / image_height
+
+        # 30 % de la hauteur est réservée au profil.
+        profile_band_ratio = max(
+            0.20,
+            min(
+                0.40,
+                float(
+                    getattr(
+                        config,
+                        "FINAL_PROFILE_BAND_RATIO",
+                        0.30,
+                    )
+                ),
+            ),
+        )
+        map_height_ratio = 1.0 - profile_band_ratio
+
+        # Marge généreuse pour que la trace ne touche jamais le bord.
+        route_padding = max(
+            1.10,
+            float(
+                getattr(
+                    config,
+                    "FINAL_ROUTE_PADDING",
+                    1.30,
+                )
+            ),
+        )
+
+        vertical_fov = np.radians(
+            max(
+                10.0,
+                float(
+                    getattr(
+                        self.scene.plotter.camera,
+                        "view_angle",
+                        30.0,
+                    )
+                ),
+            )
+        )
+        horizontal_fov = 2.0 * np.arctan(
+            np.tan(vertical_fov / 2.0)
+            * aspect_ratio
+        )
+
+        distance_for_width = (
+            route_width
+            * route_padding
+            / max(
+                1e-6,
+                2.0 * np.tan(horizontal_fov / 2.0),
+            )
+        )
+
+        # La hauteur disponible pour la carte est réduite par la bande profil.
+        distance_for_height = (
+            route_height
+            * route_padding
+            / max(
+                1e-6,
+                2.0
+                * np.tan(vertical_fov / 2.0)
+                * map_height_ratio,
+            )
+        )
+
+        camera_distance = max(
+            float(
+                getattr(
+                    config,
+                    "FINAL_TOPDOWN_MIN_HEIGHT",
+                    2500.0,
+                )
+            ),
+            distance_for_width,
+            distance_for_height,
+        )
+
+        # Décalage du parcours vers le haut de l'image.
+        full_visible_height = (
+            2.0
+            * camera_distance
+            * np.tan(vertical_fov / 2.0)
+        )
+        upward_shift = (
+            full_visible_height
+            * profile_band_ratio
+            * 0.52
+        )
+
+        focal = np.array(
+            [
+                route_center[0],
+                route_center[1] - upward_shift,
+                center_z,
+            ],
+            dtype=float,
         )
 
         position = np.array(
-            [center_xy[0], center_xy[1], self.path_coords[:, 2].max() + altitude],
+            [
+                focal[0],
+                focal[1],
+                float(self.path_coords[:, 2].max())
+                + camera_distance,
+            ],
             dtype=float,
         )
-        focal = np.array([center_xy[0], center_xy[1], center_z], dtype=float)
 
         # Le nord reste en haut de l'image.
         view_up = (0.0, 1.0, 0.0)
@@ -278,6 +668,11 @@ class FrameRenderer:
         start_position,
         start_focal,
     ):
+        if self.profile_marker_actor is not None:
+            try:
+                self.profile_marker_actor.SetVisibility(False)
+            except Exception:
+                pass
         target_position, target_focal, target_up = self.top_down_camera()
         blend = self.smootherstep(transition_progress)
 
@@ -330,25 +725,49 @@ class FrameRenderer:
         }
 
     def profile_rectangle(self, image_width, image_height):
-        width_ratio = float(getattr(config, "PROFILE_INSET_WIDTH_RATIO", 0.40))
-        height_ratio = float(getattr(config, "PROFILE_INSET_HEIGHT_RATIO", 0.30))
-        margin = int(getattr(config, "PROFILE_INSET_MARGIN", 24))
-        corner = str(getattr(config, "PROFILE_INSET_CORNER", "bottom_right")).lower()
+        """
+        Le profil occupe une bande dédiée sous la carte.
 
-        box_width = max(260, int(image_width * width_ratio))
-        box_height = max(170, int(image_height * height_ratio))
+        Il ne flotte plus sur la trace et ne peut donc plus la masquer.
+        """
+        margin = max(
+            10,
+            int(
+                getattr(
+                    config,
+                    "PROFILE_INSET_MARGIN",
+                    16,
+                )
+            ),
+        )
+        band_ratio = max(
+            0.20,
+            min(
+                0.40,
+                float(
+                    getattr(
+                        config,
+                        "FINAL_PROFILE_BAND_RATIO",
+                        0.30,
+                    )
+                ),
+            ),
+        )
 
-        if "left" in corner:
-            left = margin
-        else:
-            left = image_width - box_width - margin
+        band_height = max(
+            150,
+            int(image_height * band_ratio),
+        )
 
-        if "top" in corner:
-            top = margin
-        else:
-            top = image_height - box_height - margin
+        left = margin
+        right = image_width - margin
+        bottom = image_height - margin
+        top = max(
+            margin,
+            bottom - band_height + margin,
+        )
 
-        return left, top, left + box_width, top + box_height
+        return left, top, right, bottom
 
     def draw_profile_inset(self, image, progress):
         image = image.convert("RGB")
@@ -587,24 +1006,49 @@ class FrameRenderer:
 
         frame_index = 0
 
-        # Pause sur le début de la trace, avec quelques segments déjà visibles.
-        start_camera_progress = float(
-            getattr(config, "START_CAMERA_PROGRESS", 0.004)
-        )
+        # Départ fixe : premier point exactement centré, leader immobile.
         for hold_index in range(start_hold_frames):
-            self.render_route_frame(
+            self.render_start_frame(
                 frame_index,
-                start_camera_progress,
                 force_track=(hold_index == 0),
-                minimum_segments=self.start_visible_segments,
             )
             frame_index += 1
 
-        # Parcours avec accélération puis ralentissement progressifs.
+        # Parcours : transition douce du gros plan vers la caméra Director.
+        start_blend_frames = max(
+            1,
+            int(
+                round(
+                    float(
+                        getattr(
+                            config,
+                            "START_CAMERA_BLEND_SECONDS",
+                            getattr(
+                                config,
+                                "SLOWDOWN_START_SECONDS",
+                                3.0,
+                            ),
+                        )
+                    )
+                    * fps
+                )
+            ),
+        )
+
         for travel_index in range(travel_frames):
             linear_progress = travel_index / max(1, travel_frames - 1)
             progress = self.eased_progress(linear_progress)
-            self.render_route_frame(frame_index, progress)
+
+            start_camera_blend = min(
+                1.0,
+                travel_index / max(1, start_blend_frames),
+            )
+
+            self.render_route_frame(
+                frame_index,
+                progress,
+                start_camera_blend=start_camera_blend,
+            )
             frame_index += 1
 
             if travel_index % 10 == 0 or travel_index == travel_frames - 1:

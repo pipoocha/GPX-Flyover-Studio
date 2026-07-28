@@ -8,6 +8,8 @@ from tkinter import colorchooser, filedialog, messagebox, simpledialog, ttk
 
 from studio.config.loader import ProjectLoaderV5
 from studio.config.models import CameraRange
+from studio.analysis.analyzer import analyze_gpx
+from studio.profiles.engine import ProfileEngine
 from studio.config.validator import validate_project
 from studio.profiles import ProfileManager
 
@@ -285,6 +287,19 @@ class MainWindow(tk.Tk):
                 value=True
             ),
 
+            "cinematic_start_centered": tk.BooleanVar(
+                value=True
+            ),
+            "cinematic_start_zoom": tk.DoubleVar(
+                value=0.45
+            ),
+            "cinematic_start_transition": tk.DoubleVar(
+                value=3.0
+            ),
+            "cinematic_finish_zoom": tk.DoubleVar(
+                value=0.70
+            ),
+
             "terrain_source": tk.StringVar(
                 value="copernicus"
             ),
@@ -465,6 +480,11 @@ class MainWindow(tk.Tk):
             "Caméra",
         )
 
+        realization_tab = self._scrollable_tab(
+            notebook,
+            "Réalisation",
+        )
+
         terrain_tab = self._scrollable_tab(
             notebook,
             "Terrain",
@@ -487,6 +507,10 @@ class MainWindow(tk.Tk):
 
         self._build_camera_tab(
             camera_tab
+        )
+
+        self._build_realization_tab(
+            realization_tab
         )
 
         self._build_terrain_tab(
@@ -1565,6 +1589,148 @@ class MainWindow(tk.Tk):
 
         self._update_leader_preview()
 
+    def _build_realization_tab(
+        self,
+        parent,
+    ):
+        start_box = ttk.LabelFrame(
+            parent,
+            text="Départ",
+            padding=12,
+        )
+        start_box.pack(
+            fill="x",
+            pady=(0, 12),
+        )
+
+        ttk.Checkbutton(
+            start_box,
+            text="Centrer automatiquement le point de départ",
+            variable=self.vars[
+                "cinematic_start_centered"
+            ],
+        ).pack(
+            anchor="w",
+            pady=(0, 8),
+        )
+
+        self._add_help_row(
+            start_box,
+            label="Zoom de départ",
+            help_text=(
+                "0,20 donne un très gros plan ; 1,00 conserve "
+                "la distance normale de la caméra Director."
+            ),
+            key="cinematic_start_zoom",
+            unit="×",
+            from_=0.20,
+            to=1.00,
+            resolution=0.05,
+        )
+
+        self._add_help_row(
+            start_box,
+            label="Transition vers le suivi",
+            help_text=(
+                "Durée du passage progressif entre le gros plan "
+                "du départ et la caméra normale."
+            ),
+            key="cinematic_start_transition",
+            unit="s",
+            from_=0.0,
+            to=10.0,
+            resolution=0.25,
+        )
+
+        self._add_help_row(
+            start_box,
+            label="Pause au départ",
+            help_text=(
+                "Le leader reste immobile et centré pendant cette durée."
+            ),
+            key="start_hold",
+            unit="s",
+            from_=0.0,
+            to=15.0,
+            resolution=0.5,
+        )
+
+        finish_box = ttk.LabelFrame(
+            parent,
+            text="Arrivée",
+            padding=12,
+        )
+        finish_box.pack(
+            fill="x",
+            pady=(0, 12),
+        )
+
+        self._add_help_row(
+            finish_box,
+            label="Zoom d'arrivée",
+            help_text=(
+                "Valeur inférieure à 1,00 : rapprochement progressif "
+                "sur le dernier point. 1,00 conserve le cadrage normal."
+            ),
+            key="cinematic_finish_zoom",
+            unit="×",
+            from_=0.30,
+            to=1.50,
+            resolution=0.05,
+        )
+
+        self._add_help_row(
+            finish_box,
+            label="Pause à l'arrivée",
+            help_text=(
+                "Durée pendant laquelle le dernier point reste affiché."
+            ),
+            key="arrival_hold",
+            unit="s",
+            from_=0.0,
+            to=20.0,
+            resolution=0.5,
+        )
+
+        ttk.Checkbutton(
+            finish_box,
+            text="Faire disparaître progressivement la traînée",
+            variable=self.vars[
+                "leader_fade_trail_on_arrival"
+            ],
+        ).pack(
+            anchor="w",
+            pady=(8, 4),
+        )
+
+        self._add_help_row(
+            finish_box,
+            label="Durée d'effacement",
+            help_text=(
+                "Durée de disparition de la traînée après l'arrivée."
+            ),
+            key="leader_trail_fade_duration",
+            unit="s",
+            from_=0.2,
+            to=5.0,
+            resolution=0.1,
+        )
+
+        note = ttk.Label(
+            parent,
+            text=(
+                "Ces réglages sont également conservés dans les onglets "
+                "techniques actuels pendant la transition vers l'interface V6."
+            ),
+            foreground="#666666",
+            wraplength=760,
+            justify="left",
+        )
+        note.pack(
+            anchor="w",
+            pady=(2, 8),
+        )
+
     def _build_timeline_tab(
         self,
         parent,
@@ -1709,6 +1875,8 @@ class MainWindow(tk.Tk):
         "leader_trail_fraction", "leader_trail_width",
         "leader_trail_opacity", "leader_fade_trail_on_arrival",
         "leader_trail_fade_duration", "leader_screen_space",
+        "cinematic_start_centered", "cinematic_start_zoom",
+        "cinematic_start_transition", "cinematic_finish_zoom",
         "terrain_source",
         "terrain_satellite", "terrain_zoom", "terrain_max_cells", "terrain_margin",
         "progress_speed", "intro", "zoom_to_start", "start_hold", "travel", "slowdown_start",
@@ -1860,6 +2028,10 @@ class MainWindow(tk.Tk):
             self.status_text.set(
                 f"Projet existant chargé : {project_path}"
             )
+            self.after(
+                100,
+                self.propose_profile_for_current_project,
+            )
             return
 
         template = ProjectLoaderV5(
@@ -1878,6 +2050,10 @@ class MainWindow(tk.Tk):
 
         self.status_text.set(
             f"Nouveau projet créé automatiquement : {project_path}"
+        )
+        self.after(
+            100,
+            self.propose_profile_for_current_project,
         )
 
     def create_project_from_gpx(self):
@@ -1906,6 +2082,281 @@ class MainWindow(tk.Tk):
             self.open_or_create_project_for_gpx(Path(filename))
         except Exception as error:
             messagebox.showerror("Ouverture du GPX", str(error))
+
+    def _profile_details_text(self, match):
+        lines = [
+            f"Profil : {match.label}",
+            f"Score : {match.score:.1f} %",
+            f"Confiance : {match.confidence:.1f} %",
+            "",
+            "Pourquoi :",
+        ]
+
+        if match.reasons:
+            lines.extend(
+                f"  + {reason}"
+                for reason in match.reasons
+            )
+        else:
+            lines.append("  Aucun critère positif disponible.")
+
+        if match.warnings:
+            lines.extend(
+                ["", "Écarts :"]
+                + [
+                    f"  - {warning}"
+                    for warning in match.warnings
+                ]
+            )
+
+        lines.extend(["", "Réglages proposés :"])
+
+        for key, value in match.proposed_settings.items():
+            display = (
+                f"{value:.2f}"
+                if isinstance(value, float)
+                else str(value)
+            )
+            lines.append(f"  {key} = {display}")
+
+        return "\n".join(lines)
+
+    def apply_profile_match(self, match):
+        if self.project is None:
+            return
+
+        project = self.project
+        settings = match.proposed_settings
+
+        mapping = {
+            "camera.distance.minimum": (
+                project.camera.distance,
+                "minimum",
+            ),
+            "camera.distance.maximum": (
+                project.camera.distance,
+                "maximum",
+            ),
+            "camera.height.minimum": (
+                project.camera.height,
+                "minimum",
+            ),
+            "camera.height.maximum": (
+                project.camera.height,
+                "maximum",
+            ),
+            "camera.look_ahead": (
+                project.camera,
+                "look_ahead",
+            ),
+            "camera.smoothing": (
+                project.camera,
+                "smoothing",
+            ),
+            "terrain.max_cells": (
+                project.terrain,
+                "max_cells",
+            ),
+            "terrain.satellite_zoom": (
+                project.terrain,
+                "satellite_zoom",
+            ),
+            "timeline.travel": (
+                project.timeline,
+                "travel",
+            ),
+        }
+
+        for key, (target, attribute) in mapping.items():
+            if key in settings:
+                setattr(target, attribute, settings[key])
+
+        project.profile.selected = match.key
+        project.profile.recommended = match.key
+        project.profile.confidence = float(match.confidence)
+        project.profile.source = "user"
+
+        ProjectLoaderV5.save(
+            project,
+            project.source_file,
+        )
+
+        self._fill_form()
+        self.status_text.set(
+            f"Profil appliqué et enregistré : {match.label}"
+        )
+
+    def propose_profile_for_current_project(self):
+        if self.project is None:
+            return
+
+        try:
+            metrics = analyze_gpx(self.project.gpx.file)
+            matches = ProfileEngine().match(metrics)
+        except Exception as error:
+            messagebox.showwarning(
+                "Analyse du GPX",
+                f"Analyse impossible :\n{error}",
+            )
+            return
+
+        if not matches:
+            messagebox.showwarning(
+                "Profils",
+                "Aucun profil disponible.",
+            )
+            return
+
+        dialog = tk.Toplevel(self)
+        dialog.title("Profil conseillé pour le GPX")
+        dialog.geometry("820x650")
+        dialog.minsize(700, 520)
+        dialog.transient(self)
+        dialog.grab_set()
+
+        recommended = matches[0]
+
+        ttk.Label(
+            dialog,
+            text="Analyse automatique du GPX",
+            font=("Segoe UI", 13, "bold"),
+        ).pack(
+            anchor="w",
+            padx=14,
+            pady=(14, 4),
+        )
+
+        ttk.Label(
+            dialog,
+            text=(
+                f"Profil recommandé : {recommended.label} "
+                f"— confiance {recommended.confidence:.1f} %"
+            ),
+        ).pack(
+            anchor="w",
+            padx=14,
+            pady=(0, 10),
+        )
+
+        selected_key = tk.StringVar(value=recommended.key)
+        matches_by_key = {
+            match.key: match
+            for match in matches
+        }
+        labels_by_key = {
+            match.key: (
+                f"{match.label} — {match.confidence:.1f} %"
+            )
+            for match in matches
+        }
+        keys_by_label = {
+            label: key
+            for key, label in labels_by_key.items()
+        }
+
+        profile_combo = ttk.Combobox(
+            dialog,
+            state="readonly",
+            values=tuple(
+                labels_by_key[match.key]
+                for match in matches
+            ),
+            width=60,
+        )
+        profile_combo.set(labels_by_key[recommended.key])
+        profile_combo.pack(
+            fill="x",
+            padx=14,
+            pady=(0, 10),
+        )
+
+        text_frame = ttk.Frame(dialog)
+        text_frame.pack(
+            fill="both",
+            expand=True,
+            padx=14,
+            pady=(0, 10),
+        )
+
+        details = tk.Text(
+            text_frame,
+            wrap="word",
+            font=("Consolas", 10),
+        )
+        scrollbar = ttk.Scrollbar(
+            text_frame,
+            orient="vertical",
+            command=details.yview,
+        )
+        details.configure(yscrollcommand=scrollbar.set)
+        details.pack(
+            side="left",
+            fill="both",
+            expand=True,
+        )
+        scrollbar.pack(
+            side="right",
+            fill="y",
+        )
+
+        def show_match(match):
+            selected_key.set(match.key)
+            details.configure(state="normal")
+            details.delete("1.0", "end")
+            details.insert(
+                "1.0",
+                self._profile_details_text(match),
+            )
+            details.configure(state="disabled")
+
+        def on_combo_selected(_event=None):
+            key = keys_by_label.get(profile_combo.get())
+            if key:
+                show_match(matches_by_key[key])
+
+        profile_combo.bind(
+            "<<ComboboxSelected>>",
+            on_combo_selected,
+        )
+        show_match(recommended)
+
+        buttons = ttk.Frame(dialog)
+        buttons.pack(
+            fill="x",
+            padx=14,
+            pady=(0, 14),
+        )
+
+        def apply_selected():
+            match = matches_by_key[selected_key.get()]
+
+            if not messagebox.askyesno(
+                "Appliquer le profil",
+                (
+                    f"Appliquer « {match.label} » et enregistrer "
+                    "les réglages dans le YAML ?"
+                ),
+                parent=dialog,
+            ):
+                return
+
+            self.apply_profile_match(match)
+            dialog.destroy()
+
+        ttk.Button(
+            buttons,
+            text="Conserver les réglages actuels",
+            command=dialog.destroy,
+        ).pack(side="left")
+
+        ttk.Button(
+            buttons,
+            text="Appliquer le profil sélectionné",
+            command=apply_selected,
+        ).pack(side="right")
+
+        dialog.protocol("WM_DELETE_WINDOW", dialog.destroy)
+        self.wait_window(dialog)
 
     @staticmethod
     def _leader_preview_float(variable, default):
@@ -2225,6 +2676,19 @@ class MainWindow(tk.Tk):
             ),
             "leader_screen_space": project.leader.screen_space_enabled,
 
+            "cinematic_start_centered": (
+                project.cinematic.start_centered
+            ),
+            "cinematic_start_zoom": (
+                project.cinematic.start_zoom
+            ),
+            "cinematic_start_transition": (
+                project.cinematic.start_transition
+            ),
+            "cinematic_finish_zoom": (
+                project.cinematic.finish_zoom
+            ),
+
             "terrain_source": project.terrain.source,
             "terrain_satellite": project.terrain.satellite,
             "terrain_zoom": project.terrain.satellite_zoom,
@@ -2480,6 +2944,27 @@ class MainWindow(tk.Tk):
         project.leader.screen_space_enabled = bool(
             self.vars[
                 "leader_screen_space"
+            ].get()
+        )
+
+        project.cinematic.start_centered = bool(
+            self.vars[
+                "cinematic_start_centered"
+            ].get()
+        )
+        project.cinematic.start_zoom = float(
+            self.vars[
+                "cinematic_start_zoom"
+            ].get()
+        )
+        project.cinematic.start_transition = float(
+            self.vars[
+                "cinematic_start_transition"
+            ].get()
+        )
+        project.cinematic.finish_zoom = float(
+            self.vars[
+                "cinematic_finish_zoom"
             ].get()
         )
 

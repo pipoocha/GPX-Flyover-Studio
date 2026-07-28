@@ -1,7 +1,8 @@
 project:
-  title: 20 km belmont
+  title: Marche test 10 km
 gpx:
-  file: C:/Users/pc/Documents/PERSO/Sport/GPX-Flyover-Studio V5/gpx/20_km_belmont.gpx
+  file: C:/Users/pc/Documents/PERSO/Sport/GPX-Flyover-Studio V5/gpx/OPENRUNNER Marche
+    10 km ranchal.GPX
 camera:
   mode: director
   orientation: north
