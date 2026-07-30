@@ -97,6 +97,9 @@ class FlyoverPipeline:
         config.LEADER_STYLE = str(leader.style).lower()
         config.LEADER_COLOR = str(leader.color)
         config.LEADER_RADIUS = float(leader.radius)
+        config.PROFILE_MAP_MARKER_RADIUS = float(
+            getattr(leader, "profile_marker_radius", 10.0)
+        )
         config.LEADER_Z_OFFSET = float(leader.z_offset)
         config.LEADER_HALO_SCALE = float(leader.halo_scale)
         config.LEADER_HALO_OPACITY = float(leader.halo_opacity)
@@ -135,6 +138,12 @@ class FlyoverPipeline:
         config.FINISH_CAMERA_ZOOM_FACTOR = float(
             cinematic.finish_zoom
         )
+        project_pois = getattr(project, "pois", [])
+        config.POIS = [
+            poi.to_dict()
+            for poi in project_pois
+            if getattr(poi, "enabled", True)
+        ]
 
         config.TERRAIN_SOURCE = terrain.source
         config.USE_SATELLITE = bool(terrain.satellite)

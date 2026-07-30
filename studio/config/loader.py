@@ -13,6 +13,7 @@ from studio.config.models import (
     CinematicConfig,
     GPXConfig,
     LeaderConfig,
+    POIConfig,
     ProfileSelectionConfig,
     ProjectConfig,
     TerrainConfig,
@@ -57,6 +58,7 @@ class ProjectLoaderV5:
         leader = data["leader"]
         profile = data.get("profile", {})
         cinematic = data.get("cinematic", {})
+        pois = data.get("pois", [])
         terrain = data["terrain"]
 
         # Compatibilité avec les anciens projets :
@@ -107,6 +109,10 @@ class ProjectLoaderV5:
                 style=str(leader["style"]).lower(),
                 color=str(leader["color"]),
                 radius=float(leader["radius"]),
+                profile_marker_radius=max(
+                    3.0,
+                    float(leader.get("profile_marker_radius", 10.0)),
+                ),
                 z_offset=float(leader["z_offset"]),
                 halo_scale=float(leader["halo_scale"]),
                 halo_opacity=float(leader["halo_opacity"]),
@@ -159,6 +165,18 @@ class ProjectLoaderV5:
                     ),
                 ),
             ),
+            pois=[
+                POIConfig(
+                    name=str(item.get("name", "POI")),
+                    type=str(item.get("type", "Libre")),
+                    kilometer=max(0.0, float(item.get("kilometer", 0.0))),
+                    duration=max(0.5, float(item.get("duration", 2.5))),
+                    text=str(item.get("text", "")),
+                    color=str(item.get("color", "#FFFFFF")),
+                    enabled=bool(item.get("enabled", True)),
+                )
+                for item in pois if isinstance(item, dict)
+            ],
             terrain=TerrainConfig(
                 source=str(terrain["source"]).lower(),
                 satellite=bool(terrain["satellite"]),

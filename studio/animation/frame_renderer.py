@@ -288,6 +288,15 @@ class FrameRenderer:
         return centered_position, target
 
     def set_start_camera(self):
+        if not bool(
+            getattr(
+                config,
+                "START_CAMERA_CENTERED",
+                True,
+            )
+        ):
+            return self.set_route_camera(0.0)
+
         position, focal_point = self.start_camera()
 
         self.scene.set_camera(
@@ -304,6 +313,53 @@ class FrameRenderer:
             focal_point=tuple(focal_point),
         )
         return np.asarray(position, dtype=float), np.asarray(focal_point, dtype=float)
+
+    def finish_camera(self):
+        route_position, route_focal, _ = (
+            self.camera_path.camera_at_progress(1.0)
+        )
+        route_position = np.asarray(route_position, dtype=float)
+        route_focal = np.asarray(route_focal, dtype=float)
+
+        target = self.path_coords[-1].copy()
+        target[2] += float(
+            getattr(
+                config,
+                "LEADER_Z_OFFSET",
+                18.0,
+            )
+        )
+
+        vector = route_position - route_focal
+        distance = float(np.linalg.norm(vector))
+
+        if distance < 1e-9:
+            vector = np.array([0.0, -1.0, 0.35], dtype=float)
+            distance = float(np.linalg.norm(vector))
+
+        direction = vector / distance
+        zoom = max(
+            0.30,
+            min(
+                1.50,
+                float(
+                    getattr(
+                        config,
+                        "FINISH_CAMERA_ZOOM_FACTOR",
+                        0.70,
+                    )
+                ),
+            ),
+        )
+
+        return target + direction * distance * zoom, target
+
+    def set_finish_camera(self):
+        position, focal = self.finish_camera()
+        self.scene.set_camera(
+            position=tuple(position),
+            focal_point=tuple(focal),
+        )
 
     def render_start_frame(
         self,
@@ -328,6 +384,28 @@ class FrameRenderer:
         plotter.update()
         self.save_frame(frame_index)
 
+    def active_poi(self, progress):
+        total_km=max(.001,float(self.profile_stats["distance_km"])); travel=max(.1,float(getattr(config,"VIDEO_DURATION",30.0)))
+        for poi in list(getattr(config,"POIS",[])):
+            target=max(0.0,min(1.0,float(poi.get("kilometer",0.0))/total_km)); half=max(.5,float(poi.get("duration",2.5)))/travel/2.0
+            if abs(float(progress)-target)<=half: return poi
+        return None
+
+    @staticmethod
+    def _poi_rgb(value):
+        value=str(value).strip().lstrip("#")
+        try: return tuple(int(value[i:i+2],16) for i in (0,2,4)) if len(value)==6 else (255,255,255)
+        except ValueError: return 255,255,255
+
+    def draw_poi_flash(self, image, poi):
+        image=image.convert("RGB"); draw=ImageDraw.Draw(image,"RGBA"); w,h=image.size; pw=min(int(w*.44),620); ph=min(int(h*.20),170); m=max(18,int(w*.02)); left=w-pw-m; top=m; right=w-m; bottom=top+ph; r,g,b=self._poi_rgb(poi.get("color","#FFFFFF")); font=ImageFont.load_default()
+        draw.rounded_rectangle((left,top,right,bottom),radius=18,fill=(8,8,8,225),outline=(r,g,b,240),width=4)
+        draw.text((left+18,top+16),str(poi.get("name","POI")),fill=(255,255,255,255),font=font)
+        draw.text((left+18,top+48),f"{poi.get('type','Libre')}  |  km {float(poi.get('kilometer',0.0)):.1f}",fill=(r,g,b,255),font=font)
+        note=str(poi.get("text","")).strip()
+        if note: draw.text((left+18,top+80),note[:90],fill=(235,235,235,235),font=font)
+        return image
+
     def render_route_frame(
         self,
         frame_index,
@@ -336,8 +414,31 @@ class FrameRenderer:
         minimum_segments=0,
         trail_fade_progress=None,
         start_camera_blend=None,
+        finish_camera_blend=None,
     ):
-        if start_camera_blend is None:
+        if finish_camera_blend is not None:
+            route_position, route_focal, _ = (
+                self.camera_path.camera_at_progress(progress)
+            )
+            route_position = np.asarray(route_position, dtype=float)
+            route_focal = np.asarray(route_focal, dtype=float)
+            finish_position, finish_focal = self.finish_camera()
+            blend = self.smootherstep(finish_camera_blend)
+
+            position = (
+                route_position * (1.0 - blend)
+                + finish_position * blend
+            )
+            focal = (
+                route_focal * (1.0 - blend)
+                + finish_focal * blend
+            )
+
+            self.scene.set_camera(
+                position=tuple(position),
+                focal_point=tuple(focal),
+            )
+        elif start_camera_blend is None:
             self.set_route_camera(progress)
         else:
             route_position, route_focal, _ = (
@@ -381,6 +482,11 @@ class FrameRenderer:
         plotter.render()
         plotter.update()
         self.save_frame(frame_index)
+        poi = self.active_poi(progress)
+        if poi is not None:
+            output_file = self.frame_path(frame_index)
+            with Image.open(output_file) as image:
+                self.draw_poi_flash(image, poi).save(output_file)
 
     def create_profile_marker(self):
         """Point mobile sur la trace, synchronisé avec le profil."""
@@ -1044,10 +1150,46 @@ class FrameRenderer:
                 travel_index / max(1, start_blend_frames),
             )
 
+            finish_blend_frames = max(
+                1,
+                int(
+                    round(
+                        float(
+                            getattr(
+                                config,
+                                "SLOWDOWN_END_SECONDS",
+                                3.0,
+                            )
+                        )
+                        * fps
+                    )
+                ),
+            )
+            finish_camera_blend = max(
+                0.0,
+                min(
+                    1.0,
+                    (
+                        travel_index
+                        - (travel_frames - finish_blend_frames)
+                    )
+                    / max(1, finish_blend_frames),
+                ),
+            )
+
             self.render_route_frame(
                 frame_index,
                 progress,
-                start_camera_blend=start_camera_blend,
+                start_camera_blend=(
+                    start_camera_blend
+                    if finish_camera_blend <= 0.0
+                    else None
+                ),
+                finish_camera_blend=(
+                    finish_camera_blend
+                    if finish_camera_blend > 0.0
+                    else None
+                ),
             )
             frame_index += 1
 
@@ -1098,6 +1240,7 @@ class FrameRenderer:
                 1.0,
                 force_track=(hold_index == 0),
                 trail_fade_progress=trail_fade_progress,
+                finish_camera_blend=1.0,
             )
             frame_index += 1
 

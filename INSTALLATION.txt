@@ -1,0 +1,15 @@
+GPX Flyover Studio V6.1.0 - Terrain Engine
+
+Fichiers complets à remplacer :
+- studio/terrain/terrain_mesh.py
+- studio/core/pipeline.py
+
+Lancement de l'interface :
+python -m studio.gui.main_window
+
+Cette version :
+- conserve exactement les altitudes du DEM ;
+- améliore les normales et la lecture du relief ;
+- ajoute une jupe périphérique sous le terrain ;
+- adapte l'éclairage au relief ;
+- ne modifie ni la caméra, ni le Director, ni le profil, ni le leader.

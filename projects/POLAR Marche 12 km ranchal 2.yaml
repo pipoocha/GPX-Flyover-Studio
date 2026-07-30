@@ -1,7 +1,8 @@
 project:
-  title: 20 km belmont
+  title: POLAR Marche 12 km ranchal 2
 gpx:
-  file: C:/Users/pc/Documents/PERSO/Sport/GPX-Flyover-Studio V5/gpx/20_km_belmont.gpx
+  file: C:/Users/pc/Documents/PERSO/Sport/Studios GPX/GPX-Flyover-Studio V5/gpx/POLAR
+    Marche 12 km ranchal 2.GPX
 camera:
   mode: director
   orientation: north
@@ -29,8 +30,9 @@ leader:
   enabled: true
   style: comet
   color: '#FAFEC0'
-  radius: 15.0
-  z_offset: 11.728395061728396
+  radius: 52.839506172839506
+  profile_marker_radius: 37.03086419753086
+  z_offset: 7.0
   halo_scale: 1.0
   halo_opacity: 0.0
   trail_enabled: true
@@ -44,26 +46,22 @@ leader:
   minimum_scale: 0.45
   maximum_scale: 4.0
 profile:
-  selected: moyenne_montagne_compacte
-  recommended: moyenne_montagne_compacte
-  confidence: 98.29833987686035
+  selected: circuit_repete
+  recommended: circuit_repete
+  confidence: 100.0
   source: user
 cinematic:
   start_centered: true
   start_zoom: 0.2
   start_transition: 2.0
   finish_zoom: 0.7
+pois: []
 terrain:
   source: copernicus
   satellite: true
   satellite_zoom: 18
   max_cells: 65000
   margin: 0.017
-  smoothing_passes: 1
-  smoothing_strength: 0.16
-  edge_skirt: true
-  skirt_depth: 320.0
-  adaptive_lighting: true
 timeline:
   speed: 1.3148148148148147
   intro: 4.0

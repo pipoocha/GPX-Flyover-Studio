@@ -1,26 +1,12 @@
-V5.7 — CARTE FINALE COMPLÈTE + PROFIL SOUS LA CARTE
+CORRECTIF V6.5.1 — COMPATIBILITÉ PROJECT
 
 Remplacer uniquement :
-studio\animation\frame_renderer.py
+studio/core/pipeline.py
 
-CORRECTIONS
------------
-1. La caméra finale cadre l'intégralité de la trace.
-2. Le calcul tient compte du format réel de la vidéo et du FOV.
-3. Une marge de 30 % est ajoutée autour du parcours.
-4. La carte occupe la partie haute de l'image.
-5. Le profil occupe une bande dédiée en bas.
-6. Le profil ne recouvre plus la trace.
-7. Un point avance simultanément sur la trace et sur le profil.
-8. Le point suit la distance réelle du parcours et reprend la couleur du leader.
+Corrections :
+- absence de project.pois acceptée sans erreur ;
+- absence de leader.profile_marker_radius acceptée avec une valeur par défaut de 10 ;
+- aucun changement de caméra, terrain, Director ou rendu.
 
-Réglages internes utilisés par défaut :
-FINAL_ROUTE_PADDING = 1.30
-FINAL_PROFILE_BAND_RATIO = 0.30
-
-Aucune modification du YAML, du Project, du Loader, du Pipeline ou de l'interface.
-
-Test conseillé :
-- Mise à plat : 3 s
-- Animation du profil : 6 s
-- Maintien du profil : 4 s
+Lancement :
+python -m studio.gui.main_window

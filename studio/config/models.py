@@ -69,6 +69,7 @@ class LeaderConfig:
     style: str
     color: str
     radius: float
+    profile_marker_radius: float
     z_offset: float
     halo_scale: float
     halo_opacity: float
@@ -104,6 +105,20 @@ class CinematicConfig:
     start_zoom: float = 0.45
     start_transition: float = 3.0
     finish_zoom: float = 0.70
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass
+class POIConfig:
+    name: str
+    type: str = "Libre"
+    kilometer: float = 0.0
+    duration: float = 2.5
+    text: str = ""
+    color: str = "#FFFFFF"
+    enabled: bool = True
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -181,6 +196,7 @@ class ProjectConfig:
     leader: LeaderConfig
     profile: ProfileSelectionConfig
     cinematic: CinematicConfig
+    pois: list[POIConfig]
     terrain: TerrainConfig
     timeline: TimelineConfig
     video: VideoConfig
@@ -195,6 +211,7 @@ class ProjectConfig:
             "leader": self.leader.to_dict(),
             "profile": self.profile.to_dict(),
             "cinematic": self.cinematic.to_dict(),
+            "pois": [poi.to_dict() for poi in self.pois],
             "terrain": self.terrain.to_dict(),
             "timeline": self.timeline.to_dict(),
             "video": self.video.to_dict(),

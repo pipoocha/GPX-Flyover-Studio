@@ -1,7 +1,8 @@
 project:
-  title: 20 km belmont
+  title: OPENRUNNER Marche 12 km ranchal 2
 gpx:
-  file: C:/Users/pc/Documents/PERSO/Sport/GPX-Flyover-Studio V5/gpx/20_km_belmont.gpx
+  file: C:/Users/pc/Documents/PERSO/Sport/GPX-Flyover-Studio V5/gpx/OPENRUNNER Marche
+    12 km ranchal 2.GPX
 camera:
   mode: director
   orientation: north
@@ -44,10 +45,10 @@ leader:
   minimum_scale: 0.45
   maximum_scale: 4.0
 profile:
-  selected: moyenne_montagne_compacte
-  recommended: moyenne_montagne_compacte
-  confidence: 98.29833987686035
-  source: user
+  selected: ''
+  recommended: ''
+  confidence: 0.0
+  source: none
 cinematic:
   start_centered: true
   start_zoom: 0.2

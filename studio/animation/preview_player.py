@@ -303,67 +303,12 @@ class PreviewPlayer:
         return target + direction * start_distance, target
 
     def set_start_camera(self):
-        if not bool(
-            getattr(
-                config,
-                "START_CAMERA_CENTERED",
-                True,
-            )
-        ):
-            position, focal_point, _ = (
-                self.camera_path.camera_at_progress(0.0)
-            )
-            self.scene.set_camera(
-                position=tuple(position),
-                focal_point=tuple(focal_point),
-            )
-            return
-
         position, target = self.start_camera()
 
         self.scene.set_camera(
             position=tuple(position),
             focal_point=tuple(target),
         )
-
-    def finish_camera(self):
-        position, focal_point, _ = (
-            self.camera_path.camera_at_progress(1.0)
-        )
-        position = np.asarray(position, dtype=float)
-        focal_point = np.asarray(focal_point, dtype=float)
-
-        target = self.path_coords[-1].copy()
-        target[2] += float(
-            getattr(
-                config,
-                "LEADER_Z_OFFSET",
-                18.0,
-            )
-        )
-
-        vector = position - focal_point
-        distance = float(np.linalg.norm(vector))
-
-        if distance < 1e-9:
-            vector = np.array([0.0, -1.0, 0.35], dtype=float)
-            distance = float(np.linalg.norm(vector))
-
-        zoom = max(
-            0.30,
-            min(
-                1.50,
-                float(
-                    getattr(
-                        config,
-                        "FINISH_CAMERA_ZOOM_FACTOR",
-                        0.70,
-                    )
-                ),
-            ),
-        )
-
-        return target + vector / distance * distance * zoom, target
 
     def update_scene(
         self,
@@ -397,40 +342,6 @@ class PreviewPlayer:
                 focal_point = (
                     start_focal * (1.0 - blend)
                     + focal_point * blend
-                )
-
-            finish_blend_frames = max(
-                1,
-                int(
-                    round(
-                        float(
-                            getattr(
-                                config,
-                                "SLOWDOWN_END_SECONDS",
-                                3.0,
-                            )
-                        )
-                        * self.base_fps
-                    )
-                ),
-            )
-            finish_start = self.frames - finish_blend_frames
-
-            if self.frame_index >= finish_start:
-                finish_position, finish_focal = self.finish_camera()
-                value = (
-                    self.frame_index - finish_start
-                ) / max(1, finish_blend_frames)
-                value = max(0.0, min(1.0, value))
-                blend = value * value * (3.0 - 2.0 * value)
-
-                position = (
-                    position * (1.0 - blend)
-                    + finish_position * blend
-                )
-                focal_point = (
-                    focal_point * (1.0 - blend)
-                    + finish_focal * blend
                 )
 
             self.scene.set_camera(

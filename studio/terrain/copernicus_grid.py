@@ -33,11 +33,15 @@ class CopernicusGridBuilder:
         margin=0.02,
         cache_dir="cache/dem/copernicus_glo30",
         max_cells=220_000,
+        smoothing_passes=1,
+        smoothing_strength=0.16,
     ):
         self.points = points
         self.margin = float(margin)
         self.cache_dir = Path(cache_dir)
         self.max_cells = max(10_000, int(max_cells))
+        self.smoothing_passes = max(0, int(smoothing_passes))
+        self.smoothing_strength = float(np.clip(smoothing_strength, 0.0, 0.45))
 
         self.origin_x = 0.0
         self.origin_y = 0.0
@@ -227,6 +231,51 @@ class CopernicusGridBuilder:
 
         return z
 
+
+    @staticmethod
+    def _weighted_blur(values: np.ndarray) -> np.ndarray:
+        """Filtre 3 x 3 léger, sans dépendance à SciPy."""
+        padded = np.pad(values, 1, mode="edge")
+        return (
+            4.0 * padded[1:-1, 1:-1]
+            + 2.0 * padded[:-2, 1:-1]
+            + 2.0 * padded[2:, 1:-1]
+            + 2.0 * padded[1:-1, :-2]
+            + 2.0 * padded[1:-1, 2:]
+            + padded[:-2, :-2]
+            + padded[:-2, 2:]
+            + padded[2:, :-2]
+            + padded[2:, 2:]
+        ) / 16.0
+
+    def smooth_dem(self, elevations: np.ndarray) -> np.ndarray:
+        """Atténue le bruit ponctuel tout en conservant la plage altimétrique."""
+        if self.smoothing_passes <= 0 or self.smoothing_strength <= 0.0:
+            return elevations
+
+        original = np.asarray(elevations, dtype=float)
+        result = original.copy()
+
+        for _ in range(self.smoothing_passes):
+            blurred = self._weighted_blur(result)
+            result = (
+                (1.0 - self.smoothing_strength) * result
+                + self.smoothing_strength * blurred
+            )
+
+        # Remise à l'échelle : min/max Copernicus strictement conservés.
+        old_min = float(np.min(original))
+        old_max = float(np.max(original))
+        new_min = float(np.min(result))
+        new_max = float(np.max(result))
+
+        if new_max - new_min > 1e-9:
+            result = old_min + (result - new_min) * (
+                (old_max - old_min) / (new_max - new_min)
+            )
+
+        return result
+
     def reduce_grid(
         self,
         longitudes,
@@ -305,6 +354,7 @@ class CopernicusGridBuilder:
         elevations = self.fill_invalid_values(
             mosaic[0]
         )
+        elevations = self.smooth_dem(elevations)
 
         rows, columns = elevations.shape
 
@@ -366,6 +416,14 @@ class CopernicusGridBuilder:
 
         x -= self.origin_x
         y -= self.origin_y
+
+        if self.smoothing_passes > 0:
+            print(
+                "Lissage DEM :",
+                self.smoothing_passes,
+                "passe(s), force",
+                f"{self.smoothing_strength:.2f}",
+            )
 
         print(
             "Grille Copernicus :",

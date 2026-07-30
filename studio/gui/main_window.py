@@ -256,6 +256,9 @@ class MainWindow(tk.Tk):
             "leader_radius": tk.DoubleVar(
                 value=20.0
             ),
+            "profile_marker_radius": tk.DoubleVar(
+                value=10.0
+            ),
             "leader_z_offset": tk.DoubleVar(
                 value=18.0
             ),
@@ -1389,6 +1392,21 @@ class MainWindow(tk.Tk):
 
         self._add_help_row(
             parent,
+            label="Taille du point sur la carte finale",
+            help_text=(
+                "Taille du point mobile affiché sur le terrain pendant "
+                "l’animation finale du profil. Ce réglage est indépendant "
+                "du leader principal."
+            ),
+            key="profile_marker_radius",
+            unit="m",
+            from_=3,
+            to=40,
+            resolution=1,
+        )
+
+        self._add_help_row(
+            parent,
             label="Hauteur du leader",
             help_text=(
                 "Distance verticale entre le leader et la trace."
@@ -1870,7 +1888,7 @@ class MainWindow(tk.Tk):
         "lateral_scale", "look_ahead", "smoothing", "track_color", "track_width",
         "track_z", "track_progressive", "track_leader",
         "leader_enabled", "leader_style", "leader_color",
-        "leader_radius", "leader_z_offset", "leader_halo_scale",
+        "leader_radius", "profile_marker_radius", "leader_z_offset", "leader_halo_scale",
         "leader_halo_opacity", "leader_trail_enabled",
         "leader_trail_fraction", "leader_trail_width",
         "leader_trail_opacity", "leader_fade_trail_on_arrival",
@@ -2661,6 +2679,7 @@ class MainWindow(tk.Tk):
             "leader_style": project.leader.style,
             "leader_color": project.leader.color,
             "leader_radius": project.leader.radius,
+            "profile_marker_radius": project.leader.profile_marker_radius,
             "leader_z_offset": project.leader.z_offset,
             "leader_halo_scale": project.leader.halo_scale,
             "leader_halo_opacity": project.leader.halo_opacity,
@@ -2884,6 +2903,11 @@ class MainWindow(tk.Tk):
         project.leader.radius = float(
             self.vars[
                 "leader_radius"
+            ].get()
+        )
+        project.leader.profile_marker_radius = float(
+            self.vars[
+                "profile_marker_radius"
             ].get()
         )
 
