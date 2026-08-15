@@ -7,6 +7,8 @@ import pyvista as pv
 
 import config
 
+from studio.imagery.texture_enhancer import TextureEnhancer
+
 
 class SatelliteTexture:
     def __init__(self, gpx_file, cache_dir="cache/satellite", zoom=14, flip_vertical=True):
@@ -47,7 +49,7 @@ class SatelliteTexture:
             )
         return json.loads(self.metadata_file.read_text(encoding="utf-8"))
 
-    def load_texture(self):
+    def load_texture(self, enhance=None):
         selected_image = self.preferred_image_file()
 
         if not selected_image.exists():
@@ -55,8 +57,28 @@ class SatelliteTexture:
                 f"Image satellite introuvable : {selected_image}"
             )
 
+        # En VIDEO, une version homogénéisée est créée une seule fois puis
+        # conservée en cache. En PREVIEW on garde le chargement rapide.
+        mode = str(getattr(config, "MODE", "PREVIEW")).upper()
+        if enhance is None:
+            enhance = mode == "VIDEO" and bool(getattr(config, "SATELLITE_ENHANCE", True))
+        if bool(enhance):
+            try:
+                selected_image = TextureEnhancer(
+                    selected_image, self.metadata_file
+                ).build()
+            except Exception as error:
+                print("ATTENTION : amélioration texture ignorée :", error)
+
         print("Texture satellite chargée :", selected_image)
         texture = pv.read_texture(str(selected_image))
+        try:
+            texture.SetInterpolate(True)
+        except AttributeError:
+            try:
+                texture.interpolate = True
+            except Exception:
+                pass
 
         if self.flip_vertical:
             texture.flip_y()

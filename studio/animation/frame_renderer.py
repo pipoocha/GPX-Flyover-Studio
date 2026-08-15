@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 import config
 from studio.animation.progress_path import ProgressPath
-from studio.leader.leader import LeaderMarker
+from studio.rendering.render_engine import RenderEngine
 from studio.timeline.timeline import TimelineMapper
 
 
@@ -45,7 +45,8 @@ class FrameRenderer:
             int(getattr(config, "START_VISIBLE_SEGMENTS", 12)),
         )
 
-        self.leader = LeaderMarker(scene=self.scene, path_coords=self.path_coords)
+        self.render_engine = RenderEngine(scene, camera_path, self.path_coords)
+        self.leader = self.render_engine.leader
 
         self.profile_distances = self.compute_profile_distances(self.path_coords)
         self.profile_elevations = self.path_coords[:, 2].astype(float)
@@ -121,60 +122,14 @@ class FrameRenderer:
             file.unlink()
 
     def create_track_actor(self):
-        points = self.path_coords.copy()
-        points[:, 2] += self.track_z_offset
-
-        segment_count = len(points) - 1
-        lines = np.empty(segment_count * 3, dtype=np.int64)
-        lines[0::3] = 2
-        lines[1::3] = np.arange(0, segment_count, dtype=np.int64)
-        lines[2::3] = np.arange(1, segment_count + 1, dtype=np.int64)
-
-        mesh = pv.PolyData(points, lines=lines)
-
-        red, green, blue = self.track_color
-        rgba = np.zeros((segment_count, 4), dtype=np.uint8)
-        rgba[:, 0] = red
-        rgba[:, 1] = green
-        rgba[:, 2] = blue
-        rgba[:, 3] = 0
-        mesh.cell_data["track_rgba"] = rgba
-
-        self.track_mesh = mesh
-        self.track_rgba = rgba
-        self.track_actor = self.scene.add_mesh(
-            mesh,
-            scalars="track_rgba",
-            rgba=True,
-            preference="cell",
-            line_width=self.track_line_width,
-            render_lines_as_tubes=False,
-            lighting=False,
-        )
+        return self.render_engine.create_track_actor()
 
     def update_track(self, progress, force=False, minimum_segments=0):
-        total_segments = len(self.track_rgba)
-
-        if bool(getattr(config, "TRACE_PROGRESSIVE", True)):
-            visible_segments = int(
-                round(max(0.0, min(1.0, float(progress))) * total_segments)
-            )
-        else:
-            visible_segments = total_segments
-
-        visible_segments = max(visible_segments, int(minimum_segments))
-        visible_segments = min(total_segments, visible_segments)
-
-        if not force and visible_segments == self.visible_segment_count:
-            return
-
-        self.track_rgba[:, 3] = 0
-        if visible_segments > 0:
-            self.track_rgba[:visible_segments, 3] = 255
-
-        self.track_mesh.cell_data["track_rgba"] = self.track_rgba
-        self.track_mesh.Modified()
-        self.visible_segment_count = visible_segments
+        return self.render_engine.update_track(
+            progress,
+            force=force,
+            minimum_segments=minimum_segments,
+        )
 
     def frame_path(self, frame_index):
         return self.output_dir / f"frame_{frame_index:05d}.png"
@@ -183,183 +138,21 @@ class FrameRenderer:
         self.scene.plotter.screenshot(str(self.frame_path(frame_index)))
 
     def start_camera(self):
-        """Cadrage très serré du départ, centré et sans couper le leader."""
-        position, focal_point, _ = self.camera_path.camera_at_progress(0.0)
-
-        position = np.asarray(position, dtype=float)
-        focal_point = np.asarray(focal_point, dtype=float)
-
-        target = self.path_coords[0].copy()
-        target[2] += float(
-            getattr(
-                config,
-                "LEADER_Z_OFFSET",
-                18.0,
-            )
-        )
-
-        camera_vector = position - focal_point
-        normal_distance = float(np.linalg.norm(camera_vector))
-
-        if normal_distance < 1e-9:
-            camera_vector = np.array([0.0, -1.0, 0.35], dtype=float)
-            normal_distance = float(np.linalg.norm(camera_vector))
-
-        direction = camera_vector / normal_distance
-
-        zoom_factor = max(
-            0.20,
-            min(
-                1.0,
-                float(
-                    getattr(
-                        config,
-                        "START_CAMERA_ZOOM_FACTOR",
-                        0.45,
-                    )
-                ),
-            ),
-        )
-
-        view_angle = float(
-            getattr(
-                self.scene.plotter.camera,
-                "view_angle",
-                30.0,
-            )
-        )
-
-        leader_radius = float(
-            getattr(
-                config,
-                "LEADER_RADIUS",
-                20.0,
-            )
-        )
-        halo_scale = max(
-            1.0,
-            float(
-                getattr(
-                    config,
-                    "LEADER_HALO_SCALE",
-                    1.8,
-                )
-            ),
-        )
-        screen_fraction = max(
-            0.08,
-            min(
-                0.30,
-                float(
-                    getattr(
-                        config,
-                        "START_LEADER_SCREEN_FRACTION",
-                        0.16,
-                    )
-                ),
-            ),
-        )
-
-        visible_radius = leader_radius * halo_scale
-        allowed_half_angle = np.radians(
-            max(
-                0.5,
-                view_angle * screen_fraction * 0.5,
-            )
-        )
-        minimum_safe_distance = (
-            visible_radius
-            / max(
-                1e-6,
-                np.tan(allowed_half_angle),
-            )
-        )
-
-        start_distance = max(
-            normal_distance * zoom_factor,
-            minimum_safe_distance,
-        )
-
-        centered_position = (
-            target
-            + direction * start_distance
-        )
-
-        return centered_position, target
+        return self.render_engine.start_camera()
 
     def set_start_camera(self):
-        if not bool(
-            getattr(
-                config,
-                "START_CAMERA_CENTERED",
-                True,
-            )
-        ):
-            return self.set_route_camera(0.0)
-
-        position, focal_point = self.start_camera()
-
-        self.scene.set_camera(
-            position=tuple(position),
-            focal_point=tuple(focal_point),
-        )
-
-        return position, focal_point
+        return self.render_engine.set_camera(0.0, start_centered=True)
 
     def set_route_camera(self, progress):
-        position, focal_point, _ = self.camera_path.camera_at_progress(progress)
-        self.scene.set_camera(
-            position=tuple(position),
-            focal_point=tuple(focal_point),
-        )
-        return np.asarray(position, dtype=float), np.asarray(focal_point, dtype=float)
+        return self.render_engine.set_camera(progress)
 
     def finish_camera(self):
-        route_position, route_focal, _ = (
-            self.camera_path.camera_at_progress(1.0)
-        )
-        route_position = np.asarray(route_position, dtype=float)
-        route_focal = np.asarray(route_focal, dtype=float)
-
-        target = self.path_coords[-1].copy()
-        target[2] += float(
-            getattr(
-                config,
-                "LEADER_Z_OFFSET",
-                18.0,
-            )
-        )
-
-        vector = route_position - route_focal
-        distance = float(np.linalg.norm(vector))
-
-        if distance < 1e-9:
-            vector = np.array([0.0, -1.0, 0.35], dtype=float)
-            distance = float(np.linalg.norm(vector))
-
-        direction = vector / distance
-        zoom = max(
-            0.30,
-            min(
-                1.50,
-                float(
-                    getattr(
-                        config,
-                        "FINISH_CAMERA_ZOOM_FACTOR",
-                        0.70,
-                    )
-                ),
-            ),
-        )
-
-        return target + direction * distance * zoom, target
+        return self.render_engine.finish_camera()
 
     def set_finish_camera(self):
         position, focal = self.finish_camera()
-        self.scene.set_camera(
-            position=tuple(position),
-            focal_point=tuple(focal),
-        )
+        self.scene.set_camera(position=tuple(position), focal_point=tuple(focal))
+        return position, focal
 
     def render_start_frame(
         self,
@@ -416,67 +209,14 @@ class FrameRenderer:
         start_camera_blend=None,
         finish_camera_blend=None,
     ):
-        if finish_camera_blend is not None:
-            route_position, route_focal, _ = (
-                self.camera_path.camera_at_progress(progress)
-            )
-            route_position = np.asarray(route_position, dtype=float)
-            route_focal = np.asarray(route_focal, dtype=float)
-            finish_position, finish_focal = self.finish_camera()
-            blend = self.smootherstep(finish_camera_blend)
-
-            position = (
-                route_position * (1.0 - blend)
-                + finish_position * blend
-            )
-            focal = (
-                route_focal * (1.0 - blend)
-                + finish_focal * blend
-            )
-
-            self.scene.set_camera(
-                position=tuple(position),
-                focal_point=tuple(focal),
-            )
-        elif start_camera_blend is None:
-            self.set_route_camera(progress)
-        else:
-            route_position, route_focal, _ = (
-                self.camera_path.camera_at_progress(progress)
-            )
-            route_position = np.asarray(route_position, dtype=float)
-            route_focal = np.asarray(route_focal, dtype=float)
-
-            start_position, start_focal = self.start_camera()
-            blend = self.smootherstep(start_camera_blend)
-
-            position = (
-                start_position * (1.0 - blend)
-                + route_position * blend
-            )
-            focal = (
-                start_focal * (1.0 - blend)
-                + route_focal * blend
-            )
-
-            self.scene.set_camera(
-                position=tuple(position),
-                focal_point=tuple(focal),
-            )
-        self.update_track(
+        self.render_engine.update(
             progress,
-            force=force_track,
+            force_track=force_track,
             minimum_segments=minimum_segments,
+            start_blend=start_camera_blend,
+            finish_blend=finish_camera_blend,
+            trail_fade_progress=trail_fade_progress,
         )
-
-        if bool(getattr(config, "LEADER_ENABLED", False)):
-            self.leader.update(progress)
-
-            if trail_fade_progress is not None:
-                self.leader.set_trail_fade(
-                    trail_fade_progress
-                )
-
         plotter = self.scene.plotter
         plotter.reset_camera_clipping_range()
         plotter.render()
@@ -1105,10 +845,7 @@ class FrameRenderer:
         self.clear_frames()
         plotter = self.scene.plotter
         plotter.show(auto_close=False, interactive=False)
-        self.create_track_actor()
-
-        if bool(getattr(config, "LEADER_ENABLED", False)):
-            self.leader.create()
+        self.render_engine.create()
 
         frame_index = 0
 

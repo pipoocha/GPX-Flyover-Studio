@@ -1,15 +1,17 @@
-GPX Flyover Studio V6.1.0 - Terrain Engine
+GPX Flyover Studio V7.1 - synchronisation cadrage Preview / Vidéo
 
-Fichiers complets à remplacer :
-- studio/terrain/terrain_mesh.py
-- studio/core/pipeline.py
+Remplacer les trois fichiers suivants dans le projet :
 
-Lancement de l'interface :
-python -m studio.gui.main_window
+studio/animation/preview_player.py
+studio/rendering/render_engine.py
+studio/scene/scene.py
 
-Cette version :
-- conserve exactement les altitudes du DEM ;
-- améliore les normales et la lecture du relief ;
-- ajoute une jupe périphérique sous le terrain ;
-- adapte l'éclairage au relief ;
-- ne modifie ni la caméra, ni le Director, ni le profil, ni le leader.
+Correction appliquée :
+- même taille de viewport que la résolution vidéo ;
+- même angle de champ CAMERA_VIEW_ANGLE (30° par défaut) ;
+- projection perspective explicitement activée ;
+- resynchronisation après l'ouverture de la fenêtre PyVista ;
+- resynchronisation à chaque mise à jour de caméra ;
+- clipping range recalculé de la même manière.
+
+Aucun changement n'est apporté à DirectorCamera ni à DirectorEngine.

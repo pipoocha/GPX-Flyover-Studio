@@ -157,8 +157,8 @@ class MainWindow(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        self.title("GPX Flyover Studio V5.2")
-        self.geometry("980x820")
+        self.title("GPX Flyover Studio V2.1.2 — Cesium")
+        self.geometry("1020x850")
         self.minsize(900, 720)
 
         self.project = None
@@ -310,10 +310,10 @@ class MainWindow(tk.Tk):
                 value=True
             ),
             "terrain_zoom": tk.IntVar(
-                value=14
+                value=18
             ),
             "terrain_max_cells": tk.IntVar(
-                value=60000
+                value=300000
             ),
             "terrain_margin": tk.DoubleVar(
                 value=0.006
@@ -365,10 +365,23 @@ class MainWindow(tk.Tk):
             "output": tk.StringVar(
                 value="output/video/flyover_v5.mp4"
             ),
+            "video_name": tk.StringVar(
+                value="flyover_v5.mp4"
+            ),
+            "video_folder": tk.StringVar(
+                value="output/video"
+            ),
             "profile_terrain": tk.StringVar(value="Moyenne montagne"),
             "profile_style": tk.StringVar(value="Tour de France"),
-            "profile_quality": tk.StringVar(value="Standard"),
+            "profile_quality": tk.StringVar(value="Haute"),
             "user_profile": tk.StringVar(value=""),
+            "simple_terrain": tk.StringVar(value="Moyenne montagne"),
+            "simple_relief": tk.StringVar(value="Copernicus GLO-30"),
+            "simple_background": tk.StringVar(value="Satellite naturel"),
+            "simple_camera": tk.StringVar(value="Cinéma"),
+            "simple_quality": tk.StringVar(value="Très bonne"),
+            "terrain_background": tk.StringVar(value="satellite_natural"),
+            "show_advanced": tk.BooleanVar(value=False),
         }
 
     def _build_ui(self):
@@ -443,7 +456,66 @@ class MainWindow(tk.Tk):
             row=2, column=2, padx=(8, 0)
         )
 
-        profile_box = ttk.LabelFrame(root, text="Profils de rendu", padding=10)
+        simple_box = ttk.LabelFrame(root, text="Rendu V2 — réglages simples", padding=12)
+        simple_box.pack(fill="x", pady=(0, 10))
+        for column in (1, 3):
+            simple_box.columnconfigure(column, weight=1)
+
+        ttk.Label(simple_box, text="Relief 3D").grid(row=0, column=0, sticky="w", padx=(0, 6), pady=5)
+        relief_combo = ttk.Combobox(
+            simple_box, textvariable=self.vars["simple_relief"],
+            values=("Cesium World Terrain", "Copernicus GLO-30", "SRTM"),
+            state="readonly", width=24
+        )
+        relief_combo.grid(row=0, column=1, sticky="ew", padx=(0, 20), pady=5)
+
+        ttk.Label(simple_box, text="Fond visuel").grid(row=0, column=2, sticky="w", padx=(0, 6), pady=5)
+        background_combo = ttk.Combobox(
+            simple_box, textvariable=self.vars["simple_background"],
+            values=("Bing aérien (Cesium)", "Google Satellite 2D", "Google Photorealistic 3D", "OpenStreetMap", "Satellite naturel", "Satellite original", "Relief naturel", "Relief topographique", "Relief ombré"),
+            state="readonly", width=24
+        )
+        background_combo.grid(row=0, column=3, sticky="ew", pady=5)
+
+        ttk.Label(simple_box, text="Style caméra").grid(row=1, column=0, sticky="w", padx=(0, 6), pady=5)
+        camera_combo = ttk.Combobox(
+            simple_box, textvariable=self.vars["simple_camera"],
+            values=("Cinéma", "Drone", "Hélicoptère", "Tour de France", "Google Earth"),
+            state="readonly", width=24
+        )
+        camera_combo.grid(row=1, column=1, sticky="ew", padx=(0, 20), pady=5)
+
+        ttk.Label(simple_box, text="Qualité").grid(row=1, column=2, sticky="w", padx=(0, 6), pady=5)
+        quality_combo = ttk.Combobox(
+            simple_box, textvariable=self.vars["simple_quality"],
+            values=("Test rapide", "Bonne", "Très bonne", "Maximum"),
+            state="readonly", width=24
+        )
+        quality_combo.grid(row=1, column=3, sticky="ew", pady=5)
+
+        self.simple_summary = ttk.Label(
+            simple_box, text="", foreground="#555555", wraplength=920, justify="left"
+        )
+        self.simple_summary.grid(row=2, column=0, columnspan=4, sticky="w", pady=(7, 9))
+
+        button_row = ttk.Frame(simple_box)
+        button_row.grid(row=3, column=0, columnspan=4, sticky="ew")
+        ttk.Button(button_row, text="Appliquer", command=self.apply_simple_settings).pack(side="left")
+        ttk.Button(button_row, text="Tester le rendu 3D", command=self.test_selected_renderer).pack(side="left", padx=8)
+        ttk.Button(button_row, text="Clé Cesium ion…", command=self.set_cesium_token).pack(side="left", padx=4)
+        ttk.Button(button_row, text="Comparer les fonds classiques", command=self.compare_backgrounds).pack(side="left", padx=4)
+        ttk.Checkbutton(
+            button_row, text="Réglages avancés",
+            variable=self.vars["show_advanced"], command=self._toggle_advanced
+        ).pack(side="right")
+
+        for combo in (relief_combo, background_combo, camera_combo, quality_combo):
+            combo.bind("<<ComboboxSelected>>", self._refresh_simple_summary)
+        self._refresh_simple_summary()
+
+        self.advanced_container = ttk.Frame(root)
+
+        profile_box = ttk.LabelFrame(self.advanced_container, text="Profils avancés", padding=10)
         profile_box.pack(fill="x", pady=(0, 10))
         for column in (1, 3, 5):
             profile_box.columnconfigure(column, weight=1)
@@ -470,7 +542,7 @@ class MainWindow(tk.Tk):
         self.refresh_user_profiles()
 
         notebook = ttk.Notebook(
-            root
+            self.advanced_container
         )
 
         notebook.pack(
@@ -535,6 +607,7 @@ class MainWindow(tk.Tk):
         actions = ttk.Frame(
             root
         )
+        self.actions_frame = actions
 
         actions.pack(
             fill="x",
@@ -587,6 +660,155 @@ class MainWindow(tk.Tk):
             fill="x",
             pady=(8, 0),
         )
+
+    def _refresh_simple_summary(self, *_):
+        relief = self.vars["simple_relief"].get()
+        background = self.vars["simple_background"].get()
+        camera = self.vars["simple_camera"].get()
+        quality = self.vars["simple_quality"].get()
+        quality_info = {
+            "Test rapide": "720p / terrain allégé",
+            "Bonne": "1080p / bon compromis",
+            "Très bonne": "1080p / détail élevé",
+            "Maximum": "1440p / détail maximum",
+        }.get(quality, "")
+        background_info = {
+            "Satellite naturel": "satellite corrigé pour un rendu plus doux",
+            "Satellite original": "image satellite sans correction colorimétrique",
+            "Relief naturel": "altitudes colorées, sans téléchargement d'image",
+            "Relief topographique": "relief coloré avec courbes de niveau",
+            "Relief ombré": "lecture du modelé sans texture satellite",
+            "Bing aérien (Cesium)": "imagerie aérienne Cesium ion sur Cesium World Terrain",
+            "Google Satellite 2D": "imagerie Google 2D haute résolution sur Cesium World Terrain",
+            "Google Photorealistic 3D": "maillage 3D photoréaliste Google quand la zone est couverte",
+            "OpenStreetMap": "carte OSM sur Cesium World Terrain",
+        }.get(background, "")
+        self.simple_summary.configure(
+            text=f"{relief} + {background} : {background_info}.  Caméra : {camera}.  {quality_info}."
+        )
+
+    def apply_simple_settings(self):
+        relief_name = self.vars["simple_relief"].get()
+        background_name = self.vars["simple_background"].get()
+        style = self.vars["simple_camera"].get()
+        quality_name = self.vars["simple_quality"].get()
+
+        relief_map = {"Copernicus GLO-30": "copernicus", "SRTM": "srtm", "Cesium World Terrain": "copernicus"}
+        background_map = {
+            "Bing aérien (Cesium)": "cesium_bing",
+            "Google Satellite 2D": "cesium_google2d",
+            "Google Photorealistic 3D": "google_3d",
+            "OpenStreetMap": "cesium_osm",
+            "Satellite naturel": "satellite_natural",
+            "Satellite original": "satellite_original",
+            "Relief naturel": "relief_natural",
+            "Relief topographique": "relief_topographic",
+            "Relief ombré": "relief_shaded",
+        }
+        quality_map = {
+            "Test rapide": "Rapide",
+            "Bonne": "Standard",
+            "Très bonne": "Haute",
+            "Maximum": "Ultra",
+        }
+
+        self.vars["profile_style"].set(style)
+        self.vars["profile_quality"].set(quality_map.get(quality_name, "Haute"))
+        self.apply_selected_profiles()
+
+        quality_overrides = {
+            "Test rapide": {"terrain_zoom": 16, "terrain_max_cells": 80000, "fps": 20, "resolution": "1280x720"},
+            "Bonne": {"terrain_zoom": 17, "terrain_max_cells": 180000, "fps": 25, "resolution": "1920x1080"},
+            "Très bonne": {"terrain_zoom": 18, "terrain_max_cells": 300000, "fps": 30, "resolution": "1920x1080"},
+            "Maximum": {"terrain_zoom": 18, "terrain_max_cells": 450000, "fps": 30, "resolution": "2560x1440"},
+        }
+        for key, value in quality_overrides[quality_name].items():
+            self.vars[key].set(value)
+
+        source = relief_map.get(relief_name, "copernicus")
+        background = background_map.get(background_name, "satellite_natural")
+        use_cesium = relief_name == "Cesium World Terrain" or background in {"cesium_bing", "cesium_google2d", "cesium_osm", "google_3d"}
+        if use_cesium:
+            self.vars["simple_relief"].set("Cesium World Terrain")
+            source = "copernicus"  # secours classique, Cesium utilise son propre terrain
+            if background not in {"cesium_bing", "cesium_google2d", "cesium_osm", "google_3d"}:
+                background = "cesium_bing"
+                self.vars["simple_background"].set("Bing aérien (Cesium)")
+        self.vars["terrain_source"].set(source)
+        self.vars["terrain_background"].set(background)
+        self.vars["terrain_satellite"].set(background.startswith("satellite_"))
+        if self.project is not None:
+            self.project.terrain.render_engine = "cesium" if use_cesium else "classic"
+        self.status_text.set(
+            f"Réglages appliqués : {relief_name} / {background_name} / {style} / {quality_name}."
+        )
+        self._refresh_simple_summary()
+
+    def set_cesium_token(self):
+        try:
+            from studio.cesium.preview import load_token, save_token
+            current = load_token()
+            token = simpledialog.askstring(
+                "Clé Cesium ion",
+                "Colle ici ton access token Cesium ion.\nIl est enregistré uniquement sur ce PC dans config/cesium_ion_token.txt.",
+                initialvalue=current,
+                show="*",
+                parent=self,
+            )
+            if token is None:
+                return
+            token = token.strip()
+            if not token:
+                raise ValueError("Le token est vide.")
+            save_token(token)
+            self.status_text.set("Clé Cesium ion enregistrée localement.")
+        except Exception as error:
+            messagebox.showerror("Clé Cesium ion", str(error))
+
+    def test_selected_renderer(self):
+        try:
+            self.apply_simple_settings()
+            self._update_project_from_form(mode="PREVIEW")
+            path = ProjectLoaderV5.save(self.project, self.project_file.get())
+            engine = str(getattr(self.project.terrain, "render_engine", "classic")).lower()
+            if engine == "cesium":
+                from studio.cesium.preview import load_token
+                if not load_token():
+                    self.set_cesium_token()
+                    if not load_token():
+                        return
+                subprocess.Popen(
+                    [sys.executable, "-m", "studio.cesium.preview", str(path)],
+                    cwd=Path.cwd(),
+                )
+                self.status_text.set("Preview Cesium lancé dans le navigateur.")
+            else:
+                subprocess.Popen(
+                    [sys.executable, "main.py", "project", str(path), "--mode", "PREVIEW"],
+                    cwd=Path.cwd(),
+                )
+                self.status_text.set("Preview classique lancé.")
+        except Exception as error:
+            messagebox.showerror("Tester le rendu 3D", str(error))
+
+    def compare_backgrounds(self):
+        try:
+            self.apply_simple_settings()
+            self._update_project_from_form(mode="PREVIEW")
+            path = ProjectLoaderV5.save(self.project, self.project_file.get())
+            subprocess.Popen(
+                [sys.executable, "-m", "studio.tools.background_compare", str(path)],
+                cwd=Path.cwd(),
+            )
+            self.status_text.set("Comparaison des fonds lancée : 4 vues du même point seront créées.")
+        except Exception as error:
+            messagebox.showerror("Comparaison des fonds", str(error))
+
+    def _toggle_advanced(self):
+        if self.vars["show_advanced"].get():
+            self.advanced_container.pack(fill="both", expand=True, pady=(0, 10), before=self.actions_frame)
+        else:
+            self.advanced_container.pack_forget()
 
     def _scrollable_tab(
         self,
@@ -797,11 +1019,13 @@ class MainWindow(tk.Tk):
 
     def advise_cells(self, value):
         value = int(value)
-        if value < 70000:
-            return "Mode rapide : idéal pour le preview."
-        if value < 150000:
-            return "Qualité standard : bon équilibre détails / performances."
-        return "Haute qualité : relief plus fin, rendu nettement plus long."
+        if value < 120000:
+            return "Test rapide : relief allégé pour vérifier caméra et cadrage."
+        if value < 250000:
+            return "Bonne qualité : compromis détails / temps de calcul."
+        if value < 380000:
+            return "Très bonne qualité : recommandé pour la vidéo finale."
+        return "Qualité maximum : relief très détaillé, calcul nettement plus long."
 
     def advise_track_width(self, value):
         value = float(value)
@@ -1127,6 +1351,23 @@ class MainWindow(tk.Tk):
             ),
         )
 
+        self._add_help_row(
+            parent,
+            label="Fond visuel",
+            help_text=(
+                "Le fond est indépendant du relief 3D. Tu peux donc comparer "
+                "le même Copernicus avec plusieurs rendus."
+            ),
+            key="terrain_background",
+            values=(
+                "satellite_natural",
+                "satellite_original",
+                "relief_natural",
+                "relief_topographic",
+                "relief_shaded",
+            ),
+        )
+
         ttk.Checkbutton(
             parent,
             text="Afficher la texture satellite",
@@ -1155,8 +1396,8 @@ class MainWindow(tk.Tk):
             parent,
             label="Zoom satellite",
             help_text=(
-                "14 convient à la plupart des treks. "
-                "15 ou 16 augmente la qualité mais aussi la taille."
+                "17 donne une bonne qualité. 18 est conseillé pour la vidéo finale "
+                "et les plans rapprochés."
             ),
             key="terrain_zoom",
             from_=10,
@@ -1168,12 +1409,13 @@ class MainWindow(tk.Tk):
             label="Cellules maximales",
             help_text=(
                 "Nombre maximal de cellules du relief. "
-                "60 000 est rapide ; 150 000 donne plus de détails."
+                "80 000 est rapide ; 300 000 donne un relief détaillé ; "
+                "450 000 est réservé au rendu maximum."
             ),
             key="terrain_max_cells",
             advisor=self.advise_cells,
             from_=30000,
-            to=250000,
+            to=500000,
         )
 
         self._add_help_row(
@@ -1873,14 +2115,45 @@ class MainWindow(tk.Tk):
             ),
         )
 
-        self._add_help_row(
+        output_box = ttk.LabelFrame(
             parent,
-            label="Fichier de sortie",
-            help_text=(
-                "Chemin du fichier MP4 généré."
-            ),
-            key="output",
+            text="Sortie vidéo",
+            padding=10,
         )
+        output_box.pack(fill="x", pady=(12, 4))
+        output_box.columnconfigure(1, weight=1)
+
+        ttk.Label(output_box, text="Nom de la vidéo").grid(
+            row=0, column=0, sticky="w", padx=(0, 10), pady=4
+        )
+        ttk.Entry(
+            output_box,
+            textvariable=self.vars["video_name"],
+        ).grid(row=0, column=1, sticky="ew", pady=4)
+
+        ttk.Label(output_box, text="Dossier de sortie").grid(
+            row=1, column=0, sticky="w", padx=(0, 10), pady=4
+        )
+        ttk.Entry(
+            output_box,
+            textvariable=self.vars["video_folder"],
+        ).grid(row=1, column=1, sticky="ew", pady=4)
+        ttk.Button(
+            output_box,
+            text="Parcourir...",
+            command=self.choose_video_folder,
+        ).grid(row=1, column=2, padx=(8, 0), pady=4)
+
+        ttk.Label(
+            output_box,
+            text=(
+                "L'extension .mp4 est ajoutée automatiquement. "
+                "Le nom peut être modifié avant chaque création."
+            ),
+            foreground="#666666",
+            wraplength=650,
+            justify="left",
+        ).grid(row=2, column=0, columnspan=3, sticky="w", pady=(4, 0))
 
     PROFILE_SETTING_KEYS = (
         "camera_mode", "orientation", "distance_min", "distance_max", "distance_scale",
@@ -1895,7 +2168,7 @@ class MainWindow(tk.Tk):
         "leader_trail_fade_duration", "leader_screen_space",
         "cinematic_start_centered", "cinematic_start_zoom",
         "cinematic_start_transition", "cinematic_finish_zoom",
-        "terrain_source",
+        "terrain_source", "terrain_background",
         "terrain_satellite", "terrain_zoom", "terrain_max_cells", "terrain_margin",
         "progress_speed", "intro", "zoom_to_start", "start_hold", "travel", "slowdown_start",
         "slowdown_end", "arrival_hold", "flatten", "profile_animation",
@@ -2713,10 +2986,25 @@ class MainWindow(tk.Tk):
             "terrain_zoom": project.terrain.satellite_zoom,
             "terrain_max_cells": project.terrain.max_cells,
             "terrain_margin": project.terrain.margin,
+            "terrain_background": getattr(project.terrain, "background", "satellite_natural"),
+            "simple_relief": ("Cesium World Terrain" if getattr(project.terrain, "render_engine", "classic") == "cesium" else ("Copernicus GLO-30" if project.terrain.source == "copernicus" else "SRTM")),
+            "simple_background": {
+                "cesium_bing": "Bing aérien (Cesium)",
+                "cesium_google2d": "Google Satellite 2D",
+                "google_3d": "Google Photorealistic 3D",
+                "cesium_osm": "OpenStreetMap",
+                "satellite_natural": "Satellite naturel",
+                "satellite_original": "Satellite original",
+                "relief_natural": "Relief naturel",
+                "relief_topographic": "Relief topographique",
+                "relief_shaded": "Relief ombré",
+            }.get(getattr(project.terrain, "background", "satellite_natural"), "Satellite naturel"),
 
             "fps": project.video.fps,
             "resolution": project.video.resolution,
             "output": project.video.output,
+            "video_name": project.video.output.name,
+            "video_folder": str(project.video.output.parent),
         }
 
         values.update(
@@ -2998,6 +3286,10 @@ class MainWindow(tk.Tk):
             ].get()
         )
 
+        project.terrain.background = str(
+            self.vars["terrain_background"].get()
+        ).lower()
+
         project.terrain.satellite = bool(
             self.vars[
                 "terrain_satellite"
@@ -3053,9 +3345,8 @@ class MainWindow(tk.Tk):
         project.video.width = width
         project.video.height = height
 
-        project.video.output = Path(
-            self.vars["output"].get()
-        )
+        project.video.output = self._build_video_output_path()
+        self.vars["output"].set(str(project.video.output))
 
         if mode:
             project.video.mode = mode
@@ -3063,6 +3354,60 @@ class MainWindow(tk.Tk):
         validate_project(
             project
         )
+
+    def choose_video_folder(self):
+        initial = str(self.vars["video_folder"].get()).strip() or str(Path.cwd())
+        folder = filedialog.askdirectory(
+            title="Choisir le dossier de sortie vidéo",
+            initialdir=initial,
+        )
+        if folder:
+            self.vars["video_folder"].set(folder)
+
+    def _build_video_output_path(self):
+        folder_text = str(self.vars["video_folder"].get()).strip()
+        name_text = str(self.vars["video_name"].get()).strip()
+
+        if not name_text:
+            raise ValueError("Indique un nom pour la vidéo.")
+
+        # Un nom simple est attendu : le dossier se choisit séparément.
+        name = Path(name_text).name
+        if name.lower().endswith(".mp4"):
+            stem = name[:-4].strip()
+        else:
+            stem = name.strip()
+
+        if not stem:
+            raise ValueError("Le nom de la vidéo est vide.")
+
+        invalid = '<>:"/\\|?*'
+        stem = "".join("_" if char in invalid else char for char in stem)
+        stem = stem.rstrip(" .")
+        if not stem:
+            raise ValueError("Le nom de la vidéo n'est pas valide.")
+
+        folder = Path(folder_text or "output/video")
+        output = folder / f"{stem}.mp4"
+
+        self.vars["video_name"].set(output.name)
+        self.vars["video_folder"].set(str(output.parent))
+        return output
+
+    def _confirm_video_output(self):
+        output = self._build_video_output_path()
+        output.parent.mkdir(parents=True, exist_ok=True)
+
+        if output.exists():
+            replace = messagebox.askyesno(
+                "Vidéo existante",
+                f"Le fichier existe déjà :\n\n{output}\n\nLe remplacer ?",
+                icon="warning",
+            )
+            if not replace:
+                return False
+
+        return True
 
     def save_project(self):
         try:
@@ -3088,6 +3433,10 @@ class MainWindow(tk.Tk):
         mode,
     ):
         try:
+            if mode == "VIDEO" and not self._confirm_video_output():
+                self.status_text.set("Création de la vidéo annulée.")
+                return
+
             self._update_project_from_form(
                 mode=mode
             )
@@ -3097,21 +3446,39 @@ class MainWindow(tk.Tk):
                 self.project_file.get(),
             )
 
-            subprocess.Popen(
-                [
-                    sys.executable,
-                    "main.py",
-                    "project",
-                    str(path),
-                    "--mode",
-                    mode,
-                ],
-                cwd=Path.cwd(),
-            )
-
-            self.status_text.set(
-                f"{mode} lancé."
-            )
+            engine = str(getattr(self.project.terrain, "render_engine", "classic")).lower()
+            if engine == "cesium":
+                if mode == "VIDEO":
+                    messagebox.showinfo(
+                        "Moteur Cesium V2.1",
+                        "La V2.1 permet de tester réellement Cesium World Terrain et Google 3D. "
+                        "L'export vidéo Cesium sera branché après validation du rendu. Utilise « Tester le rendu 3D » pour cette version.",
+                    )
+                    self.status_text.set("Cesium : valider d'abord le rendu 3D avant export vidéo.")
+                    return
+                from studio.cesium.preview import load_token
+                if not load_token():
+                    self.set_cesium_token()
+                    if not load_token():
+                        return
+                subprocess.Popen(
+                    [sys.executable, "-m", "studio.cesium.preview", str(path)],
+                    cwd=Path.cwd(),
+                )
+                self.status_text.set("Preview Cesium lancé dans le navigateur.")
+            else:
+                subprocess.Popen(
+                    [
+                        sys.executable,
+                        "main.py",
+                        "project",
+                        str(path),
+                        "--mode",
+                        mode,
+                    ],
+                    cwd=Path.cwd(),
+                )
+                self.status_text.set(f"{mode} lancé.")
 
         except Exception as error:
             messagebox.showerror(

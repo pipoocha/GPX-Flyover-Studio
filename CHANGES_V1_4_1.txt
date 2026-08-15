@@ -1,0 +1,6 @@
+Flyover Studio V1.4.1 - correction lecture des descentes
+- pente longitudinale analysee a plusieurs horizons (~300/800/1500 m)
+- point de visee abaisse automatiquement dans les descentes
+- hauteur focale reduite quand la vallee descend
+- petites bosses locales filtrees pour stabiliser l'inclinaison
+- montees conservees avec correction plus douce

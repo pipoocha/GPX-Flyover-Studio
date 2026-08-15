@@ -183,6 +183,8 @@ class ProjectLoaderV5:
                 satellite_zoom=int(terrain["satellite_zoom"]),
                 max_cells=int(terrain["max_cells"]),
                 margin=float(terrain["margin"]),
+                background=str(terrain.get("background", "satellite_natural")).lower(),
+                render_engine=str(terrain.get("render_engine", "classic")).lower(),
             ),
             timeline=TimelineConfig(
                 speed=float(timeline["speed"]),

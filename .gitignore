@@ -15,3 +15,27 @@ env/
 .idea/
 
 *.log
+
+# Python
+__pycache__/
+*.pyc
+
+# Archives / sauvegardes
+*.zip
+_archive/
+studio - Copie/
+
+# Vidéos / caches
+output/
+cache/
+frames/
+videos/
+*.mp4
+
+# Cesium - SECRET
+config/cesium_ion_token.txt
+
+# Copies temporaires
+*0730.py
+*(6).py
+OLD*

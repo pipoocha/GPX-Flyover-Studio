@@ -1,0 +1,19 @@
+GPX FLYOVER STUDIO V2.1.2 — CESIUM
+Correctif : validation des fonds Cesium (Bing, Google 2D, OSM, Google 3D).
+
+NOUVEAU MOTEUR TESTABLE
+- Cesium World Terrain réel via CesiumJS / Cesium ion.
+- Fonds disponibles dans le preview Cesium :
+  * Bing aérien + Cesium World Terrain
+  * Google Satellite 2D + Cesium World Terrain
+  * OpenStreetMap + Cesium World Terrain
+  * Google Photorealistic 3D (si couvert)
+- Trace GPX orange rendue directement dans Cesium.
+- Atmosphère, brouillard et anti-crénelage Cesium activés.
+- Interface simplifiée : bouton « Tester le rendu 3D ».
+- Saisie de la clé Cesium ion depuis Flyover Studio.
+- La clé est enregistrée localement dans config/cesium_ion_token.txt et n'est pas incluse dans le ZIP.
+
+IMPORTANT
+Cette V2.1 sert à valider la qualité du nouveau moteur 3D avant de brancher l'export vidéo image-par-image.
+Le moteur classique reste disponible et inchangé pour les vidéos actuelles.

@@ -131,6 +131,8 @@ class TerrainConfig:
     satellite_zoom: int
     max_cells: int
     margin: float
+    background: str = "satellite_natural"
+    render_engine: str = "classic"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

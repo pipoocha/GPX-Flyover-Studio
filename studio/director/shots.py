@@ -24,23 +24,16 @@ class RevealShot(BaseShot):
     def apply(self, position, focal_point, local_progress, context):
         position = np.asarray(position, dtype=float)
         focal_point = np.asarray(focal_point, dtype=float)
-
         t = smoothstep(local_progress)
 
+        # Plan large au départ, mais toujours centré sur la portion locale de
+        # l'itinéraire. L'ancienne version visait le centre GLOBAL du parcours,
+        # ce qui pouvait placer la trace hors écran dès les premières secondes.
         view_vector = position - focal_point
-        distance_factor = 1.8 - 0.8 * t
-
+        distance_factor = 1.38 - 0.38 * t
         new_position = focal_point + view_vector * distance_factor
-        new_position[2] += (1.0 - t) * config.CAMERA_HEIGHT * 0.8
-
-        route_center = context["route_center"]
-
-        new_focal = (
-            route_center * (1.0 - t)
-            + focal_point * t
-        )
-
-        return new_position, new_focal
+        new_position[2] += (1.0 - t) * float(getattr(config, "CAMERA_HEIGHT", 1400.0)) * 0.22
+        return new_position, focal_point.copy()
 
 
 class FollowShot(BaseShot):
@@ -56,27 +49,24 @@ class HelicopterShot(BaseShot):
 
         direction = focal_point - position
         direction[2] = 0.0
-
         norm = np.linalg.norm(direction)
-
         if norm < 1e-6:
             side = np.array([1.0, 0.0, 0.0])
         else:
             direction /= norm
-            side = np.array(
-                [-direction[1], direction[0], 0.0]
-            )
+            side = np.array([-direction[1], direction[0], 0.0])
 
         t = smoothstep(local_progress)
-
-        lateral_offset = config.SIDE_OFFSET * (1.2 + 0.3 * t)
-        vertical_offset = config.CAMERA_HEIGHT * 0.25
+        # Le plan hélicoptère reste perceptible mais ne doit plus pousser la
+        # trajectoire jusqu'au bord de l'image.
+        base_side = float(getattr(config, "SIDE_OFFSET", 450.0))
+        lateral_offset = base_side * (0.28 + 0.10 * t)
+        vertical_offset = float(getattr(config, "CAMERA_HEIGHT", 1400.0)) * 0.08
 
         new_position = position.copy()
         new_position += side * lateral_offset
         new_position[2] += vertical_offset
-
-        return new_position, focal_point
+        return new_position, focal_point.copy()
 
 
 class FinishShot(BaseShot):
@@ -85,23 +75,14 @@ class FinishShot(BaseShot):
     def apply(self, position, focal_point, local_progress, context):
         position = np.asarray(position, dtype=float)
         focal_point = np.asarray(focal_point, dtype=float)
-
         t = smoothstep(local_progress)
 
-        route_center = context["route_center"]
+        # Élargissement progressif sans regarder vers le centre global du GPX.
         view_vector = position - focal_point
-
-        distance_factor = 1.0 + 0.9 * t
-
+        distance_factor = 1.0 + 0.34 * t
         new_position = focal_point + view_vector * distance_factor
-        new_position[2] += config.CAMERA_HEIGHT * 0.9 * t
-
-        new_focal = (
-            focal_point * (1.0 - t)
-            + route_center * t
-        )
-
-        return new_position, new_focal
+        new_position[2] += float(getattr(config, "CAMERA_HEIGHT", 1400.0)) * 0.18 * t
+        return new_position, focal_point.copy()
 
 
 SHOT_TYPES = {
@@ -114,11 +95,9 @@ SHOT_TYPES = {
 
 def create_shot(name):
     shot_class = SHOT_TYPES.get(str(name).lower())
-
     if shot_class is None:
         raise ValueError(
             f"Plan inconnu : {name}. "
             f"Disponibles : {', '.join(SHOT_TYPES)}"
         )
-
     return shot_class()

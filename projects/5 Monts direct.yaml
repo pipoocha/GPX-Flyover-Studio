@@ -1,0 +1,82 @@
+project:
+  title: 5 Monts direct
+gpx:
+  file: C:/Users/pc/Documents/PERSO/Sport/Studios GPX/GPX-Flyover-Studio V5/gpx/5
+    Monts direct.gpx
+camera:
+  mode: director
+  orientation: north
+  distance:
+    min: 340.0
+    max: 1360.0
+    scale: 0.3
+  height:
+    min: 308.0
+    max: 925.0
+    scale: 0.1875
+  lateral:
+    min: 21.0
+    max: 115.49999999999999
+    scale: 0.0245
+  look_ahead: 140
+  smoothing: 0.16
+track:
+  color: '#FFFF00'
+  width: 4.077160493827161
+  z_offset: 6.275720164609054
+  progressive: true
+  leader: false
+leader:
+  enabled: false
+  style: comet
+  color: '#FAFEC0'
+  radius: 15.0
+  profile_marker_radius: 10.0
+  z_offset: 11.728395061728396
+  halo_scale: 0.0
+  halo_opacity: 0.0
+  trail_enabled: false
+  trail_fraction: 0.01
+  trail_width: 11.380658436213992
+  trail_opacity: 1.0
+  fade_trail_on_arrival: true
+  trail_fade_duration: 0.2
+  screen_space_enabled: false
+  reference_distance: 3500.0
+  minimum_scale: 0.45
+  maximum_scale: 4.0
+profile:
+  selected: circuit_repete
+  recommended: circuit_repete
+  confidence: 86.77575113911325
+  source: user
+cinematic:
+  start_centered: true
+  start_zoom: 0.2
+  start_transition: 1.1
+  finish_zoom: 0.7
+pois: []
+terrain:
+  source: copernicus
+  satellite: true
+  satellite_zoom: 18
+  max_cells: 42000
+  margin: 0.05
+timeline:
+  speed: 1.3148148148148147
+  intro: 2.0
+  zoom_to_start: 2.0
+  start_hold: 1.0
+  travel: 16.536914472066805
+  slowdown_start: 2.0
+  slowdown_end: 2.0
+  arrival_hold: 5.0
+  flatten: 2.0
+  profile_animation: 7.0
+  profile_hold: 10.0
+  fade_out: 4.0
+video:
+  fps: 20
+  resolution: 3840x2160
+  output: output/video/5 monts 4.mp4
+  mode: PREVIEW

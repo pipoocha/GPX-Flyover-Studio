@@ -1,0 +1,19 @@
+GPX Flyover Studio V2.0.0
+
+Nouveautés principales
+- Interface essentielle réduite à Relief 3D / Fond visuel / Style caméra / Qualité.
+- Relief 3D au choix : Copernicus GLO-30 ou SRTM.
+- Fonds réellement utilisables :
+  * Satellite naturel (correction vidéo)
+  * Satellite original (sans correction colorimétrique)
+  * Relief naturel
+  * Relief topographique avec courbes de niveau
+  * Relief ombré
+- Bouton "Comparer les fonds" : crée 4 images du même point du GPX, avec la même caméra.
+- Les anciens projets YAML restent compatibles ; les nouveaux mémorisent terrain.background.
+
+Comparaisons
+Les montages sont enregistrés dans : output/comparisons/
+
+Important
+Cette V2.0 prépare la séparation "relief 3D / fond". Cesium World Terrain, Mapbox et Google 3D ne sont pas simulés : ils seront ajoutés comme moteurs externes seulement lorsqu'ils seront réellement connectés (clé/API et moteur de rendu adaptés).

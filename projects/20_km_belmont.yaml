@@ -1,40 +1,41 @@
 project:
   title: 20 km belmont
 gpx:
-  file: C:/Users/pc/Documents/PERSO/Sport/GPX-Flyover-Studio V5/gpx/20_km_belmont.gpx
+  file: C:/Users/pc/Documents/PERSO/Sport/Studios GPX/GPX-Flyover-Studio V5/gpx/20_km_belmont.gpx
 camera:
   mode: director
-  orientation: north
+  orientation: auto
   distance:
-    min: 765.0
-    max: 2550.0
+    min: 711.1111111111111
+    max: 1422.2222222222222
     scale: 0.3
   height:
-    min: 530.0
-    max: 1590.0
+    min: 525.0
+    max: 1750.0
     scale: 0.1875
   lateral:
     min: 21.0
     max: 115.49999999999999
     scale: 0.0245
-  look_ahead: 280
-  smoothing: 0.1
+  look_ahead: 220
+  smoothing: 0.09
 track:
-  color: '#FF8000'
+  color: '#FFFF80'
   width: 4.077160493827161
   z_offset: 6.275720164609054
   progressive: true
   leader: true
 leader:
   enabled: true
-  style: comet
-  color: '#FAFEC0'
+  style: point
+  color: '#10FC45'
   radius: 15.0
+  profile_marker_radius: 7.0
   z_offset: 11.728395061728396
   halo_scale: 1.0
   halo_opacity: 0.0
-  trail_enabled: true
-  trail_fraction: 0.01
+  trail_enabled: false
+  trail_fraction: 0.005
   trail_width: 11.380658436213992
   trail_opacity: 1.0
   fade_trail_on_arrival: true
@@ -50,35 +51,31 @@ profile:
   source: user
 cinematic:
   start_centered: true
-  start_zoom: 0.2
-  start_transition: 2.0
+  start_zoom: 0.6
+  start_transition: 2.6
   finish_zoom: 0.7
+pois: []
 terrain:
   source: copernicus
   satellite: true
   satellite_zoom: 18
-  max_cells: 65000
-  margin: 0.017
-  smoothing_passes: 1
-  smoothing_strength: 0.16
-  edge_skirt: true
-  skirt_depth: 320.0
-  adaptive_lighting: true
+  max_cells: 500000
+  margin: 0.05
 timeline:
   speed: 1.3148148148148147
-  intro: 4.0
-  zoom_to_start: 5.0
-  start_hold: 2.0
+  intro: 1.0
+  zoom_to_start: 1.0
+  start_hold: 0.0
   travel: 28.05141044867535
   slowdown_start: 3.0
   slowdown_end: 4.0
-  arrival_hold: 5.0
+  arrival_hold: 2.0
   flatten: 2.0
   profile_animation: 7.0
   profile_hold: 10.0
   fade_out: 4.0
 video:
-  fps: 20
-  resolution: 1280x720
-  output: output/video/flyover_v5.mp4
-  mode: VIDEO
+  fps: 30
+  resolution: 2560x1440
+  output: output/video/google earth.mp4
+  mode: PREVIEW

@@ -12,7 +12,7 @@ DEFAULT_CONFIG = {
     },
     "track": {
         "color": "#FC4C02",
-        "width": 1.5,
+        "width": 2.2,
         "z_offset": 8.0,
         "progressive": True,
         "leader": False,
@@ -37,9 +37,11 @@ DEFAULT_CONFIG = {
     "terrain": {
         "source": "copernicus",
         "satellite": True,
-        "satellite_zoom": 14,
-        "max_cells": 60000,
+        "satellite_zoom": 18,
+        "max_cells": 300000,
         "margin": 0.006,
+        "background": "satellite_natural",
+        "render_engine": "classic",
     },
     "timeline": {
         "speed": 1.0,
@@ -56,7 +58,7 @@ DEFAULT_CONFIG = {
         "fade_out": 2.0,
     },
     "video": {
-        "fps": 20,
+        "fps": 30,
         "resolution": "1280x720",
         "output": "output/video/flyover_v5.mp4",
         "mode": "PREVIEW",

@@ -1,0 +1,11 @@
+GPX Flyover Studio V7.0 - Phase 1
+
+- Ajout de studio/rendering/render_engine.py
+- Caméra de parcours commune au Preview et à la Vidéo
+- Trace progressive commune au Preview et à la Vidéo
+- Leader commun au Preview et à la Vidéo
+- Conservation des séquences spécifiques de la vidéo : départ, arrivée, profil et fondu
+- Conservation des contrôles interactifs du Preview
+
+Installation : remplacer le dossier studio complet par celui de cette archive.
+Commande : python -m studio.gui.main_window

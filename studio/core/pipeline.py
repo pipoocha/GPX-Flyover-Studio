@@ -39,6 +39,7 @@ class FlyoverPipeline:
         self.origin_x = 0.0
         self.origin_y = 0.0
         self.satellite_texture = None
+        self.satellite_source = None
         self.satellite_metadata = None
         self.terrain_projection = None
         self.terrain_mesh_builder = None
@@ -150,6 +151,8 @@ class FlyoverPipeline:
         config.SATELLITE_ZOOM = int(terrain.satellite_zoom)
         config.COPERNICUS_MAX_CELLS = int(terrain.max_cells)
         config.COPERNICUS_MARGIN = float(terrain.margin)
+        config.BACKGROUND_STYLE = str(getattr(terrain, "background", "satellite_natural")).lower()
+        config.RENDER_ENGINE = str(getattr(terrain, "render_engine", "classic")).lower()
 
         config.START_HOLD_SECONDS = float(timeline.start_hold)
         config.ARRIVAL_HOLD_SECONDS = float(timeline.arrival_hold)
@@ -218,8 +221,13 @@ class FlyoverPipeline:
             z_offset=self.project.track.z_offset,
         ).build()
 
-    def load_satellite_texture(self):
-        if not self.project.terrain.satellite:
+    @staticmethod
+    def background_requires_satellite(background):
+        return str(background).lower() in {"satellite_natural", "satellite_original"}
+
+    def load_satellite_texture(self, force=False):
+        background = str(getattr(self.project.terrain, "background", "satellite_natural")).lower()
+        if not force and (not self.project.terrain.satellite or not self.background_requires_satellite(background)):
             self.satellite_texture = None
             print("Texture satellite désactivée.")
             return
@@ -248,6 +256,7 @@ class FlyoverPipeline:
                 )
             ),
         )
+        self.satellite_source = satellite
 
         if not satellite.exists():
             print()
@@ -313,6 +322,7 @@ class FlyoverPipeline:
                     )
                 ),
             )
+            self.satellite_source = satellite
 
         if not satellite.exists():
             print(
@@ -332,7 +342,8 @@ class FlyoverPipeline:
         print("  Zoom  :", description["zoom"])
 
         self.satellite_metadata = satellite.load_metadata()
-        self.satellite_texture = satellite.load_texture()
+        enhance = background != "satellite_original"
+        self.satellite_texture = satellite.load_texture(enhance=enhance)
 
         self.texture_alignment = (
             self.terrain_mesh_builder
@@ -357,7 +368,12 @@ class FlyoverPipeline:
             f"{self.texture_alignment['outside_percent']:.1f} %"
         )
 
-    def build_scene(self, off_screen=True):
+    def build_scene(self, off_screen=True, background_override=None):
+        background = str(
+            background_override
+            or getattr(self.project.terrain, "background", "satellite_natural")
+        ).lower()
+
         scene = Scene(
             window_size=(
                 self.project.video.width,
@@ -366,34 +382,105 @@ class FlyoverPipeline:
             off_screen=off_screen,
         )
 
-        if self.satellite_texture is not None:
+        # Le même relief 3D peut maintenant recevoir plusieurs fonds.
+        # Cela permet de comparer le rendu sans changer de GPX ni de caméra.
+        if background in {"satellite_natural", "satellite_original"}:
+            texture = self.satellite_texture
+            if self.satellite_source is not None:
+                try:
+                    texture = self.satellite_source.load_texture(
+                        enhance=(background == "satellite_natural")
+                    )
+                except Exception:
+                    texture = self.satellite_texture
+
+            if texture is not None:
+                lighting = self.terrain_mesh_builder.lighting_parameters()
+                scene.add_mesh(
+                    self.project.mesh,
+                    texture=texture,
+                    smooth_shading=True,
+                    ambient=lighting["ambient"],
+                    diffuse=lighting["diffuse"],
+                    specular=lighting["specular"],
+                )
+            else:
+                background = "relief_natural"
+
+        if background == "relief_natural":
+            self.project.mesh.point_data["elevation"] = self.project.mesh.points[:, 2]
             scene.add_mesh(
                 self.project.mesh,
-                texture=self.satellite_texture,
-                smooth_shading=True,
-                ambient=0.62,
-                diffuse=0.72,
-                specular=0.03,
-            )
-        else:
-            scene.add_mesh(
-                self.project.mesh,
+                scalars="elevation",
                 cmap="terrain",
                 smooth_shading=True,
+                ambient=0.58,
+                diffuse=0.58,
+                specular=0.0,
+                show_scalar_bar=False,
             )
 
-        scene.add_light(
-            pv.Light(
-                position=(3000, -5000, 7000),
-                focal_point=(3000, 3000, 0),
-                intensity=0.80,
+        elif background == "relief_topographic":
+            self.project.mesh.point_data["elevation"] = self.project.mesh.points[:, 2]
+            scene.add_mesh(
+                self.project.mesh,
+                scalars="elevation",
+                cmap="gist_earth",
+                smooth_shading=True,
+                ambient=0.64,
+                diffuse=0.48,
+                specular=0.0,
+                show_scalar_bar=False,
             )
-        )
+            try:
+                zmin = float(self.project.mesh.points[:, 2].min())
+                zmax = float(self.project.mesh.points[:, 2].max())
+                relief = max(1.0, zmax - zmin)
+                interval = 100.0 if relief < 1800 else (250.0 if relief < 4500 else 500.0)
+                levels = max(3, int(relief / interval))
+                contours = self.project.mesh.contour(
+                    isosurfaces=levels, scalars="elevation"
+                )
+                scene.add_mesh(
+                    contours,
+                    color="#4d493f",
+                    line_width=1.0,
+                    opacity=0.42,
+                    lighting=False,
+                )
+            except Exception as error:
+                print("Courbes de niveau ignorées :", error)
 
-        scene.add_text(
-            f"{self.project.title} {config.VERSION} - {self.project.video.mode}",
-            font_size=18,
+        elif background == "relief_shaded":
+            self.project.mesh.point_data["elevation"] = self.project.mesh.points[:, 2]
+            scene.add_mesh(
+                self.project.mesh,
+                scalars="elevation",
+                cmap="Greys_r",
+                smooth_shading=True,
+                ambient=0.45,
+                diffuse=0.78,
+                specular=0.0,
+                show_scalar_bar=False,
+            )
+
+        # Soleil commun : comparaison équitable entre fonds.
+        sun = pv.Light(
+            position=(-12000, -18000, 24000),
+            focal_point=(0, 0, 0),
+            intensity=0.22,
         )
+        try:
+            sun.positional = False
+        except Exception:
+            pass
+        scene.add_light(sun)
+
+        if bool(getattr(config, "SHOW_DEBUG_TITLE", False)):
+            scene.add_text(
+                f"{self.project.title} - {background}",
+                font_size=18,
+            )
 
         return scene
 

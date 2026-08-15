@@ -149,10 +149,10 @@ class TerrainMesh:
         relief_ratio = self.relief / size
 
         if relief_ratio >= 0.18:
-            return {"ambient": 0.43, "diffuse": 0.86, "specular": 0.04}
+            return {"ambient": 0.66, "diffuse": 0.40, "specular": 0.0}
         if relief_ratio >= 0.08:
-            return {"ambient": 0.50, "diffuse": 0.80, "specular": 0.035}
-        return {"ambient": 0.57, "diffuse": 0.72, "specular": 0.025}
+            return {"ambient": 0.69, "diffuse": 0.37, "specular": 0.0}
+        return {"ambient": 0.72, "diffuse": 0.34, "specular": 0.0}
 
     def apply_local_texture_coordinates(self, mesh):
         xmin = float(self.grid.x.min())

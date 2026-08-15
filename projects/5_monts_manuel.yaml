@@ -1,0 +1,83 @@
+project:
+  title: 5 monts manuel
+gpx:
+  file: C:/Users/pc/Documents/PERSO/Sport/Studios GPX/GPX-Flyover-Studio V5/gpx/5_monts_manuel.gpx
+camera:
+  mode: director
+  orientation: auto
+  distance:
+    min: 850.0
+    max: 2850.0
+    scale: 0.3
+  height:
+    min: 441.0
+    max: 1470.0
+    scale: 0.1575
+  lateral:
+    min: 54.0
+    max: 297.0
+    scale: 0.06300000000000001
+  look_ahead: 200
+  smoothing: 0.09
+track:
+  color: '#FFFF00'
+  width: 4.077160493827161
+  z_offset: 6.275720164609054
+  progressive: true
+  leader: true
+leader:
+  enabled: true
+  style: glow
+  color: '#C0FEFE'
+  radius: 10.0
+  profile_marker_radius: 10.0
+  z_offset: 2.0987654320987654
+  halo_scale: 0.0
+  halo_opacity: 0.0
+  trail_enabled: false
+  trail_fraction: 0.01
+  trail_width: 11.380658436213992
+  trail_opacity: 1.0
+  fade_trail_on_arrival: true
+  trail_fade_duration: 0.2
+  screen_space_enabled: false
+  reference_distance: 3500.0
+  minimum_scale: 0.45
+  maximum_scale: 4.0
+profile:
+  selected: circuit_repete
+  recommended: circuit_repete
+  confidence: 100.0
+  source: user
+cinematic:
+  start_centered: true
+  start_zoom: 0.2
+  start_transition: 1.1
+  finish_zoom: 0.7
+pois: []
+terrain:
+  source: copernicus
+  satellite: false
+  satellite_zoom: 18
+  max_cells: 300000
+  margin: 0.017
+  background: cesium_osm
+  render_engine: cesium
+timeline:
+  speed: 1.7932098765432098
+  intro: 4.0
+  zoom_to_start: 5.0
+  start_hold: 1.0
+  travel: 17.17449012222026
+  slowdown_start: 3.0
+  slowdown_end: 4.0
+  arrival_hold: 5.0
+  flatten: 2.0
+  profile_animation: 7.0
+  profile_hold: 10.0
+  fade_out: 4.0
+video:
+  fps: 30
+  resolution: 1920x1080
+  output: output/video/flyover_v5.mp4
+  mode: PREVIEW

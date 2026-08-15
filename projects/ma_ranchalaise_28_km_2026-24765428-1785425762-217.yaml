@@ -1,0 +1,81 @@
+project:
+  title: Ma ranchalaise 28 km
+gpx:
+  file: C:/Users/pc/Documents/PERSO/Sport/Studios GPX/GPX-Flyover-Studio V5/gpx/ma_ranchalaise_28_km_2026-24765428-1785425762-217.gpx
+camera:
+  mode: director
+  orientation: north
+  distance:
+    min: 850.0
+    max: 2850.0
+    scale: 0.3
+  height:
+    min: 525.0
+    max: 1750.0
+    scale: 0.1875
+  lateral:
+    min: 21.0
+    max: 115.49999999999999
+    scale: 0.0245
+  look_ahead: 220
+  smoothing: 0.09
+track:
+  color: '#FF8000'
+  width: 4.077160493827161
+  z_offset: 6.275720164609054
+  progressive: true
+  leader: true
+leader:
+  enabled: true
+  style: comet
+  color: '#FAFEC0'
+  radius: 15.0
+  profile_marker_radius: 10.0
+  z_offset: 11.728395061728396
+  halo_scale: 1.0
+  halo_opacity: 0.0
+  trail_enabled: true
+  trail_fraction: 0.01
+  trail_width: 11.380658436213992
+  trail_opacity: 1.0
+  fade_trail_on_arrival: true
+  trail_fade_duration: 0.2
+  screen_space_enabled: false
+  reference_distance: 3500.0
+  minimum_scale: 0.45
+  maximum_scale: 4.0
+profile:
+  selected: ''
+  recommended: ''
+  confidence: 0.0
+  source: none
+cinematic:
+  start_centered: true
+  start_zoom: 0.2
+  start_transition: 2.0
+  finish_zoom: 0.7
+pois: []
+terrain:
+  source: copernicus
+  satellite: true
+  satellite_zoom: 14
+  max_cells: 80000
+  margin: 0.017
+timeline:
+  speed: 1.3148148148148147
+  intro: 4.0
+  zoom_to_start: 5.0
+  start_hold: 2.0
+  travel: 28.05141044867535
+  slowdown_start: 3.0
+  slowdown_end: 4.0
+  arrival_hold: 5.0
+  flatten: 2.0
+  profile_animation: 7.0
+  profile_hold: 10.0
+  fade_out: 4.0
+video:
+  fps: 20
+  resolution: 3840x2160
+  output: output/video/Ranchal 28 km Trail.mp4
+  mode: PREVIEW

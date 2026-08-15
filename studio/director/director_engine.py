@@ -150,6 +150,64 @@ class DirectorEngine:
             context=self.context,
         )
 
+    def _local_frame_points(self, progress):
+        """Points de route qui doivent rester lisibles autour du leader."""
+        distance = self.base_camera.distance_at_progress(progress)
+        look = max(220.0, float(self.base_camera.previous_look_distance))
+        offsets = (-0.12 * look, 0.0, 0.35 * look, 0.75 * look, 1.20 * look)
+        points = []
+        for offset in offsets:
+            point, _ = self.base_camera.point_at_distance(distance + offset)
+            points.append(point)
+        return np.asarray(points, dtype=float)
+
+    def keep_route_in_frame(self, progress, position, focal_point):
+        """Garde-fou final de cadrage.
+
+        Les plans réalisateur peuvent modifier la caméra, mais la portion active
+        de la route doit rester dans ~72 % du champ vertical. Le calcul se fait
+        après tous les plans et événements, donc aucun effet ne peut ensuite
+        expulser la trace du cadre.
+        """
+        position = np.asarray(position, dtype=float)
+        focal_point = np.asarray(focal_point, dtype=float)
+        points = self._local_frame_points(progress)
+
+        # Centre visuel légèrement en avant du leader pour conserver de l'espace
+        # dans la direction du déplacement.
+        weights = np.asarray([0.06, 0.30, 0.27, 0.22, 0.15], dtype=float)
+        center = np.sum(points * weights[:, None], axis=0)
+
+        # Conserver l'azimut du plan courant, mais recentrer sa cible sur la
+        # vallée locale et non sur le centre du parcours entier.
+        view = center - position
+        current_distance = float(np.linalg.norm(view))
+        if current_distance < 1e-6:
+            view = focal_point - position
+            current_distance = float(np.linalg.norm(view))
+        if current_distance < 1e-6:
+            view = np.array([0.0, 1.0, -0.25], dtype=float)
+            current_distance = float(np.linalg.norm(view))
+        view /= current_distance
+
+        # Rayon 3D de la portion à conserver. Avec un FOV vertical historique de
+        # 30°, 72 % du champ donne une marge confortable aux bords de l'image.
+        radius = float(np.max(np.linalg.norm(points - center, axis=1)))
+        safe_half_angle = np.radians(30.0 * 0.5 * 0.72)
+        required_distance = radius / max(np.tan(safe_half_angle), 1e-6)
+        required_distance = max(required_distance, current_distance * 0.92)
+        required_distance = min(required_distance, current_distance * 1.65 + 450.0)
+
+        # Si nécessaire on recule, jamais brutalement.
+        target_position = center - view * required_distance
+        target_position[2] = max(target_position[2], position[2] * 0.82 + target_position[2] * 0.18)
+        position = position * 0.58 + target_position * 0.42
+
+        # Cible locale : correction forte parce que c'est elle qui garantit que
+        # le leader et l'aval restent visibles.
+        focal_point = focal_point * 0.22 + center * 0.78
+        return position, focal_point
+
     def camera_at_progress(
         self,
         progress,
@@ -227,6 +285,12 @@ class DirectorEngine:
             previous=self.previous_focal,
             current=current_focal,
             alpha=0.14,
+        )
+
+        # Dernier mot au cadrage : aucun plan réalisateur ne doit pouvoir
+        # expulser la portion active de la trace hors de l'écran.
+        current_position, current_focal = self.keep_route_in_frame(
+            progress, current_position, current_focal
         )
 
         self.previous_position = (

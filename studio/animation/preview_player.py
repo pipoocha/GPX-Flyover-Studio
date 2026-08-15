@@ -5,7 +5,7 @@ import pyvista as pv
 
 import config
 from studio.animation.progress_path import ProgressPath
-from studio.leader.leader import LeaderMarker
+from studio.rendering.render_engine import RenderEngine
 
 
 class PreviewPlayer:
@@ -16,7 +16,8 @@ class PreviewPlayer:
         self.camera_path = camera_path
         self.path_coords = np.asarray(path_coords, dtype=float)
         self.progress_path = ProgressPath(self.path_coords)
-        self.leader = LeaderMarker(scene=self.scene, path_coords=self.path_coords)
+        self.render_engine = RenderEngine(scene, camera_path, self.path_coords)
+        self.leader = self.render_engine.leader
 
         self.frames = max(2, int(frames))
         self.base_fps = max(1, int(fps or config.FPS))
@@ -310,55 +311,20 @@ class PreviewPlayer:
             focal_point=tuple(target),
         )
 
-    def update_scene(
-        self,
-        force_track=False,
-        start_centered=False,
-    ):
+    def update_scene(self, force_track=False, start_centered=False):
         progress = 0.0 if start_centered else self.current_progress()
+        start_blend = None
+        if not start_centered and self.frame_index < self.start_blend_frames:
+            start_blend = self.frame_index / max(1, self.start_blend_frames)
 
-        if start_centered:
-            self.set_start_camera()
-        else:
-            position, focal_point, _ = (
-                self.camera_path.camera_at_progress(progress)
-            )
-            position = np.asarray(position, dtype=float)
-            focal_point = np.asarray(focal_point, dtype=float)
-
-            if self.frame_index < self.start_blend_frames:
-                start_position, start_focal = self.start_camera()
-                value = (
-                    self.frame_index
-                    / max(1, self.start_blend_frames)
-                )
-                value = max(0.0, min(1.0, value))
-                blend = value * value * (3.0 - 2.0 * value)
-
-                position = (
-                    start_position * (1.0 - blend)
-                    + position * blend
-                )
-                focal_point = (
-                    start_focal * (1.0 - blend)
-                    + focal_point * blend
-                )
-
-            self.scene.set_camera(
-                position=tuple(position),
-                focal_point=tuple(focal_point),
-            )
-
-        self.update_track(
-            progress=progress,
-            force=force_track,
+        self.render_engine.update(
+            progress,
+            force_track=force_track,
+            start_blend=start_blend,
+            start_centered=start_centered,
         )
-
-        if bool(getattr(config, "LEADER_ENABLED", False)):
-            self.leader.update(progress)
-
         plotter = self.scene.plotter
-        plotter.reset_camera_clipping_range()
+        self.scene.synchronize_viewport()
         plotter.render()
 
     def register_controls(self):
@@ -399,10 +365,7 @@ class PreviewPlayer:
 
         plotter = self.scene.plotter
         self.register_controls()
-        self.create_track_actor()
-
-        if bool(getattr(config, "LEADER_ENABLED", False)):
-            self.leader.create()
+        self.render_engine.create()
 
         self.update_scene(
             force_track=True,
@@ -413,6 +376,12 @@ class PreviewPlayer:
             auto_close=False,
             interactive_update=True,
         )
+
+        # VTK peut recréer la fenêtre avec une taille physique différente
+        # de la résolution demandée, notamment avec le zoom DPI de Windows.
+        # On réapplique donc ici le viewport exact utilisé par la vidéo.
+        self.scene.synchronize_viewport()
+        plotter.render()
 
         last_display = -1
 

@@ -53,6 +53,13 @@ def validate_project(project: ProjectConfig, require_existing_gpx: bool = False)
     if project.terrain.source not in {"copernicus", "srtm"}:
         errors.append("Source terrain autorisée : copernicus ou srtm.")
 
+    if getattr(project.terrain, "background", "satellite_natural") not in {
+        "satellite_natural", "satellite_original", "relief_natural",
+        "relief_topographic", "relief_shaded",
+        "cesium_bing", "cesium_google2d", "cesium_osm", "google_3d"
+    }:
+        errors.append("Fond visuel inconnu.")
+
     if not 1 <= project.terrain.satellite_zoom <= 19:
         errors.append("Le zoom satellite doit être compris entre 1 et 19.")
 
