@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="ChatGPT" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <name>Ringmo - 3 points de vue</name>
+    <desc>Waypoints des trois sites proches du lac Phoksundo; positions indicatives a verifier sur place.</desc>
+  </metadata>
+  <wpt lat="29.1972128" lon="82.9442477">
+    <name>01 - Belvedere lac Phoksundo</name>
+    <cmt>Vue dominante sur le lac</cmt>
+    <desc>Shey Phoksundo Lake View Point, sentier vers Shey. Sentier expose: a verifier avec le guide.</desc>
+    <sym>Scenic Area</sym>
+    <type>Point de vue</type>
+  </wpt>
+  <wpt lat="29.1750893" lon="82.9442155">
+    <name>02 - Thasung Tsoling Gompa</name>
+    <cmt>Monastere Bon et vue sur le lac</cmt>
+    <desc>Pal Shenten Thasung Tsoling Gonpa, proche de Ringmo.</desc>
+    <sym>Church</sym>
+    <type>Monastere</type>
+  </wpt>
+  <wpt lat="29.1571211" lon="82.9265188">
+    <name>03 - Cascade Phoksundo</name>
+    <cmt>Point de vue sur la cascade</cmt>
+    <desc>Phoksundo Waterfall View Point, au sud de Ringmo.</desc>
+    <sym>Scenic Area</sym>
+    <type>Point de vue</type>
+  </wpt>
+</gpx>
